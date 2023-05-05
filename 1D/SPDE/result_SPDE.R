@@ -5,7 +5,7 @@ library(ggplot2)
 library(Matrix)
 source("functions_SPDE_sampling.R")
 source("functions_SPDE.R")
-nlist = 300
+nlist = 100
 plabslist = list()
 index = 1
 n = nlist[index]
@@ -45,8 +45,6 @@ g.plot = tail(result$g_list, sample.num) # choosing last `sample.num` samples
 grid.plot = c(0:1000)/1000
 
 y.plot = glist_to_plotdf(g.plot, grid.plot, true = f0, alpha1 = 0.95, alpha2 = 0.9)
-darkGray = rgb(.8, .8, .8)
-midGray  = rgb(.5, .5, .5)
 
 ggplot(y.plot, aes(x = x)) +
    geom_line(aes(y=med), colour="blue") + 
@@ -54,7 +52,8 @@ ggplot(y.plot, aes(x = x)) +
    geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
    geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
    geom_point(data = obs, aes(X, Y), size = 0.3) +
-   labs(title = paste0("CI (90, 95%) of ", sample.num, " samples using ESS after ", target+brn - sample.num, " burn ins"),
-        subtitle = paste0("obs: ", n, ", N.fixed = ", N.fixed, ", average sd among gridpoints = ", round(avg.sd, 4), ", temp = ", Temperature)) +
+   labs(title = paste0("CI 95% of ", sample.num, " samples using ESS after ", target+brn - sample.num, " burn ins"))+
    geom_point(data = obs, aes(X, Y), size = 0.3)
 
+N_list = tail(result$N_list, target)
+plot(N_list)
