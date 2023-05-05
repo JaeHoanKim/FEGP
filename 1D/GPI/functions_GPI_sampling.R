@@ -130,7 +130,7 @@ sample.PTESS = function(X, Y, N.pr, Nk, Tk,
       for(k in 1:length(Nk)){
          # reflecting the changing dimension of g.in[[k]]
          g.ESS = samp.WC(knot_N[[k]], nu.in, l.in, tausq)
-         g.out[[k]] = ESS(g.in, g.ESS, Y, X, sigsq)
+         g.out[[k]] = ESS(g.in[[k]], g.ESS, Y, X, sigsq)
       }
       # try multiple swaps after one within sampling
       # regulate the number of mixing
