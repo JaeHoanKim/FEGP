@@ -129,7 +129,9 @@ sample.PTESS = function(X, Y, N.pr, Nk, Tk,
       # g.out : sample from N(g;0, Sigma) L(g)^{1/T}
       for(k in 1:length(Nk)){
          # reflecting the changing dimension of g.in[[k]]
-         g.ESS = samp.WC(knot_N[[k]], nu.in, l.in, tausq)
+         N = length(g.in[[k]]) - 1
+         knot_N = c(0:N)/N
+         g.ESS = samp.WC(knot_N, nu.in, l.in, tausq)
          g.out[[k]] = ESS(g.in[[k]], g.ESS, Y, X, sigsq)
       }
       # try multiple swaps after one within sampling
@@ -161,7 +163,44 @@ sample.PTESS = function(X, Y, N.pr, Nk, Tk,
          print(c("N mixing status :", Nk))
       }
       g_list[[i]] = g.in[[1]]
-      N_list[i] = nrow(g.in[[1]]) - 1
+      N_list[i] = length(g.in[[1]]) - 1
    }
    return(list(g_list = g_list, N_list = N_list))
 }
+
+
+
+sample.exact = function(X, Y, l.in = 0.5, nu.in = 0.75,
+                        beta = 2, mcmc, brn, thin, sigsq = 0.01, kappa.init, grid = c(0:100)/100){
+   ## X, Y: given data
+   ## N.pr: prior distribution of N (function)
+   ## kappa.pr: prior distribution of kappa (function); by default, noninformative prior
+   if(length(X)!=length(Y))
+      stop("X and Y should be of same length!")
+   n = length(Y)
+   if(missing(grid)){
+      stop("grid should be provided for the exact Nfixed method!")
+   }
+   em = mcmc + brn # total number of sampling
+   g_list = list()
+   # starting with the initial N and g
+   # setting up for iterative work
+   # g.in = g.init
+   kappa = sqrt(2*nu.in)/l.in
+   K = rSPDE::matern.covariance(as.matrix(dist(X, diag = TRUE, upper = TRUE)), kappa, nu = beta - 0.5, sigma = 1)
+   dist_XnewX = matrix(grid, nrow = length(X), ncol = length(grid), byrow = T) - 
+      matrix(X, nrow = length(X), ncol = length(grid), byrow = F)
+   Kstar = rSPDE::matern.covariance(dist_XnewX, kappa, nu = 1.5, sigma = 1)
+   K_new = matern.covariance(as.matrix(dist(grid, diag = TRUE, upper = TRUE)), kappa, nu = beta - 0.5, sigma = 1)
+   # computation of the mean and the variance vector
+   mean_grid = t(Kstar) %*% solve(K + sigsq * diag(nrow(K))) %*% Y
+   var_grid = K_new - t(Kstar) %*% solve(K + sigsq* diag(nrow(K))) %*% Kstar
+   # symmetrize due to prevent the numerical error
+   var_grid = (var_grid + t(var_grid)) / 2
+   g_samples = rmvnorm(n = em, mean = mean_grid, sigma = var_grid)
+   for(i in 1:em){
+      g_list[[i]] = g_samples[i, ]
+   }
+   return(list(g_list = g_list))
+}
+
