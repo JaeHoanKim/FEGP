@@ -66,7 +66,9 @@ sample.ESS.2D = function(X, Z, kappa.pr = function(x){return(1)},N.pr = function
    # g.in = g.init
    N = N.init
    kappa = kappa.init
-   g.in = as.vector(Sampling_N_new2D(N, kappa))  # (N+1)^2 vector
+   mv2 = 1/(4*pi*kappa^2)
+   mv1 = 1/(4*kappa^3)
+   g.in = as.vector(Sampling_N_new2D(N, kappa)) / sqrt(mv2)  # (N+1)^2 vector
    for(i in 1:em){
       ### which stage to run 
       ## if u < -2 : consider N/2; else if u < -1: consider staying; else, consider double N
@@ -77,8 +79,8 @@ sample.ESS.2D = function(X, Z, kappa.pr = function(x){return(1)},N.pr = function
          # N increase
          g.cand.mat = matrix(0, N+2, N+2)
          g.cand.mat[1:(N+1), 1:(N+1)] = g.in.mat
-         g.cand.mat[N+2, 1:(N+1)] = as.vector(g.in.mat[N+1, 1:(N+1)] + Sampling_N_new1D(N, kappa))
-         g.cand.mat[1:(N+1), N+2] = as.vector(g.in.mat[1:(N+1), N+1] + Sampling_N_new1D(N, kappa))
+         g.cand.mat[N+2, 1:(N+1)] = as.vector(g.in.mat[N+1, 1:(N+1)] + Sampling_N_new1D(N, kappa) / sqrt(mv1))
+         g.cand.mat[1:(N+1), N+2] = as.vector(g.in.mat[1:(N+1), N+1] + Sampling_N_new1D(N, kappa) / sqrt(mv1))
          g.cand.mat[N+2, N+2] = 0.5 * (g.cand.mat[N+1, N+2] + g.cand.mat[N+2, N+1]) +
             rnorm(1, sd = 0.5*kappa^(-1.5))
          g.cand = matrix(g.cand.mat, ncol = 1, byrow = F) # as (N+2)^2 by 1 vector
@@ -97,7 +99,7 @@ sample.ESS.2D = function(X, Z, kappa.pr = function(x){return(1)},N.pr = function
             N.out = N
          }
       } else if(uu > -2){
-         v1.mat = matrix(Sampling_N_new2D(N, kappa), N+1, N+1, byrow = F)
+         v1.mat = matrix(Sampling_N_new2D(N, kappa), N+1, N+1, byrow = F) / sqrt(mv1)
          g.out = matrix(ESS_post2D(Z, X, g.in.mat, v1.mat, sigsq), ncol = 1, byrow = F)
          N.out = N
          log.test.prob = 2
@@ -140,4 +142,46 @@ sample.ESS.2D = function(X, Z, kappa.pr = function(x){return(1)},N.pr = function
 }
 
 
-
+sample.exact2D= function(X, Z, kappa.pr = function(x){return(1)}, 
+                               beta = 2, mcmc, brn, thin, sigsq = 0.01, kappa.init = 2, N.init = 20, 
+                               gridsize = 40){
+   ## X, Y: given data
+   ## N.pr: prior distribution of N (function)
+   ## kappa init should be 2 to match with GPI method
+   ## kappa.pr: prior distribution of kappa (function); by default, noninformative prior
+   if(dim(X)[1]!=length(Z))
+      stop("X and Z should be of same length!")
+   n = length(Z)
+   em = mcmc + brn # total number of sampling
+   N_list = c()
+   prob_list = c()
+   g_list = list()
+   kappa_list = list()
+   # starting with the initial N and g
+   # setting up for iterative work
+   # g.in = g.init
+   N = N.init
+   kappa = kappa.init
+   gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
+                   rep(c(0:gridsize)/gridsize, gridsize + 1))
+   K = rSPDE::matern.covariance(as.matrix(dist(X, diag = TRUE, upper = TRUE, method = "euclidean")), kappa, nu = 1, sigma = 1)
+   dist_XnewX = matrix(0, nrow = nrow(X), ncol = nrow(gridmat))
+   for(i in 1:nrow(X)){
+      for(j in 1:nrow(gridmat)){
+         dist_XnewX[i, j] = sqrt(sum((X[i, ] - gridmat[j, ])^2))
+      }
+   }
+   Kstar = rSPDE::matern.covariance(dist_XnewX, kappa, nu = 1, sigma = 1)
+   K_new = rSPDE::matern.covariance(as.matrix(dist(gridmat, diag = TRUE, upper = TRUE)), kappa, nu = 1, sigma = 1)
+   # computation of the mean and the variance vector
+   mean_grid = t(Kstar) %*% solve(K + sigsq * diag(nrow(K))) %*% Z
+   var_grid = K_new - t(Kstar) %*% solve(K + sigsq* diag(nrow(K))) %*% Kstar
+   # symmetrize due to prevent the numerical error
+   var_grid = (var_grid + t(var_grid)) / 2
+   g_samples = mvtnorm::rmvnorm(n = em, mean = mean_grid, sigma = var_grid)
+   for(i in 1:em){
+      g_list[[i]] = as.vector(t(matrix(g_samples[i, ], nrow = sqrt(length(g_samples[i, ])), byrow = FALSE)))
+   }
+   ## when pred is FALSE, Ypred would be the zero matrix
+   return(list(g_list = g_list))
+}

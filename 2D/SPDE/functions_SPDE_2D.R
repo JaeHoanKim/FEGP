@@ -135,7 +135,7 @@ glist_to_plotdf_2D = function(g, gridmat, truefun = f0, alpha1 = 0.95, alpha2 = 
    N = nrow(gridmat)
    y.tot = matrix(nrow = Nsample, ncol = N)
    for(i in 1:Nsample){
-      gi.mat = matrix(g[[i]], nrow = sqrt(length(g[[i]])))
+      gi.mat = matrix(g[[i]], nrow = sqrt(length(g[[i]])), byrow = FALSE)
       y.tot[i, ] = f_N_h_2D_multi(gridmat, gi.mat) 
    }
    y.plot = matrix(nrow = nrow(gridmat), ncol = 10)
