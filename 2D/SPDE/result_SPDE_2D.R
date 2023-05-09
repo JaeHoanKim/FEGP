@@ -19,8 +19,8 @@ Z = f0(X[, 1], X[, 2]) + rnorm(n) * 0.1
 kappa = 10
 N.init = 10
 brnin = 1000
-target = 500
-algo = "PTESS"
+target = 2500
+algo = "exact"
 if (algo == "ESS.Nfixed"){
    result = sample.ESS.Nfixed2D(X, Z, sigsq = 0.1^2, kappa.init = kappa, N.init = N.init,
                           mcmc = target, brn=brnin, thin = 1)
@@ -29,7 +29,7 @@ if (algo == "ESS.Nfixed"){
                           mcmc = target, brn=brnin, thin = 1)
 }else if (algo == "exact"){
    result = sample.exact2D(X, Z, sigsq = 0.1^2, kappa.init = kappa, N.init = N.init,
-                          mcmc = target, brn=brnin, thin = 1, gridsize = 20)
+                          mcmc = target, brn=brnin, thin = 1, gridsize = N.init)
 }else if(algo == "PTESS"){
    Nk = c(3, 5, 8, 10, 15)
    Tk = c(1, 3, 10, 30, 100)
