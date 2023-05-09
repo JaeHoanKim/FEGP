@@ -285,35 +285,48 @@ sample.PTexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, Tk, N.pr,
    if (Tk[1] != 1){
       stop("The first element of Tk should be 1!")
    }
-   
    n = length(Z)
    em = mcmc + brn # total number of sampling
    N_list = c()
    prob_list = c()
    g_list = list()
    kappa_list = list()
+   # g: double-indexed list, first: about chain, second: about i-th sample
    g.in = list()
    g.out = list()
    g.out.mat = list()
    # starting with the initial N and g
    # setting up for iterative work
    # g.in = g.init
-   N = N.init
    kappa = kappa.init
    mv = 1/(4*pi*kappa^2)
-   for(k in 1:length(Nk)){
-      N = Nk[k]
-      g.in[[k]] = Sampling_N_new2D(N, kappa) / sqrt(mv)
-   }
-   
    for(i in 1:em){
       # 1. Progress within the chain
       for(k in 1:length(Nk)){
          N = Nk[k]
-         g_ESS = Sampling_N_new2D(N, kappa) / sqrt(mv)
-         # Here, byrow should be F to be aligned with f_N_2D_multi ordering
-         g.out[[k]] = ESS_post2D(Z, X, matrix(g.in[[k]], N+1, N+1, byrow = F), matrix(g_ESS, N+1, N+1, byrow = F), sigsq)
-         g.out.mat[[k]] = matrix(g.out[[k]], N+1, N+1, byrow = F)
+         kappa = kappa.init
+         gridsize = N
+         gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
+                         rep(c(0:gridsize)/gridsize, gridsize + 1))
+         K = rSPDE::matern.covariance(as.matrix(dist(X, diag = TRUE, upper = TRUE, method = "euclidean")), kappa, nu = 1, sigma = 1)
+         dist_XnewX = matrix(0, nrow = nrow(X), ncol = nrow(gridmat))
+         for(i in 1:nrow(X)){
+            for(j in 1:nrow(gridmat)){
+               dist_XnewX[i, j] = sqrt(sum((X[i, ] - gridmat[j, ])^2))
+            }
+         }
+         Kstar = rSPDE::matern.covariance(dist_XnewX, kappa, nu = 1, sigma = 1)
+         K_new = rSPDE::matern.covariance(as.matrix(dist(gridmat, diag = TRUE, upper = TRUE)), kappa, nu = 1, sigma = 1)
+         # computation of the mean and the variance vector
+         mean_grid = t(Kstar) %*% solve(K + sigsq * diag(nrow(K))) %*% Z
+         var_grid = K_new - t(Kstar) %*% solve(K + sigsq* diag(nrow(K))) %*% Kstar
+         # symmetrize due to prevent the numerical error
+         var_grid = (var_grid + t(var_grid)) / 2
+         g_samples = mvtnorm::rmvnorm(n = em, mean = mean_grid, sigma = var_grid)
+         for(i in 1:em){
+            g.out[[k]][[i]] = as.vector(t(matrix(g_samples[i, ], nrow = sqrt(length(g_samples[i, ])), byrow = FALSE)))
+            g.out.mat[[k]][[i]] = matrix(g.out[[k]][[i]], N+1, N+1, byrow = F)
+         }
       }
       # 2. Swapping between the chain
       for (kk in 1:(1*length(Nk))){
@@ -322,14 +335,14 @@ sample.PTexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, Tk, N.pr,
          k1 = chains[1]
          k2 = chains[2]
          log.prob.swap = min(0, (Tk[k2] - Tk[k1])/(Tk[k1] * Tk[k2]) *
-                                (loglik2D(Z, X, g.out.mat[[k2]], sigsq) + log(N.pr(Nk[k2])) -
-                                    loglik2D(Z, X, g.out.mat[[k1]], sigsq) - log(N.pr(Nk[k1]))))
+                                (loglik2D(Z, X, g.out.mat[[k2]][[i]], sigsq) + log(N.pr(Nk[k2])) -
+                                    loglik2D(Z, X, g.out.mat[[k1]][[i]], sigsq) - log(N.pr(Nk[k1]))))
          u = runif(1)
          if (u < exp(log.prob.swap)){
             # swapping the sample
-            x = g.out[[k1]]
-            g.out[[k1]] = g.out[[k2]]
-            g.out[[k2]] = x
+            x = g.out[[k1]][[i]]
+            g.out[[k1]][[i]] = g.out[[k2]][[i]]
+            g.out[[k2]][[i]] = x
             # swapping the N
             y = Nk[k1]
             Nk[k1] = Nk[k2]
@@ -340,11 +353,11 @@ sample.PTexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, Tk, N.pr,
       g.in = g.out
       if (i %% 100 == 0){
          print(c("iteration number: ", i))
-         print(c("N: ", nrow(g.out[[1]]) - 1))
+         print(c("N: ", nrow(g.out[[1]][[i]]) - 1))
          print(c("N mixing status :", Nk))
       }
-      g_list[[i]] = g.in[[1]]
-      N_list[i] = nrow(g.in[[1]]) - 1
+      g_list[[i]] = g.in[[1]][[i]]
+      N_list[i] = nrow(g.in[[1]][[i]]) - 1
    }
    ## when pred is FALSE, Ypred would be the zero matrix
    return(list(g_list = g_list, N_list = N_list, prob_list = prob_list, kappa_list = kappa_list))
