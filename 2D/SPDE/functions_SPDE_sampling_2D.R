@@ -261,7 +261,7 @@ sample.PTESS = function(X, Z, kappa.pr = function(x){return(1)}, Nk, Tk, N.pr,
          print(c("N mixing status :", Nk))
       }
       g_list[[i]] = g.in[[1]]
-      N_list[i] = length(g.in[[1]]) - 1
+      N_list[i] = nrow(g.in[[1]]) - 1
    }
    ## when pred is FALSE, Ypred would be the zero matrix
    return(list(g_list = g_list, N_list = N_list, prob_list = prob_list, kappa_list = kappa_list))
