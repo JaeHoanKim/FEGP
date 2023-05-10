@@ -4,7 +4,7 @@ library(Rcpp)
 #########################################################################
 
 ## knitting v (size N vector) and g_N (size N+1 vector) in an alternative order
-sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init, g.init, tausq, pred = FALSE, Xtest = NULL, gridsize = 500){
+sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init, g.init, tausq){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
@@ -57,10 +57,6 @@ sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init
    N = N.init
    # since N does not change, we can fix 'result'.
    result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
-   if (pred == TRUE){
-      Xgrid = cbind(rep(c(0:gridsize)/gridsize, gridsize + 1), 
-                    rep(c(0:gridsize)/gridsize, each = gridsize + 1)) ## making grid points from (0, 0) to (1, 1) 
-   }
    for(i in 1:em){
       ### update knot_N for updated N
       ## sample new g given N, D_n
