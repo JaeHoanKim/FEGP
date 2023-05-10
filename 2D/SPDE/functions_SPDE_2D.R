@@ -95,15 +95,14 @@ Phi_2D = function(X, N){
       wx2 = (1 - abs(xx - knot_N[i+1]) * N)
       wy1 = (1 - abs(yy - knot_N[j]) * N)
       wy2 = (1 - abs(yy - knot_N[j+1]) * N)
-      iadd = rep(index, 4)
-      jadd = c(N*i + j, N*i + j+1,
-                N*(i+1) + j, N*(i+1) + j + 1)
-      padd = c(wx1 * wy1, wx1 * wy2, wx2 * wy1, wx2 * wy2)
-      ilist = c(ilist, iadd)
-      jlist = c(jlist, jadd)
-      plist = c(plist, padd)
+      Phi_row[i, j] = wx1 * wy1
+      Phi_row[i, j+1] = wx1 * wy2
+      Phi_row[i+1, j] = wx2 * wy1
+      Phi_row[i+1, j+1] = wx2 * wy2
+      # instead of byrow = T option
+      Phi[index, ] = as.vector(t(Phi_row))
    }
-   Phi = sparseMatrix(i = ilist, j = jlist, x = plist, dims = c(n, (N+1)^2))
+   Phi = as(Phi, "sparseMatrix")
    return(Phi)
 }
 

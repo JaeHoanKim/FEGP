@@ -18,9 +18,9 @@ Z = f0(X[, 1], X[, 2]) + rnorm(n) * 0.1
 
 kappa = 10
 N.init = 10
-brnin = 1000
-target = 2500
-algo = "exact"
+brnin = 100
+target = 250
+algo = "PTexact"
 if (algo == "ESS.Nfixed"){
    result = sample.ESS.Nfixed2D(X, Z, sigsq = 0.1^2, kappa.init = kappa, N.init = N.init,
                           mcmc = target, brn=brnin, thin = 1)
@@ -28,21 +28,23 @@ if (algo == "ESS.Nfixed"){
    result = sample.ESS.2D(X, Z, sigsq = 0.1^2, kappa.init = kappa, N.init = N.init,
                           mcmc = target, brn=brnin, thin = 1)
 }else if (algo == "exact"){
-   result = sample.exact2D(X, Z, sigsq = 0.1^2, kappa.init = kappa, N.init = N.init,
+   result = sample.exact2D(X, Z, sigsq = 0.1^2, kappa.init = kappa,
                           mcmc = target, brn=brnin, thin = 1, gridsize = N.init)
 }else if(algo == "PTESS"){
    Nk = c(3, 5, 8, 10, 15)
    Tk = c(1, 3, 10, 30, 100)
    result = sample.PTESS(X, Z, sigsq = 0.1^2, N.pr = function(x){return(1)},
                          Nk = Nk, Tk = Tk, kappa.init = kappa, mcmc = target, brn = brnin, thin = 1)
+}else if(algo == "PTexact"){
+   Nk = c(3, 5, 8, 10, 15)
+   Tk = c(1, 3, 10, 30, 100)
+   result = sample.PTexact(X, Z, sigsq = 0.1^2, N.pr = function(x){return(1)},
+                         Nk = Nk, Tk = Tk, kappa.init = kappa, mcmc = target, brn = brnin, thin = 1)
 }
-
-
-g_list = tail(result$g_list, target)
-
-##################### plot ###################
+################## plot ###################
 library(ggpubr)
 
+g_list = result$g_list
 gridsize = 40
 gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                 rep(c(0:gridsize)/gridsize, gridsize+ 1))

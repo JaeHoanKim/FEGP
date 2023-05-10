@@ -302,24 +302,20 @@ sample.PTexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, Tk, N.pr,
       gridsize = N
       gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                       rep(c(0:gridsize)/gridsize, gridsize + 1))
-      K = rSPDE::matern.covariance(as.matrix(dist(X, diag = TRUE, upper = TRUE, method = "euclidean")), kappa, nu = 1, sigma = 1)
-      dist_XnewX = matrix(0, nrow = nrow(X), ncol = nrow(gridmat))
-      for(i in 1:nrow(X)){
-         for(j in 1:nrow(gridmat)){
-            dist_XnewX[i, j] = sqrt(sum((X[i, ] - gridmat[j, ])^2))
-         }
-      }
-      Kstar = rSPDE::matern.covariance(dist_XnewX, kappa, nu = 1, sigma = 1)
-      K_new = rSPDE::matern.covariance(as.matrix(dist(gridmat, diag = TRUE, upper = TRUE)), kappa, nu = 1, sigma = 1)
+      # sparse matrix Omega and Phi
+      Omega = Q2D(N, kappa)
+      Phi = Phi_2D(X, N)
       # computation of the mean and the variance vector
-      mean_grid = t(Kstar) %*% solve(K + sigsq * diag(nrow(K))) %*% Z
-      var_grid = K_new - t(Kstar) %*% solve(K + sigsq* diag(nrow(K))) %*% Kstar
+      var_grid = solve(Omega + t(Phi) %*% Phi / sigsq)
+      mean_grid = var_grid %*% t(Phi) %*% Z / sigsq
       # symmetrize due to prevent the numerical error
       var_grid = (var_grid + t(var_grid)) / 2
-      g_samples = mvtnorm::rmvnorm(n = em, mean = mean_grid, sigma = var_grid)
+      g_samples = mvtnorm::rmvnorm(n = em, mean = mean_grid, sigma = var_grid,
+                                   checkSymmetry = FALSE)
       for(i in 1:em){
-         g.out[[k]][[i]] = as.vector(t(matrix(g_samples[i, ], nrow = sqrt(length(g_samples[i, ])), byrow = FALSE)))
-         g.out.mat[[k]][[i]] = matrix(g.out[[k]][[i]], N+1, N+1, byrow = F)
+         g.out[[k]][[i]] = # as.vector(t(matrix(g_samples[i, ], nrow = sqrt(length(g_samples[i, ])), byrow = FALSE)))
+            g_samples[i, ]
+         g.out.mat[[k]][[i]] = matrix(g.out[[k]][[i]], N+1, N+1, byrow = T)
       }
    }
    for(i in 1:em){
