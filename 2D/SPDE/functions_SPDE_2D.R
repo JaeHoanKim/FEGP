@@ -69,6 +69,43 @@ Sampling_N_new2D = function(N, kappa, beta = 2){
    return(vec)
 }
 
+# tent basis function
+
+# generating Phi matrix
+# X: n by 2 matrix
+# N: number of grid - 1
+# output: n by N matrix
+Phi_2D = function(X, N){
+   n = nrow(X)
+   gridmat = cbind(rep(c(0:N)/N, each = N + 1),
+                   rep(c(0:N)/N, N + 1))
+   knot_N = c(0:N)/N
+   Phi = matrix(0, nrow = n, ncol = (N+1)^2)
+   # for the sparse matrix
+   ilist = c()
+   jlist = c()
+   plist = c()
+   for(index in 1:n){
+      Phi_row = matrix(0, nrow = N+1, ncol = N+1)
+      xx = X[index, 1]
+      yy = X[index, 2]
+      i = min(1 + floor(xx * N), N)
+      j = min(1 + floor(yy * N), N)
+      wx1 = (1 - abs(xx - knot_N[i]) * N)
+      wx2 = (1 - abs(xx - knot_N[i+1]) * N)
+      wy1 = (1 - abs(yy - knot_N[j]) * N)
+      wy2 = (1 - abs(yy - knot_N[j+1]) * N)
+      iadd = rep(index, 4)
+      jadd = c(N*i + j, N*i + j+1,
+                N*(i+1) + j, N*(i+1) + j + 1)
+      padd = c(wx1 * wy1, wx1 * wy2, wx2 * wy1, wx2 * wy2)
+      ilist = c(ilist, iadd)
+      jlist = c(jlist, jadd)
+      plist = c(plist, padd)
+   }
+   Phi = sparseMatrix(i = ilist, j = jlist, x = plist, dims = c(n, (N+1)^2))
+   return(Phi)
+}
 
 f_N_h_2D_multi = function(x, g){
    n = dim(x)[1]
@@ -135,7 +172,7 @@ glist_to_plotdf_2D = function(g, gridmat, truefun = f0, alpha1 = 0.95, alpha2 = 
    N = nrow(gridmat)
    y.tot = matrix(nrow = Nsample, ncol = N)
    for(i in 1:Nsample){
-      gi.mat = matrix(g[[i]], nrow = sqrt(length(g[[i]])), byrow = FALSE)
+      gi.mat = matrix(g[[i]], nrow = sqrt(length(g[[i]])), byrow = TRUE)
       y.tot[i, ] = f_N_h_2D_multi(gridmat, gi.mat) 
    }
    y.plot = matrix(nrow = nrow(gridmat), ncol = 10)
