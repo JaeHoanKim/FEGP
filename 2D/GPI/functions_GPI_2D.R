@@ -301,7 +301,7 @@ f_N_h_2D = function(x, g){
 # The same function as f_N_h_2D without that this function works for multiple points x. 
 # input x : n by 2 matrix (x1, y1), (x2, y2), ..., (xn, yn)
 # output: function values at points x when the function value at the grid points are given as g
-
+# f_N values at x_1, ..., x_n using the values of g.
 f_N_h_2D_multi = function(x, g){
    n = dim(x)[1]
    out = vector(length = n)
@@ -570,6 +570,7 @@ inv_BTTB = function(Mat, blocksize){
 # input: g_N value ((N+1)^2 by 2 matrix) and grid matrix at which we want to obtain f_N value
 # ouput: matrices of f_N values - low1, upp1, true, lowsup, uppsup, means
 glist_to_plotdf_2D = function(g, gridmat, truefun = f0, alpha1 = 0.95, alpha2 = 0.9){
+   # Nsample = number of samples (em)
    Nsample = length(g)
    N = nrow(gridmat)
    y.tot = matrix(nrow = Nsample, ncol = N)

@@ -11,19 +11,11 @@ sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init
    ## l: range of the fields::Matern function
    if(length(Z) != dim(X)[1])
       stop("Z and X should have the same length!")
-   #l_est(nu.in,c(0,1),0.05)
-   if(missing(mcmc))
-      mcmc=5000
-   if(missing(brn))
-      brn=1000
-   if(missing(thin))
-      thin=1
    em = mcmc + brn # total number of sampling
    ## compatibility check when predicting
    N_list = list()
    prob_list = c()
    g_list = list()
-   Zgrid_list = list()
    # starting with the initial N and g
    # setting up for iterative work
    g.init = matrix(0, N.init+1, N.init + 1)
@@ -33,11 +25,13 @@ sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init
    result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
    for(i in 1:em){
       ### update knot_N for updated N
-      ## sample new g given N, D_n
-      nu.ess = matrix(samp_from_grid(N, mdim = result$mvec, egs = result$egvals, nu, lambda_g), N + 1)
+      ## sample new g given N, D_n!= 102
+      nu.ess = matrix(samp_from_grid(N, mdim = result$mvec, egs = result$egvals, nu, lambda_g), 
+                      nrow = N[1] + 1, ncol = N[2]+1, byrow = TRUE)
       g.out = ESS(g.in, nu.ess, z = Z, x = X, sigsq)
       N.out = N
-      g_list[[i]] = g.out
+      # to make an output as a vector form! returning as a matrix occurs an error in glist_to_plotdf function
+      g_list[[i]] = as.vector(t(g.out))
       # only take one N out of N.out, since two elements would be the same
       N_list[i] = N.out[1]
       ### preparation for iteration
@@ -48,7 +42,7 @@ sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init
       }
    }
    ## when pred is FALSE, Ypred would be the zero matrix
-   return(list(g_list = g_list, N_list = N_list, Zgrid_list = Zgrid_list))
+   return(list(g_list = g_list, N_list = N_list))
 }
 
 
@@ -59,63 +53,26 @@ sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init
 ## without considering the error term sigma
 
 ## knitting v (size N vector) and g_N (size N+1 vector) in an alternative order
-sample.ESS.nested2D = function(Z, X, N.pr, mcmc, brn, thin, l.in = NULL, nu.in = NULL, sigsq, N.init, g.init, tausq, 
-                 pred = FALSE, Xtest = NULL, gridsize = 500){
+sample.ESS.nested2D = function(Z, X, N.pr, mcmc, brn, thin, l.in = NULL, nu.in = NULL, sigsq, 
+                               N.init, tausq){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
    if(length(Z) != dim(X)[1])
       stop("Z and X should have the same length!")
-   ## follow the initial value given in Ray (2020)
-   if(is.null(nu.in))
-      nu.in=0.75
-   if(is.null(l.in))
-      l.in=0.5
-   #l_est(nu.in,c(0,1),0.05)
-   ## initial value of N
-   if(missing(N.init)){
-      N.init = c(2, 2)
-   } else{
-      if(length(N.init) != 2){
-         stop("N.init should have two number which denotes the number of of grid edges!")
-      }
-   }
    ## initial value of g
-   if(missing(g.init)){
-      g.init = matrix(0, N.init + 1, N.init + 1)
-   } else{
-      if (length(g.init) != N.init){
-         stop("provided g.init should have the length of N.init!")
-      }
-   }
-   if(missing(sigsq)){
-      sigsq = 1
-   }
-   if(missing(tausq)){
-      tausq = 1
-   }
-   if(missing(mcmc))
-      mcmc=5000
-   if(missing(brn))
-      brn=1000
-   if(missing(thin))
-      thin=1
+   g.init = matrix(0, N.init + 1, N.init + 1)
    em = mcmc + brn # total number of sampling
    ## compatibility check when predicting
    N_list = list()
    prob_list = c()
    g_list = list()
-   Zgrid_list = list()
    # starting with the initial N and g
    # setting up for iterative work
    g.in = g.init
    N = N.init
    # since N does not change, we can fix 'result'.
    result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
-   if (pred == TRUE){
-      Xgrid = cbind(rep(c(0:gridsize)/gridsize, gridsize + 1), 
-                    rep(c(0:gridsize)/gridsize, each = gridsize + 1)) ## making grid points from (0, 0) to (1, 1) 
-   }
    # store result_N and result_2N to prevent re-calculation of the inverse of BTTB
    result_N_list = list()
    for(i in 1:6){
@@ -126,7 +83,6 @@ sample.ESS.nested2D = function(Z, X, N.pr, mcmc, brn, thin, l.in = NULL, nu.in =
       Sigma_N = thekernel(X_N, nu.in, lambda = l.in)
       result_N_list[[N1]] = inv_BTTB(Sigma_N, N1 + 1)
    }
-   
    for(i in 1:em){
       ### update knot_N for updated N
       ## sample new g given N, D_n

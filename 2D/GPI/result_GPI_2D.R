@@ -1,3 +1,5 @@
+rm(list = ls())
+gc()
 library(plotly)
 library(tidyverse)
 library(ggpubr)
@@ -7,7 +9,7 @@ source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
 ############################ fixed N ESS #############################
 n = 300
-N.init = 10 # for uniform prior - maximum number of knots
+N.init = c(5, 5) # for uniform prior - maximum number of knots
 plabslist = list()
 f0 = function(x, y){
    return(sin(11*x + 2*y) + 2*y^2)
@@ -16,7 +18,7 @@ X = matrix(runif(2*n), n)
 Z = f0(X[, 1], X[, 2]) + rnorm(n) * 0.1
 ## discretized version of 1 over exponential distribution - which satisfy the condition for prior theoretically
 # N.pr = function(N){return (1/N^2 * 3 * exp(-3 / N))}
-target = 500; brn = 1000
+target = 2500; brn = 1000
 gridsize = 40
 algo = "ESS.Nfixed"
 if(algo == "ESS.Nfixed"){
