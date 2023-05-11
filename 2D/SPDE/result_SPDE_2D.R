@@ -18,9 +18,12 @@ Z = f0(X[, 1], X[, 2]) + rnorm(n) * 0.1
 
 kappa = 10
 N.init = 10
-brnin = 100
-target = 250
-algo = "PTexact"
+brnin = 1000
+target = 2500
+algo = "RJexact"
+poi5 = function(x){
+   return(dpois(x, lambda = 5))
+}
 if (algo == "ESS.Nfixed"){
    result = sample.ESS.Nfixed2D(X, Z, sigsq = 0.1^2, kappa.init = kappa, N.init = N.init,
                           mcmc = target, brn=brnin, thin = 1)
@@ -40,6 +43,11 @@ if (algo == "ESS.Nfixed"){
    Tk = c(1, 3, 10, 30, 100)
    result = sample.PTexact(X, Z, sigsq = 0.1^2, N.pr = function(x){return(1)},
                          Nk = Nk, Tk = Tk, kappa.init = kappa, mcmc = target, brn = brnin, thin = 1)
+}else if(algo == "RJexact"){
+   Nk = c(3, 5, 8, 10, 15)
+   result = sample.RJexact(X, Z, sigsq = 0.1^2, # N.pr = function(x){return(1)},
+                           N.pr = poi5,
+                           Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, thin = 1)
 }
 ################## plot ###################
 library(ggpubr)

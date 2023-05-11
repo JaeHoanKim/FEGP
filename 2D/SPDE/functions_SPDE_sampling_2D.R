@@ -354,3 +354,90 @@ sample.PTexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, Tk, N.pr,
    ## when pred is FALSE, Ypred would be the zero matrix
    return(list(g_list = g_list, N_list = N_list, prob_list = prob_list, kappa_list = kappa_list))
 }
+
+
+
+sample.RJexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
+                          beta = 2, mcmc, brn, thin, sigsq = 0.01, kappa.init = 2, N.init = 20, 
+                          g.init = rep(0, N.init+1)){
+   ## X, Y: given data
+   ## N.pr: prior distribution of N (function)
+   ## kappa init should be 2 to match with GPI method
+   ## kappa.pr: prior distribution of kappa (function); by default, noninformative prior
+   if(dim(X)[1]!=length(Z))
+      stop("X and Z should be of same length!")
+   n = length(Z)
+   em = mcmc + brn # total number of sampling
+   N_list = c()
+   prob_list = c()
+   g_list = vector("list", em)
+   kappa_list = list()
+   # g: double-indexed list, first: about chain, second: about i-th sample
+   # g.in = list()
+   g.out = vector("list", em)
+   g.out.mat = vector("list", em)
+   # starting with the initial N and g
+   # setting up for iterative work
+   # g.in = g.init
+   kappa = kappa.init
+   mv = 1/(4*pi*kappa^2)
+   # 1. Progress within the chain
+   for(k in 1:length(Nk)){
+      N = Nk[k]
+      kappa = kappa.init
+      gridsize = N
+      gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
+                      rep(c(0:gridsize)/gridsize, gridsize + 1))
+      # sparse matrix Omega and Phi
+      Omega = Q2D(N, kappa)
+      Phi = Phi_2D(X, N)
+      # computation of the mean and the variance vector
+      var_grid = solve(Omega + t(Phi) %*% Phi / sigsq)
+      mean_grid = var_grid %*% t(Phi) %*% Z / sigsq
+      # symmetrize due to prevent the numerical error
+      var_grid = (var_grid + t(var_grid)) / 2
+      g_samples = mvtnorm::rmvnorm(n = em, mean = mean_grid, sigma = var_grid,
+                                   checkSymmetry = FALSE)
+      for(i in 1:em){
+         g.out[[k]][[i]] = # as.vector(t(matrix(g_samples[i, ], nrow = sqrt(length(g_samples[i, ])), byrow = FALSE)))
+            g_samples[i, ]
+         g.out.mat[[k]][[i]] = matrix(g.out[[k]][[i]], N+1, N+1, byrow = T)
+      }
+   }
+   for(i in 1:em){
+      # 2. Swapping between the chain
+      # For the RJMCMC, randomly choose another chain other than the first one and compare
+      for (kk in 1:(1*length(Nk))){
+         ## swap states - Sambridge (2014)! randomly choose two chains and decide
+         chains = sample(2:(length(Nk)), 1, replace = F)
+         k = chains
+         # jump probability from Brooks et al.
+         log.jump.prob = min(0, log(N.pr(Nk[k])) - log(N.pr(Nk[1])) +
+                                loglik2D(Z, X, g.out.mat[[k]][[i]], sigsq) - 
+                                loglik2D(Z, X, g.out.mat[[1]][[i]], sigsq))
+         u = runif(1)
+         if (u < exp(log.jump.prob)){
+            # swapping the sample - should change the remaining thing as a whole. 
+            # Since we keep the required info of the previous steps, we swap the list as a hole.
+            x = g.out[[1]]
+            g.out[[1]] = g.out[[k]]
+            g.out[[k]] = x
+            # swapping the N
+            y = Nk[1]
+            Nk[1] = Nk[k]
+            Nk[k] = y
+         }
+      }
+      ### preparation for iteration
+      g.in = g.out
+      if (i %% 100 == 0){
+         print(c("iteration number: ", i))
+         print(c("N: ", sqrt(length(g.out[[1]][[i]])) - 1))
+         print(c("N mixing status :", Nk))
+      }
+      g_list[[i]] = g.in[[1]][[i]]
+      N_list[i] = Nk[1]
+   }
+   ## when pred is FALSE, Ypred would be the zero matrix
+   return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list))
+}
