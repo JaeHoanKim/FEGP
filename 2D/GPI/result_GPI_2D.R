@@ -7,7 +7,7 @@ source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
 ############################ fixed N ESS #############################
 n = 300
-N.init = c(10, 10)# for uniform prior - maximum number of knots
+N.init = 10 # for uniform prior - maximum number of knots
 plabslist = list()
 f0 = function(x, y){
    return(sin(11*x + 2*y) + 2*y^2)
@@ -21,7 +21,7 @@ gridsize = 40
 algo = "ESS.Nfixed"
 if(algo == "ESS.Nfixed"){
    result = sample.ESS.Nfixed2D(Z = Z, X = X, sigsq = 0.1^2, mcmc = target, brn = brn, thin = 1, 
-                       l.in = 0.5, pred = TRUE, gridsize = gridsize)
+                       nu.in = 1, l.in = 0.5, N.init = N.init)
 }else if(algo == "ESS.nested"){
    result = sample.ESS.nested2D(Z = Z, X = X, sigsq = 0.1^2, mcmc = target, brn = brn, thin = 1, 
                        l.in = 0.5, pred = TRUE, gridsize = gridsize)

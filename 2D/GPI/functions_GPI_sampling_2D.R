@@ -4,41 +4,14 @@ library(Rcpp)
 #########################################################################
 
 ## knitting v (size N vector) and g_N (size N+1 vector) in an alternative order
-sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init, g.init, tausq){
+sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init, g.init, tausq = 1){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
    ## l: range of the fields::Matern function
    if(length(Z) != dim(X)[1])
       stop("Z and X should have the same length!")
-   ## follow the initial value given in Ray (2020)
-   if(missing(nu.in))
-      nu.in=1
-   if(missing(l.in))
-      l.in=0.5
    #l_est(nu.in,c(0,1),0.05)
-   ## initial value of N
-   if(missing(N.init)){
-      N.init = c(10, 10)
-   } else{
-      if(length(N.init) != 2){
-         stop("N.init should have two number which denotes the number of of grid edges!")
-      }
-   }
-   ## initial value of g
-   if(missing(g.init)){
-      g.init = matrix(0, N.init + 1, N.init + 1)
-   } else{
-      if (length(g.init) != N.init){
-         stop("provided g.init should have the length of N.init!")
-      }
-   }
-   if(missing(sigsq)){
-      sigsq = 1
-   }
-   if(missing(tausq)){
-      tausq = 1
-   }
    if(missing(mcmc))
       mcmc=5000
    if(missing(brn))
@@ -53,6 +26,7 @@ sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init
    Zgrid_list = list()
    # starting with the initial N and g
    # setting up for iterative work
+   g.init = matrix(0, N.init+1, N.init + 1)
    g.in = g.init
    N = N.init
    # since N does not change, we can fix 'result'.
@@ -63,14 +37,9 @@ sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init
       nu.ess = matrix(samp_from_grid(N, mdim = result$mvec, egs = result$egvals, nu, lambda_g), N + 1)
       g.out = ESS(g.in, nu.ess, z = Z, x = X, sigsq)
       N.out = N
-      if (i>brn){
-         g_list[[i-brn]] = g.out
-         if (pred == TRUE){
-            Zgrid = matrix(f_N_h_2D_multi(Xgrid, g.in), gridsize + 1, gridsize + 1)
-            Zgrid_list[[i-brn]] = Zgrid
-         }
-         N_list[[i]] = N.out
-      }
+      g_list[[i]] = g.out
+      # only take one N out of N.out, since two elements would be the same
+      N_list[i] = N.out[1]
       ### preparation for iteration
       g.in = g.out
       N = N.out
