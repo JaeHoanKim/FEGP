@@ -64,34 +64,32 @@ sample.ESS.nested2D = function(Z, X, N.pr, mcmc, brn, thin, l.in = NULL, nu.in =
    g.init = matrix(0, N.init + 1, N.init + 1)
    em = mcmc + brn # total number of sampling
    ## compatibility check when predicting
-   N_list = list()
+   N_list = c()
    prob_list = c()
    g_list = list()
    # starting with the initial N and g
-   # setting up for iterative work
    g.in = g.init
    N = N.init
-   # since N does not change, we can fix 'result'.
-   result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
    # store result_N and result_2N to prevent re-calculation of the inverse of BTTB
    result_N_list = list()
-   for(i in 1:6){
+   for(i in 1:5){
       N1 = 2 * 2^(i-1)
       N2 = 2 * 2^(i-1)
-      X_N = cbind(rep(c(0:N1)/N1, N2 + 1), 
-                  rep(c(0:N2)/N2, each = N1 + 1)) # (N1+1)*(N2+1) by 2 matrix
+      X_N = cbind(rep(c(0:N1)/N1, each = N2 + 1), 
+                  rep(c(0:N2)/N2, N1 + 1)) # (N1+1)*(N2+1) by 2 matrix
       Sigma_N = thekernel(X_N, nu.in, lambda = l.in)
       result_N_list[[N1]] = inv_BTTB(Sigma_N, N1 + 1)
    }
+   # initial eigenvalue result
+   result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
    for(i in 1:em){
       ### update knot_N for updated N
       ## sample new g given N, D_n
-      jump.prob = runif(1)
-      log.test.prob = NULL
-      if (min(N) == 2){
-         u = 1; log.test.prob = -100
-      } else{
-         ## check if accept half N
+      # uu = ((N[1] == 2) - 3) * runif(1)
+      # to test N only stay case
+      uu = - 0.5
+      if (uu < -2){
+         ## half N
          result_half = eigvals_exact(ndim = N / 2, nu = nu.in, lambda_g = l.in)
          g.cand.half = g.in[2 * c(0:(N[1]/2)) + 1, 2 * c(0:(N[2]/2)) + 1]
          log.test.prob = loglik(Z, X, g.cand.half, sigsq) - loglik(Z, X, g.in, sigsq) +
@@ -101,15 +99,18 @@ sample.ESS.nested2D = function(Z, X, N.pr, mcmc, brn, thin, l.in = NULL, nu.in =
             g.out = g.cand.half
             N.out = N / 2
             result = result_half
+         } else{
+            g.out = g.in
+            N.out = N
          }
-      }
-      if (min(N) == 2 | u >= exp(log.test.prob)){
-         ## if cutting in half is rejected,
-         ## check if accept doubling or not
+      } else if(uu < -1){
+         ## double N
          ## 1. sample from posterior distribution of g, (2N+1) by (2N+1) matrix
          result2 = eigvals_exact(ndim = 2 * N, nu = nu.in, lambda_g = l.in)
-         gdouble = matrix(samp_from_grid(2*N, mdim = result2$mvec, egs = result2$egvals, nu.in, lambda_g = l.in), 2*N + 1)
-         gdouble_ess = matrix(samp_from_grid(2*N, mdim = result2$mvec, egs = result2$egvals, nu.in, lambda_g = l.in), 2*N + 1)
+         gdouble = matrix(samp_from_grid(2*N, mdim = result2$mvec, egs = result2$egvals, nu.in, lambda_g = l.in), 
+                          nrow = 2 * N[1] + 1, byrow = TRUE)
+         gdouble_ess = matrix(samp_from_grid(2*N, mdim = result2$mvec, egs = result2$egvals, nu.in, lambda_g = l.in), 
+                              nrow = 2 * N[1] + 1, byrow = TRUE)
          g.cand.2 = ESS_double(gdouble, g.in, gdouble_ess, nu.in, l.in, 
                                result_N = result_N_list[[nrow(g.in) - 1]], 
                                result_2N = result_N_list[[nrow(gdouble) - 1]])
@@ -122,30 +123,90 @@ sample.ESS.nested2D = function(Z, X, N.pr, mcmc, brn, thin, l.in = NULL, nu.in =
             N.out = 2 * N
             result = result2
          }else{
-            nu.ess = matrix(samp_from_grid(N, mdim = result$mvec, egs = result$egvals, nu, lambda_g = l.in), N + 1)
-            g.out = ESS(g.in, nu.ess, z = Z, x = X, sigsq)
+            g.out = g.in
             N.out = N
          }
-      }
-      prob_list[[i]] = log.test.prob
-      if (i>brn){
-         g_list[[i-brn]] = g.out
-         if (pred == TRUE){
-            Zgrid = matrix(f_N_h_2D_multi(Xgrid, g.in), gridsize + 1, gridsize + 1)
-            Zgrid_list[[i-brn]] = Zgrid
-         }
-         N_list[[i]] = N.out
+      } else if (uu < 0){
+         ## same N
+         nu.ess = matrix(samp_from_grid(N, mdim = result$mvec, egs = result$egvals, nu, lambda_g), 
+                         nrow = N[1] + 1, ncol = N[2]+1, byrow = TRUE)
+         g.out = ESS(g.in, nu.ess, z = Z, x = X, sigsq)
+         N.out = N
       }
       ### preparation for iteration
       g.in = g.out
       N = N.out
-      if (i%%10 == 0){
+      N_list[i] = N[1]
+      g_list[[i]] = as.vector(t(g.out))
+      if (i%%100 == 0){
          print(c("interation number:", i))
          print(N)
       }
    }
    ## when pred is FALSE, Ypred would be the zero matrix
-   return(list(g_list = g_list, N_list = N_list, Zgrid_list = Zgrid_list, prob_list = prob_list))
+   return(list(g_list = g_list, N_list = N_list, prob_list = prob_list))
 }
 
+sample.PTESS2D = function(Z, X, Nk, Tk, N.pr, mcmc, brn, thin, l.in = NULL, nu.in = NULL, sigsq, 
+                            N.init, tausq){
+   ## X, Y: given data
+   ## N.pr: prior distribution of N (function)
+   ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
+   if(length(Z) != dim(X)[1])
+      stop("Z and X should have the same length!")
+   if(length(Nk)!=length(Tk)){
+      stop("Nk and Tk should have the same length!")
+   }
+   em = mcmc + brn # total number of sampling
+   ## compatibility check when predicting
+   N_list = c()
+   g_list = list()
+   g.out = vector("list", em)
+   ## g matrices for multiple N - before mixing
+   for(k in 1:length(Nk)){
+      N = Nk[k]
+      g.out[[k]][[1]] = matrix(0, N+1, N+1)
+   }
+   ## generate ESS samples for the PT
+   for(k in 1:length(Nk)){
+      N = rep(Nk[k], 2)
+      result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
+      for(i in 2:em){
+         nu.ess = matrix(samp_from_grid(N, mdim = result$mvec, egs = result$egvals, nu, lambda_g), 
+                         nrow = N[1] + 1, ncol = N[2] + 1, byrow = TRUE)
+         g.out[[k]][[i]] = ESS(g.out[[k]][[i-1]], nu.ess, z = Z, x = X, sigsq)
+         if (i%%100 == 0){
+            print(c(i, N[1]))
+         }
+      }
+   }
+   for(i in 1:em){
+      # mixing for PT
+      for (kk in 1:(1*length(Nk))){
+         ## swap states - Sambridge (2014)! randomly choose two chains and decide
+         chains = sample(1:(length(Tk)), 2, replace = F)
+         k1 = chains[1]
+         k2 = chains[2]
+         log.prob.swap = min(0, (Tk[k2] - Tk[k1])/(Tk[k1] * Tk[k2]) *
+                                (loglik(Z, X, g.out[[k2]][[i]], sigsq) + log(N.pr(Nk[k2])) -
+                                    loglik(Z, X, g.out[[k1]][[i]], sigsq) - log(N.pr(Nk[k1]))))
+         u = runif(1)
+         if (u < exp(log.prob.swap)){
+            # swapping the sample - should change the remaining thing as a whole. 
+            # Since we keep the required info of the previous steps, we swap the list as a hole.
+            x = g.out[[k1]]
+            g.out[[k1]] = g.out[[k2]]
+            g.out[[k2]] = x
+            # swapping the N
+            y = Nk[k1]
+            Nk[k1] = Nk[k2]
+            Nk[k2] = y
+         }
+      }
+      N_list[i] = N[1]
+      g_list[[i]] = as.vector(t(g.out[[1]][[i]]))
+   }
+   ## when pred is FALSE, Ypred would be the zero matrix
+   return(list(g_list = g_list, N_list = N_list))
+}
 
