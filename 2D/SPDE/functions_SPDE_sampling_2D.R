@@ -217,16 +217,17 @@ sample.PTESS = function(X, Z, kappa.pr = function(x){return(1)}, Nk, Tk, N.pr,
    mv = 1/(4*pi*kappa^2)
    for(k in 1:length(Nk)){
       N = Nk[k]
-      g.in[[k]] = Sampling_N_new2D(N, kappa) / sqrt(mv)
+      g.in[[k]] = Sampling_N_new2D(N, kappa) / sqrt(mv) * sqrt(Tk[k])
    }
    
    for(i in 1:em){
       # 1. Progress within the chain
       for(k in 1:length(Nk)){
          N = Nk[k]
-         g_ESS = Sampling_N_new2D(N, kappa) / sqrt(mv)
+         g_ESS = Sampling_N_new2D(N, kappa) / sqrt(mv) * sqrt(Tk[k])
          # Here, byrow should be F to be aligned with f_N_2D_multi ordering
-         g.out[[k]] = ESS_post2D(Z, X, matrix(g.in[[k]], N+1, N+1, byrow = F), matrix(g_ESS, N+1, N+1, byrow = F), sigsq)
+         g.out[[k]] = ESS_post2D(Z, X, matrix(g.in[[k]], N+1, N+1, byrow = F), matrix(g_ESS, N+1, N+1, byrow = F), 
+                                 sigsq = sigsq, Temper = Tk[k])
          g.out.mat[[k]] = matrix(g.out[[k]], N+1, N+1, byrow = F)
       }
       # 2. Swapping between the chain
