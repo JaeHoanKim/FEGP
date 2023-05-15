@@ -32,6 +32,23 @@ Sampling_N_new = function(N, kappa, beta = 2){
    return(vec)
 }
 
+Phi_1D = function(X, N){
+   n = length(X)
+   knot_N = c(0:N)/N
+   Phi = matrix(0, nrow = n, ncol = N+1)
+   # for the sparse matrix
+   for(index in 1:n){
+      x = X[index]
+      i = min(1 + floor(x*N), N)
+      wx1 = (1 - abs(x - knot_N[i]) * N)
+      wx2 = (1 - abs(x - knot_N[i+1]) * N)
+      Phi[index, i] = wx1
+      Phi[index, i+1] = wx2
+   }
+   Phi = as(Phi, "sparseMatrix")
+   return(Phi)
+}
+
 f_N_h = function(x, g){
    N = length(g) - 1
    knot_N = c(0:N)/N
