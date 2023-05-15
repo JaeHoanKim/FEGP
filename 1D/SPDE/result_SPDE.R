@@ -3,8 +3,8 @@ gc()
 library(grDevices)
 library(ggplot2)
 library(Matrix)
-source("functions_SPDE_sampling.R")
-source("functions_SPDE.R")
+source("1D/SPDE/functions_SPDE_sampling.R")
+source("1D/SPDE/functions_SPDE.R")
 nlist = 100
 plabslist = list()
 index = 1
@@ -15,25 +15,33 @@ Y = f0(X) + rnorm(n) * 0.1
 obs = data.frame(X, Y)
 ## discretized version of 1 over exponential distribution - hich satisfy the condition for prior theoretically
 # N.pr = function(N){return (1/N^2 * 3 * exp(-3 / N))}
-target = 1000
-brn = 1000
+target = 100
+brn = 100
 kappa = 3
 N.fixed = 20
-Temperature = 100
-## MAKE SURE IF TEMP IS SET TO BE 1!
-result = sample.ESS.Nfixed(X, Y, sigsq = 0.1^2, kappa.init = kappa, N.init = N.fixed,
-                           mcmc = target, brn=brn, thin = 1, Temp = Temperature)
+algo = "exact"
+if (algo == "ESS.Nfixed"){
+   Temperature = 1
+   ## MAKE SURE IF TEMP IS SET TO BE 1!
+   result = sample.ESS.Nfixed(X, Y, sigsq = 0.1^2, kappa.init = kappa, N.init = N.fixed,
+                              mcmc = target, brn=brn, thin = 1, Temp = Temperature)
+} else if (algo == "PT.ESS"){
+   ################ For the PTESS algorithm ####################
+   N.pr.poi = 5
+   Nk = c(3, 5, 10, 15, 20)
+   result = sample.PT.ESS(X, Y, sigsq = 0.1^2, kappa.init = 5, Nk = Nk,
+                          N.pr = function(x){return(dpois(x, lambda = N.pr.poi))},
+                          Tk = c(1, 3, 10, 30, 100),
+                          # Tk = c(1:(K - N.min + 1))^4,
+                          # N.pr = function(x){return (1)},
+                          mcmc = target, brn=brn, thin = 1, pred = FALSE)
+} else if(algo == "exact"){
+   result = sample.exact(X, Y, sigsq = 0.1^2, kappa.init = kappa, gridsize = N.fixed,
+                         mcmc = target, brn=brn, thin = 1)
+}
 
 
-################ For the PTESS algorithm ####################
-N.pr.poi = 5
-Nk = c(3, 5, 10, 15, 20)
-result = sample.PT.ESS(X, Y, sigsq = 0.1^2, kappa.init = 5, Nk = Nk,
-                       N.pr = function(x){return(dpois(x, lambda = N.pr.poi))},
-                       Tk = c(1, 3, 10, 30, 100),
-                       # Tk = c(1:(K - N.min + 1))^4,
-                       # N.pr = function(x){return (1)},
-                       mcmc = target, brn=brn, thin = 1, pred = FALSE)
+
 
 ## Plot 3. Fitting of the samples (credible intervals)
 

@@ -120,7 +120,7 @@ sample.exact = function(X, Y, kappa.pr = function(x){return(1)},
    if(length(X)!=length(Y))
       stop("X and Y should be of same length!")
    n = length(Y)
-   if(missing(grid)){
+   if(missing(gridsize)){
       stop("grid should be provided for the exact Nfixed method!")
    }
    em = mcmc + brn # total number of sampling
@@ -134,12 +134,12 @@ sample.exact = function(X, Y, kappa.pr = function(x){return(1)},
    Phi = Phi_1D(X, N)
    # computation of the mean and the variance vector
    var_grid = solve(Omega + t(Phi) %*% Phi / sigsq)
-   mean_grid = var_grid %*% t(Phi) %*% Z / sigsq
+   mean_grid = var_grid %*% t(Phi) %*% Y / sigsq
    g_samples = rmvnorm(n = em, mean = mean_grid, sigma = var_grid, checkSymmetry = FALSE)
    for(i in 1:em){
       g_list[[i]] = g_samples[i, ]
    }
-   return(g_list)
+   return(list(g_list = g_list))
 }
 
 
