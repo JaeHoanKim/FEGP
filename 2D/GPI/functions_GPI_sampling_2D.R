@@ -173,7 +173,7 @@ sample.PTESS2D = function(Z, X, Nk, Tk, N.pr, mcmc, brn, thin, l.in = NULL, nu.i
       result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
       for(i in 2:em){
          nu.ess = matrix(samp_from_grid(N, mdim = result$mvec, egs = result$egvals, nu, lambda_g), 
-                         nrow = N[1] + 1, ncol = N[2] + 1, byrow = TRUE) / sqrt(Tk[k])
+                         nrow = N[1] + 1, ncol = N[2] + 1, byrow = TRUE) * sqrt(Tk[k])
          g.out[[k]][[i]] = ESS(g.out[[k]][[i-1]], nu.ess, z = Z, x = X, sigsq = sigsq, Temper = Tk[k])
          if (i%%100 == 0){
             print(c(i, N[1]))
