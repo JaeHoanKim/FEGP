@@ -141,16 +141,16 @@ loglik2D = function(z, x, g, sigsq){
 
 # run ESS algorithm
 
-ESS_post2D = function(z, x, g, g_ESS, sigsq){
+ESS_post2D = function(z, x, g, g_ESS, sigsq, Temper = 1){
    thetamin = 0; 
    thetamax = 2*pi;
    u = runif(1)
-   logy = loglik2D(z, x, g, sigsq) + log(u); 
+   logy = loglik2D(z, x, g, sigsq) / Temper + log(u); 
    theta = runif(1,thetamin,thetamax); 
    thetamin = theta - 2*pi 
    thetamax = theta
    gprime = g*cos(theta) + g_ESS*sin(theta)
-   while(loglik2D(z, x, gprime, sigsq) <= logy){
+   while(loglik2D(z, x, gprime, sigsq) / Temper <= logy){
       if(theta < 0)
          thetamin = theta
       else
