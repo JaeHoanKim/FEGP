@@ -397,16 +397,16 @@ ESS_double = function(gdouble, g, gdouble_ess, nu, l, result_N = NULL, result_2N
    return(gdouble_prime)
 }
 
-ESS = function(g, nu_ess, z, x, sigsq){
+ESS = function(g, nu_ess, z, x, sigsq, Temper = 1){
    thetamin = 0; 
    thetamax = 2*pi;
    u = runif(1)
-   logy = loglik(z, x, g, sigsq) + log(u); 
+   logy = loglik(z, x, g, sigsq) / Temper + log(u); 
    theta = runif(1,thetamin,thetamax); 
    thetamin = theta - 2*pi; 
    thetamax = theta;
    gprime = g*cos(theta) + nu_ess*sin(theta);
-   while(loglik(z, x, gprime, sigsq) <= logy){
+   while(loglik(z, x, gprime, sigsq) / Temper <= logy){
       if(theta < 0)
          thetamin = theta
       else
