@@ -121,7 +121,7 @@ sample.PTESS = function(X, Y, N.pr, Nk, Tk,
    # setting up for iterative work
    for(k in 1:length(Nk)){
       knot_N[[k]] = c(0:Nk[k]) / Nk[k]
-      g.in[[k]] = samp.WC(knot_N[[k]], nu.in, l.in, tausq) / sqrt(Tk[k])
+      g.in[[k]] = samp.WC(knot_N[[k]], nu.in, l.in, tausq) * sqrt(Tk[k])
    }
    for(i in 1:em){
       ## sample of g at i th step
@@ -132,7 +132,7 @@ sample.PTESS = function(X, Y, N.pr, Nk, Tk,
          # also reflecting that we sample from the tempered prior!
          N = length(g.in[[k]]) - 1
          knot_N = c(0:N)/N
-         g.ESS = samp.WC(knot_N, nu.in, l.in, tausq) / sqrt(Tk[k])
+         g.ESS = samp.WC(knot_N, nu.in, l.in, tausq) * sqrt(Tk[k])
          g.out[[k]] = ESS(g.in[[k]], g.ESS, Y, X, sigsq, Temper = Tk[k])
       }
       # try multiple swaps after one within sampling
