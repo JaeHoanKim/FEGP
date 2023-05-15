@@ -7,7 +7,7 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 source("1D/GPI/functions_GPI_sampling.R")
 source("1D/GPI/functions_GPI.R")
 
-n = 100
+n = 300
 # N.max = 100 # for uniform prior - maximum number of knots
 plabslist = list()
 X = runif(n)
@@ -17,10 +17,10 @@ obs = data.frame(X, Y)
 ## discretized version of 1 over exponential distribution - hich satisfy the condition for prior theoretically
 # N.pr = function(N){return (1/N^2 * 3 * exp(-3 / N))}
 # N.pr = function(N){return (ifelse(N <= N.max, 1, 0))}
-target = 200
-brn = 100
+target = 2500
+brn = 1000
 
-algo = "exact"
+algo = "PTESS"
 if(algo == "ESS.nest"){
    ################ For the ESS.nested algorithm ####################
    result = sample.ESS.nest(X, Y, N.pr = function(x){return(dpois(x, lambda = 5))}, N.init = 2, 
@@ -57,7 +57,7 @@ ggplot(y.plot, aes(x = x)) +
    geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
    geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
    geom_point(data = obs, aes(X, Y), size = 0.3) +
-   labs(title = paste0("CI 95% of ", sample.num, " samples using ESS after ", target+brn - sample.num, " burn ins (", algo, " used)"))+
+   labs(title = paste0("CI 95% of ", sample.num, " samples using ESS after ", target+brn - sample.num, " burn ins (", algo, ", n = ", n, ")"))+
    geom_point(data = obs, aes(X, Y), size = 0.3)
 
 
