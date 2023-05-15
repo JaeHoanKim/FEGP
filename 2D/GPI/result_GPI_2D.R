@@ -8,12 +8,14 @@ library(ggplot2)
 source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
 ############################ fixed N ESS #############################
-n = 1000
-N.init = c(5, 5) # for uniform prior - maximum number of knots
+n = 300
+# N.init = c(5, 5) # for uniform prior - maximum number of knots
 plabslist = list()
 f0 = function(x, y){
    return(sin(11*x + 2*y) + 2*y^2)
 }
+
+# f0 = function(x, y){return(abs(x-0.5) + abs(y-0.5))}
 X = matrix(runif(2*n), n)
 Z = f0(X[, 1], X[, 2]) + rnorm(n) * 0.1
 dpois5 = function(x){
@@ -22,7 +24,7 @@ dpois5 = function(x){
 ## discretized version of 1 over exponential distribution - which satisfy the condition for prior theoretically
 # N.pr = function(N){return (1/N^2 * 3 * exp(-3 / N))}
 # kappa in the SPDE method = 1 / l.in
-target = 500; brn = 300
+target = 2500; brn = 1000
 algo = "PTESS"
 if(algo == "ESS.Nfixed"){
    result = sample.ESS.Nfixed2D(Z = Z, X = X, sigsq = 0.1^2, mcmc = target, brn = brn, thin = 1, 
@@ -33,7 +35,7 @@ if(algo == "ESS.Nfixed"){
 }else if(algo == "PTESS"){
    Nk = c(2, 4, 8, 16)
    Tk = c(1, 3, 10, 30)
-   result = sample.PTESS2D(Z = Z, X = X, N.pr = dpois5, Nk = Nk, Tk = Tk, sigsq = 0.1^2,
+   result = sample.PTESS2D(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, Tk = Tk, sigsq = 0.1^2,
                              mcmc = target, brn = brn, nu.in = 1, l.in = 0.1)
 }
 ################## plot ###################

@@ -203,10 +203,9 @@ sample.PTESS2D = function(Z, X, Nk, Tk, N.pr, mcmc, brn, thin, l.in = NULL, nu.i
             Nk[k2] = y
          }
       }
-      N_list[i] = N[1]
+      N_list[i] = Nk[1]
       g_list[[i]] = as.vector(t(g.out[[1]][[i]]))
    }
    ## when pred is FALSE, Ypred would be the zero matrix
    return(list(g_list = g_list, N_list = N_list))
 }
-
