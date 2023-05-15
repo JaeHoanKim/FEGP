@@ -160,7 +160,6 @@ sample.exact2D= function(X, Z, kappa.pr = function(x){return(1)},
    # starting with the initial N and g
    # setting up for iterative work
    # g.in = g.init
-   N = N.init
    kappa = kappa.init
    gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                    rep(c(0:gridsize)/gridsize, gridsize + 1))
