@@ -64,7 +64,7 @@ sample.PT.ESS = function(X, Y, kappa.pr = function(x){return(1)}, Nk,
    mv = 1/(4*kappa^3)
    # Nk: the N value (nrow(g) - 1) of the k-th chain!
    for(k in 1:length(Nk)){
-      g.in[[k]] = Sampling_N_new(Nk[k], kappa)/sqrt(mv)
+      g.in[[k]] = Sampling_N_new(Nk[k], kappa)/sqrt(mv) * sqrt(Tk[k])
    }
    ## Parallel tempering
    for (i in 1:em){
@@ -73,7 +73,7 @@ sample.PT.ESS = function(X, Y, kappa.pr = function(x){return(1)}, Nk,
       # g.out : sample from N(g;0, Sigma) L(g)^{1/T}
       for(k in 1:length(Nk)){
          # reflecting the changing dimension of g.in[[k]]
-         g_ESS = Sampling_N_new(Nk[k], kappa)/sqrt(mv)
+         g_ESS = Sampling_N_new(Nk[k], kappa)/sqrt(mv) * sqrt(Tk[k])
          g.out[[k]] = ESS_post_tempered(Y, X, g.in[[k]], g_ESS, sigsq, Temp = Tk[k])
       }
       # try multiple swaps after one within sampling
