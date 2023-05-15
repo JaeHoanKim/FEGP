@@ -113,7 +113,7 @@ sample.PT.ESS = function(X, Y, kappa.pr = function(x){return(1)}, Nk,
 ## Sample exact using the original GP
 
 sample.exact = function(X, Y, kappa.pr = function(x){return(1)}, 
-                        beta = 2, mcmc, brn, thin, sigsq, kappa.init, grid = c(0:100)/100){
+                        beta = 2, mcmc, brn, thin, sigsq, kappa.init, gridsize){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## kappa.pr: prior distribution of kappa (function); by default, noninformative prior
@@ -125,21 +125,17 @@ sample.exact = function(X, Y, kappa.pr = function(x){return(1)},
    }
    em = mcmc + brn # total number of sampling
    g_list = list()
+   N = gridsize
    # starting with the initial N and g
    # setting up for iterative work
    # g.in = g.init
    kappa = kappa.init
-   K = rSPDE::matern.covariance(as.matrix(dist(X, diag = TRUE, upper = TRUE)), kappa, nu = 1.5, sigma = 1)
-   dist_XnewX = matrix(grid, nrow = length(X), ncol = length(grid), byrow = T) - 
-      matrix(X, nrow = length(X), ncol = length(grid), byrow = F)
-   Kstar = rSPDE::matern.covariance(dist_XnewX, kappa, nu = 1.5, sigma = 1)
-   K_new = matern.covariance(as.matrix(dist(grid, diag = TRUE, upper = TRUE)), kappa, nu = 1.5, sigma = 1)
+   Omega = Q1D(N, kappa)
+   Phi = Phi_1D(X, N)
    # computation of the mean and the variance vector
-   mean_grid = t(Kstar) %*% solve(K + sigsq * diag(nrow(K))) %*% Y
-   var_grid = K_new - t(Kstar) %*% solve(K + sigsq* diag(nrow(K))) %*% Kstar
-   # symmetrize due to prevent the numerical error
-   var_grid = (var_grid + t(var_grid)) / 2
-   g_samples = rmvnorm(n = em, mean = mean_grid, sigma = var_grid)
+   var_grid = solve(Omega + t(Phi) %*% Phi / sigsq)
+   mean_grid = var_grid %*% t(Phi) %*% Z / sigsq
+   g_samples = rmvnorm(n = em, mean = mean_grid, sigma = var_grid, checkSymmetry = FALSE)
    for(i in 1:em){
       g_list[[i]] = g_samples[i, ]
    }
