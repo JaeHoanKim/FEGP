@@ -5,7 +5,7 @@ library(ggplot2)
 library(Matrix)
 source("1D/SPDE/functions_SPDE_sampling.R")
 source("1D/SPDE/functions_SPDE.R")
-nlist = 100
+nlist = 300
 plabslist = list()
 index = 1
 n = nlist[index]

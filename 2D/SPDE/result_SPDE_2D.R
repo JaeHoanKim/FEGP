@@ -9,18 +9,18 @@ source("2D/SPDE/functions_SPDE_2D.R")
 
 n = 300 # the number of observed data
 f0 = function(x, y){
-   return(sin(11*x + 2*y) + 2*y^2)
+   return(sin(5*x + 2*y) + 2*y^2)
 } # true function
 X = matrix(runif(2*n), n)
 Z = f0(X[, 1], X[, 2]) + rnorm(n) * 0.1
 ## discretized version of 1 over exponential distribution - which satisfy the condition for prior theoretically
 # N.pr = function(N){return (1/N^2 * 3 * exp(-3 / N))}
 
-kappa = 10
+kappa = 3
 N.init = 10
 brnin = 1000
 target = 2500
-algo = "RJexact"
+algo = "PTexact"
 poi5 = function(x){
    return(dpois(x, lambda = 5))
 }

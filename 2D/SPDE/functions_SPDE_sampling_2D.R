@@ -322,7 +322,7 @@ sample.PTexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, Tk, N.pr,
    }
    for(i in 1:em){
       # 2. Swapping between the chain
-      for (kk in 1:(1*length(Nk))){
+      for (kk in 1:1){
          ## swap states - Sambridge (2014)! randomly choose two chains and decide
          chains = sample(1:(length(Tk)), 2, replace = F)
          k1 = chains[1]

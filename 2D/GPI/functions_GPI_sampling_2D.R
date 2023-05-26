@@ -182,7 +182,7 @@ sample.PTESS2D = function(Z, X, Nk, Tk, N.pr, mcmc, brn, thin, l.in = NULL, nu.i
    }
    for(i in 1:em){
       # mixing for PT
-      for (kk in 1:(1*length(Nk))){
+      for (kk in 1:1){
          ## swap states - Sambridge (2014)! randomly choose two chains and decide
          chains = sample(1:(length(Tk)), 2, replace = F)
          k1 = chains[1]

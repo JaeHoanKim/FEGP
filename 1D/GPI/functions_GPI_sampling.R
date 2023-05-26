@@ -137,7 +137,7 @@ sample.PTESS = function(X, Y, N.pr, Nk, Tk,
       }
       # try multiple swaps after one within sampling
       # regulate the number of mixing
-      for (kk in 1:(1*length(Nk))){
+      for (kk in 1:1){
          ## swap states - Sambridge (2014)! randomly choose two chains and decide
          chains = sample(1:(length(Tk)), 2, replace = F)
          k1 = chains[1]
