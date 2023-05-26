@@ -312,8 +312,8 @@ sample.PTexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, Tk, N.pr,
       var_grid = (var_grid + t(var_grid)) / 2
       g_samples = mvtnorm::rmvnorm(n = em, mean = mean_grid, sigma = var_grid,
                                    checkSymmetry = FALSE)
-      ## add temperature 
-      g_samples = g_samples * sqrt(Tk[k])
+      ## add temperature - don't add temperature on the prior!
+      # g_samples = g_samples * sqrt(Tk[k])
       for(i in 1:em){
          g.out[[k]][[i]] = # as.vector(t(matrix(g_samples[i, ], nrow = sqrt(length(g_samples[i, ])), byrow = FALSE)))
             g_samples[i, ]
@@ -322,7 +322,7 @@ sample.PTexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, Tk, N.pr,
    }
    for(i in 1:em){
       # 2. Swapping between the chain
-      for (kk in 1:1){
+      for (kk in 1:length(Nk)){
          ## swap states - Sambridge (2014)! randomly choose two chains and decide
          chains = sample(1:(length(Tk)), 2, replace = F)
          k1 = chains[1]

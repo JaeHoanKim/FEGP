@@ -18,9 +18,9 @@ Z = f0(X[, 1], X[, 2]) + rnorm(n) * 0.1
 
 kappa = 3
 N.init = 10
-brnin = 1000
-target = 2500
-algo = "PTexact"
+brnin = 100
+target = 250
+algo = "RJexact"
 poi5 = function(x){
    return(dpois(x, lambda = 5))
 }
