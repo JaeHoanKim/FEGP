@@ -79,8 +79,8 @@ plot_upp2 <- ggplot(y.plot, aes(x1, x2)) +
                        show.legend = TRUE) + themegg
 
 
-final_plot = ggarrange(plotlist = list(plot_true, plot_mean, 
-                                       plot_low2, plot_upp2), nrow = 2, ncol = 2)
+final_plot = ggarrange(plotlist = list(plot_true, plot_low2, 
+                                       plot_mean, plot_upp2), nrow = 2, ncol = 2)
 final_plot
 MSE = mean((y.plot$truefun - y.plot$mean)^2)
 MSE

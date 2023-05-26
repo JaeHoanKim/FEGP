@@ -18,9 +18,9 @@ Z = f0(X[, 1], X[, 2]) + rnorm(n) * 0.1
 
 kappa = 3
 N.init = 10
-brnin = 100
-target = 250
-algo = "RJexact"
+brnin = 1000
+target = 2500
+algo = "PTexact"
 poi5 = function(x){
    return(dpois(x, lambda = 5))
 }
@@ -90,8 +90,8 @@ plot_upp2 <- ggplot(y.plot, aes(x1, x2)) +
                        show.legend = TRUE) + themegg
 
 
-final_plot = ggarrange(plotlist = list(plot_true, plot_mean, 
-                                       plot_low2, plot_upp2), nrow = 2, ncol = 2)
+final_plot = ggarrange(plotlist = list(plot_true, plot_low2, 
+                                       plot_mean, plot_upp2), nrow = 2, ncol = 2)
 final_plot
 MSE = mean((y.plot$truefun - y.plot$mean)^2)
 MSE
