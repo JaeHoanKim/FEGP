@@ -121,7 +121,7 @@ sample.PTESS = function(X, Y, N.pr, Nk, Tk,
    # setting up for iterative work
    for(k in 1:length(Nk)){
       knot_N[[k]] = c(0:Nk[k]) / Nk[k]
-      g.in[[k]] = samp.WC(knot_N[[k]], nu.in, l.in, tausq) * sqrt(Tk[k])
+      g.in[[k]] = samp.WC(knot_N[[k]], nu.in, l.in, tausq)
    }
    for(i in 1:em){
       ## sample of g at i th step

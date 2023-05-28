@@ -16,7 +16,7 @@ Z = f0(X[, 1], X[, 2]) + rnorm(n) * 0.1
 ## discretized version of 1 over exponential distribution - which satisfy the condition for prior theoretically
 # N.pr = function(N){return (1/N^2 * 3 * exp(-3 / N))}
 
-kappa = 3
+kappa = 2
 N.init = 10
 brnin = 1000
 target = 2500
@@ -40,7 +40,7 @@ if (algo == "ESS.Nfixed"){
                          Nk = Nk, Tk = Tk, kappa.init = kappa, mcmc = target, brn = brnin, thin = 1)
 }else if(algo == "PTexact"){
    Nk = c(3, 5, 8, 10, 15)
-   Tk = c(1, 3, 10, 30, 100)
+   Tk = c(1, runif(4, min = 1, max = 1.2))
    result = sample.PTexact(X, Z, sigsq = 0.1^2, N.pr = function(x){return(1)},
                          Nk = Nk, Tk = Tk, kappa.init = kappa, mcmc = target, brn = brnin, thin = 1)
 }else if(algo == "RJexact"){
@@ -90,8 +90,8 @@ plot_upp2 <- ggplot(y.plot, aes(x1, x2)) +
                        show.legend = TRUE) + themegg
 
 
-final_plot = ggarrange(plotlist = list(plot_true, plot_low2, 
-                                       plot_mean, plot_upp2), nrow = 2, ncol = 2)
+final_plot = ggarrange(plotlist = list(plot_true, plot_mean, 
+                                       plot_low2, plot_upp2), nrow = 2, ncol = 2)
 final_plot
 MSE = mean((y.plot$truefun - y.plot$mean)^2)
 MSE

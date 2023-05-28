@@ -306,7 +306,7 @@ sample.PTexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, Tk, N.pr,
       Omega = Q2D(N, kappa)
       Phi = Phi_2D(X, N)
       # computation of the mean and the variance vector
-      var_grid = solve(Omega + t(Phi) %*% Phi / sigsq)
+      var_grid = solve(Omega + t(Phi) %*% Phi / sigsq) * Tk[k]
       mean_grid = var_grid %*% t(Phi) %*% Z / sigsq
       # symmetrize due to prevent the numerical error
       var_grid = (var_grid + t(var_grid)) / 2

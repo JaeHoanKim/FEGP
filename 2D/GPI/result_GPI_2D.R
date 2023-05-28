@@ -12,7 +12,7 @@ n = 300
 # N.init = c(5, 5) # for uniform prior - maximum number of knots
 plabslist = list()
 f0 = function(x, y){
-   return(sin(11*x + 2*y) + 2*y^2)
+   return(sin(5*x + 2*y) + 2*y^2)
 }
 
 # f0 = function(x, y){return(abs(x-0.5) + abs(y-0.5))}
@@ -25,18 +25,19 @@ dpois5 = function(x){
 # N.pr = function(N){return (1/N^2 * 3 * exp(-3 / N))}
 # kappa in the SPDE method = 1 / l.in
 target = 2500; brn = 1000
+kappa = 2
 algo = "PTESS"
 if(algo == "ESS.Nfixed"){
    result = sample.ESS.Nfixed2D(Z = Z, X = X, sigsq = 0.1^2, mcmc = target, brn = brn, thin = 1, 
-                       nu.in = 1, l.in = 0.1, N.init = N.init)
+                       nu.in = 1, l.in = 1/kappa, N.init = N.init)
 }else if(algo == "ESS.nested"){
    result = sample.ESS.nested2D(Z = Z, X = X, N.pr = function(x){return(1)}, sigsq = 0.1^2, mcmc = target, brn = brn, thin = 1, 
-                       nu.in = 1, l.in = 0.1, N.init = c(4, 4))
+                       nu.in = 1, l.in = 1/kappa, N.init = c(4, 4))
 }else if(algo == "PTESS"){
    Nk = c(2, 4, 8, 16)
    Tk = c(1, 3, 10, 30)
    result = sample.PTESS2D(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, Tk = Tk, sigsq = 0.1^2,
-                             mcmc = target, brn = brn, nu.in = 1, l.in = 0.1)
+                             mcmc = target, brn = brn, nu.in = 1, l.in = 1/kappa)
 }
 ################## plot ###################
 library(ggpubr)
@@ -78,9 +79,9 @@ plot_upp2 <- ggplot(y.plot, aes(x1, x2)) +
    geom_contour_filled(aes(z = upp2), breaks = mybreaks, 
                        show.legend = TRUE) + themegg
 
-
-final_plot = ggarrange(plotlist = list(plot_true, plot_low2, 
-                                       plot_mean, plot_upp2), nrow = 2, ncol = 2)
+## plot arrangement : list(1, 2, 3, 4) => 1 2 // 3 4
+final_plot = ggarrange(plotlist = list(plot_true, plot_mean, 
+                                       plot_low2, plot_upp2), nrow = 2, ncol = 2)
 final_plot
 MSE = mean((y.plot$truefun - y.plot$mean)^2)
 MSE
