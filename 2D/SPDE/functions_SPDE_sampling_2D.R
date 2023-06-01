@@ -383,6 +383,7 @@ sample.RJexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
    # g.in = g.init
    kappa = kappa.init
    mv = 1/(4*pi*kappa^2)
+   log_jump_prob = vector(length = length(Nk))
    # 1. Progress within the chain
    for(k in 1:length(Nk)){
       N = Nk[k]
@@ -400,6 +401,7 @@ sample.RJexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
       var_grid = (var_grid + t(var_grid)) / 2
       g_samples = mvtnorm::rmvnorm(n = em, mean = mean_grid, sigma = var_grid,
                                    checkSymmetry = FALSE)
+      log_jump_prob[k] = log(N.pr(N[k])) + 1/2 * (log(det(Omega)) + log(det(var_grid))) 
       for(i in 1:em){
          g.out[[k]][[i]] = # as.vector(t(matrix(g_samples[i, ], nrow = sqrt(length(g_samples[i, ])), byrow = FALSE)))
             g_samples[i, ]
@@ -409,14 +411,12 @@ sample.RJexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
    for(i in 1:em){
       # 2. Swapping between the chain
       # For the RJMCMC, randomly choose another chain other than the first one and compare
-      for (kk in 1:(1*length(Nk))){
+      for (kk in 1:1){
          ## swap states - Sambridge (2014)! randomly choose two chains and decide
          chains = sample(2:(length(Nk)), 1, replace = F)
          k = chains
-         # jump probability from Brooks et al.
-         log.jump.prob = min(0, log(N.pr(Nk[k])) - log(N.pr(Nk[1])) +
-                                loglik2D(Z, X, g.out.mat[[k]][[i]], sigsq) - 
-                                loglik2D(Z, X, g.out.mat[[1]][[i]], sigsq))
+         # jump probability - not from Brooks et al., but from the direct calculation of the detailed balance condition
+         log.jump.prob = min(0, log_jump_prob[k]- log_jump_prob[1])
          u = runif(1)
          if (u < exp(log.jump.prob)){
             # swapping the sample - should change the remaining thing as a whole. 
