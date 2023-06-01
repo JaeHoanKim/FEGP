@@ -20,10 +20,15 @@ kappa = 2
 N.init = 10
 brnin = 1000
 target = 2500
-algo = "PTexact"
+algo = "RJexact"
 poi5 = function(x){
    return(dpois(x, lambda = 5))
 }
+
+const = function(x){
+   return(1)
+}
+
 if (algo == "ESS.Nfixed"){
    result = sample.ESS.Nfixed2D(X, Z, sigsq = 0.1^2, kappa.init = kappa, N.init = N.init,
                           mcmc = target, brn=brnin, thin = 1)
@@ -40,13 +45,13 @@ if (algo == "ESS.Nfixed"){
                          Nk = Nk, Tk = Tk, kappa.init = kappa, mcmc = target, brn = brnin, thin = 1)
 }else if(algo == "PTexact"){
    Nk = c(3, 5, 8, 10, 15)
-   Tk = c(1, runif(4, min = 1, max = 1.2))
+   Tk = seq(1, 1.1, length.out = length(Nk))
    result = sample.PTexact(X, Z, sigsq = 0.1^2, N.pr = function(x){return(1)},
                          Nk = Nk, Tk = Tk, kappa.init = kappa, mcmc = target, brn = brnin, thin = 1)
 }else if(algo == "RJexact"){
    Nk = c(3, 5, 8, 10, 15)
    result = sample.RJexact(X, Z, sigsq = 0.1^2, # N.pr = function(x){return(1)},
-                           N.pr = poi5,
+                           N.pr = const,
                            Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, thin = 1)
 }
 ################## plot ###################
@@ -59,7 +64,6 @@ gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
 
 # gridmat is a (gridsize^2) by 2 matrix!
 y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)
-
 grandmin <- round(min(y.plot$truefun) - 0.5, 2)
 grandmax <- round(max(y.plot$truefun) + 0.5, 2)
 mybreaks <- seq(grandmin, grandmax, length.out = 11)
@@ -93,9 +97,20 @@ plot_upp2 <- ggplot(y.plot, aes(x1, x2)) +
 final_plot = ggarrange(plotlist = list(plot_true, plot_mean, 
                                        plot_low2, plot_upp2), nrow = 2, ncol = 2)
 final_plot
+
+## difference plot
+
 MSE = mean((y.plot$truefun - y.plot$mean)^2)
-MSE
+plot_diff <- ggplot(y.plot, aes(x1, x2)) +
+   geom_contour_filled(aes(z = truefun - mean),  
+                       show.legend = TRUE) + 
+   labs(title = paste0("Difference plot, MSE = ", round(MSE, 4))) +themegg
+plot_diff
 
 N_list = tail(result$N_list, target)
-plot(N_list)
+par(mfrow = c(1, 2))
+plot(N_list, xlab = "Index", ylab = "N")
 lines(N_list)
+N_list <- factor(N_list)
+barplot(table(N_list))
+

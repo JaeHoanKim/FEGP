@@ -383,7 +383,7 @@ sample.RJexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
    # g.in = g.init
    kappa = kappa.init
    mv = 1/(4*pi*kappa^2)
-   log_jump_prob = vector(length = length(Nk))
+   log_jump_prob_N = vector(length = length(Nk))
    # 1. Progress within the chain
    for(k in 1:length(Nk)){
       N = Nk[k]
@@ -401,7 +401,7 @@ sample.RJexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
       var_grid = (var_grid + t(var_grid)) / 2
       g_samples = mvtnorm::rmvnorm(n = em, mean = mean_grid, sigma = var_grid,
                                    checkSymmetry = FALSE)
-      log_jump_prob[k] = log(N.pr(N[k])) + 1/2 * (log(det(Omega)) + log(det(var_grid))) 
+      log_jump_prob_N[k] = log(N.pr(Nk[k])) - 1/2 * log(det(diag((N+1)^2) + solve(Omega) %*% t(Phi) %*% Phi))
       for(i in 1:em){
          g.out[[k]][[i]] = # as.vector(t(matrix(g_samples[i, ], nrow = sqrt(length(g_samples[i, ])), byrow = FALSE)))
             g_samples[i, ]
@@ -416,7 +416,7 @@ sample.RJexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
          chains = sample(2:(length(Nk)), 1, replace = F)
          k = chains
          # jump probability - not from Brooks et al., but from the direct calculation of the detailed balance condition
-         log.jump.prob = min(0, log_jump_prob[k]- log_jump_prob[1])
+         log.jump.prob = min(0, log_jump_prob_N[k]- log_jump_prob_N[1])
          u = runif(1)
          if (u < exp(log.jump.prob)){
             # swapping the sample - should change the remaining thing as a whole. 
@@ -441,5 +441,5 @@ sample.RJexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
       N_list[i] = Nk[1]
    }
    ## when pred is FALSE, Ypred would be the zero matrix
-   return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list))
+   return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list, log_jump_prob_N = log_jump_prob_N))
 }
