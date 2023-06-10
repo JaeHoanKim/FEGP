@@ -24,20 +24,26 @@ dpois5 = function(x){
 ## discretized version of 1 over exponential distribution - which satisfy the condition for prior theoretically
 # N.pr = function(N){return (1/N^2 * 3 * exp(-3 / N))}
 # kappa in the SPDE method = 1 / l.in
-target = 2500; brn = 1000
+target = 500; brn = 100
+Ndoubling = 50
 kappa = 2
-algo = "PTESS"
+algo = "ESS.nested"
 if(algo == "ESS.Nfixed"){
    result = sample.ESS.Nfixed2D(Z = Z, X = X, sigsq = 0.1^2, mcmc = target, brn = brn, thin = 1, 
                        nu.in = 1, l.in = 1/kappa, N.init = N.init)
 }else if(algo == "ESS.nested"){
    result = sample.ESS.nested2D(Z = Z, X = X, N.pr = function(x){return(1)}, sigsq = 0.1^2, mcmc = target, brn = brn, thin = 1, 
-                       nu.in = 1, l.in = 1/kappa, N.init = c(4, 4))
+                       nu.in = 1, l.in = 1/kappa, N.init = c(2, 2),
+                       Ndoubling = Ndoubling)
 }else if(algo == "PTESS"){
-   Nk = c(2, 4, 8, 16)
-   Tk = c(1, 3, 10, 30)
+   Nk = c(4, 6, 8, 10, 12)
+   Tk = seq(1, 1.1, length.out = length(Nk))
    result = sample.PTESS2D(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, Tk = Tk, sigsq = 0.1^2,
                              mcmc = target, brn = brn, nu.in = 1, l.in = 1/kappa)
+}else if(algo == "RJESS"){
+   Nk = c(4, 6, 8, 10, 12)
+   result = sample.RJESS2D(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
+                           mcmc = target, brn = brn, nu.in = 1, l.in = 1/kappa)
 }
 ################## plot ###################
 library(ggpubr)
@@ -86,6 +92,11 @@ final_plot
 MSE = mean((y.plot$truefun - y.plot$mean)^2)
 MSE
 
+
 N_list = tail(result$N_list, target)
-plot(N_list)
+par(mfrow = c(1, 2))
+plot(N_list, xlab = "Index", ylab = "N")
 lines(N_list)
+N_list <- factor(N_list)
+barplot(table(N_list))
+

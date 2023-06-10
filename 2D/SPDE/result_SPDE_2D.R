@@ -7,7 +7,7 @@ library(rSPDE)
 source("2D/SPDE/functions_SPDE_sampling_2D.R")
 source("2D/SPDE/functions_SPDE_2D.R")
 
-n = 300 # the number of observed data
+n = 1000 # the number of observed data
 f0 = function(x, y){
    return(sin(5*x + 2*y) + 2*y^2)
 } # true function

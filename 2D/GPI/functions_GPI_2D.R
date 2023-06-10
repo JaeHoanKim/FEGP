@@ -385,7 +385,6 @@ ESS_double = function(gdouble, g, gdouble_ess, nu, l, result_N = NULL, result_2N
    thetamin = theta - 2*pi; 
    thetamax = theta;
    gdouble_prime = gdouble*cos(theta) + gdouble_ess*sin(theta)
-   
    while(loglik_double(gdouble_prime, g, nu, l, result_N, result_2N) <= logy){
       if(theta < 0)
          thetamin = theta
@@ -394,6 +393,8 @@ ESS_double = function(gdouble, g, gdouble_ess, nu, l, result_N = NULL, result_2N
       theta = runif(1,thetamin,thetamax)
       gdouble_prime = gdouble*cos(theta) + gdouble_ess*sin(theta)
    }
+   # replace the nested part with g
+   gdouble_prime[2 * c(1:(N1 + 1)) - 1, 2 * c(1:(N2 + 1)) - 1] = g
    return(gdouble_prime)
 }
 
