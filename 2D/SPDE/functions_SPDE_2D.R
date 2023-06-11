@@ -141,10 +141,13 @@ loglik2D = function(z, x, g, sigsq){
 
 # run ESS algorithm
 
-ESS_post2D = function(z, x, g, g_ESS, sigsq, Temper = 1){
+ESS_post2D = function(z, x, g, g_ESS, sigsq, u = 0.5, Temper = 1){
    thetamin = 0; 
    thetamax = 2*pi;
-   u = runif(1)
+   # to control the randomness within the ESS algorithm
+   if(u == 0.5){
+      u = runif(1)  
+   }
    logy = loglik2D(z, x, g, sigsq) / Temper + log(u); 
    theta = runif(1,thetamin,thetamax); 
    thetamin = theta - 2*pi 
