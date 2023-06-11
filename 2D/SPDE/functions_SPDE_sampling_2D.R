@@ -282,17 +282,12 @@ sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
    prob_list = c()
    g_list = vector("list", em)
    kappa_list = list()
-   # g: double-indexed list, first: about chain, second: about i-th sample
-   # g.in = list()
-   g.out = vector("list", em)
-   g.out.mat = vector("list", em)
-   # starting with the initial N and g
-   # setting up for iterative work
-   # g.in = g.init
    kappa = kappa.init
    mv = 1/(4*pi*kappa^2)
    log_jump_prob_N = vector(length = length(Nk))
-   # 1. Progress within the chain
+   mean_grid = list()
+   var_grid = list()
+   # 1. Sample from N | D
    for(k in 1:length(Nk)){
       N = Nk[k]
       kappa = kappa.init
@@ -303,51 +298,21 @@ sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
       Omega = Q2D(N, kappa)
       Phi = Phi_2D(X, N)
       # computation of the mean and the variance vector
-      var_grid = solve(Omega + t(Phi) %*% Phi / sigsq)
-      mean_grid = var_grid %*% t(Phi) %*% Z / sigsq
-      # symmetrize due to prevent the numerical error
-      var_grid = (var_grid + t(var_grid)) / 2
-      g_samples = mvtnorm::rmvnorm(n = em, mean = mean_grid, sigma = var_grid,
-                                   checkSymmetry = FALSE)
+      var_grid[[k]] = solve(Omega + t(Phi) %*% Phi / sigsq)
+      mean_grid[[k]] = var_grid[[k]] %*% t(Phi) %*% Z / sigsq
       log_jump_prob_N[k] = log(N.pr(Nk[k])) - 1/2 * log(det(diag((N+1)^2) + solve(Omega) %*% t(Phi) %*% Phi / sigsq))
-      for(i in 1:em){
-         g.out[[k]][[i]] = # as.vector(t(matrix(g_samples[i, ], nrow = sqrt(length(g_samples[i, ])), byrow = FALSE)))
-            g_samples[i, ]
-         g.out.mat[[k]][[i]] = matrix(g.out[[k]][[i]], N+1, N+1, byrow = T)
+   }
+   N_list = sample(Nk, size = em, replace = TRUE, prob = log_jump_prob_N)
+   # 2. Sample from w | D, N
+   for(k in 1:length(Nk)){
+      N = Nk[k]
+      index = which(N_list == N)
+      g_samples = mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[k]], sigma = var_grid[[k]],
+                                   checkSymmetry = FALSE)
+      for(j in 1:length(index)){
+         g_list[[(index[j])]] = g_samples[j, ]
       }
    }
-   for(i in 1:em){
-      # 2. Swapping between the chain
-      # For the RJMCMC, randomly choose another chain other than the first one and compare
-      for (kk in 1:1){
-         ## swap states - Sambridge (2014)! randomly choose two chains and decide
-         chains = sample(2:(length(Nk)), 1, replace = F)
-         k = chains
-         # jump probability - not from Brooks et al., but from the direct calculation of the detailed balance condition
-         log.jump.prob = min(0, log_jump_prob_N[k]- log_jump_prob_N[1])
-         u = runif(1)
-         if (u < exp(log.jump.prob)){
-            # swapping the sample - should change the remaining thing as a whole. 
-            # Since we keep the required info of the previous steps, we swap the list as a hole.
-            x = g.out[[1]]
-            g.out[[1]] = g.out[[k]]
-            g.out[[k]] = x
-            # swapping the N
-            y = Nk[1]
-            Nk[1] = Nk[k]
-            Nk[k] = y
-         }
-      }
-      ### preparation for iteration
-      g.in = g.out
-      if (i %% 100 == 0){
-         print(c("iteration number: ", i))
-         print(c("N: ", sqrt(length(g.out[[1]][[i]])) - 1))
-         print(c("N mixing status :", Nk))
-      }
-      g_list[[i]] = g.in[[1]][[i]]
-      N_list[i] = Nk[1]
-   }
-   ## when pred is FALSE, Ypred would be the zero matrix
+      ## when pred is FALSE, Ypred would be the zero matrix
    return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list, log_jump_prob_N = log_jump_prob_N))
 }
