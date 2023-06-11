@@ -302,7 +302,7 @@ sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
       mean_grid[[k]] = var_grid[[k]] %*% t(Phi) %*% Z / sigsq
       log_jump_prob_N[k] = log(N.pr(Nk[k])) - 1/2 * log(det(diag((N+1)^2) + solve(Omega) %*% t(Phi) %*% Phi / sigsq))
    }
-   N_list = sample(Nk, size = em, replace = TRUE, prob = log_jump_prob_N)
+   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_jump_prob_N))
    # 2. Sample from w | D, N
    for(k in 1:length(Nk)){
       N = Nk[k]
