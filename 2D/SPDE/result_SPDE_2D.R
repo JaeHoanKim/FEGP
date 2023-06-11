@@ -7,7 +7,7 @@ library(rSPDE)
 source("2D/SPDE/functions_SPDE_sampling_2D.R")
 source("2D/SPDE/functions_SPDE_2D.R")
 
-n = 1000 # the number of observed data
+n = 300 # the number of observed data
 f0 = function(x, y){
    return(sin(5*x + 2*y) + 2*y^2)
 } # true function
@@ -20,7 +20,7 @@ kappa = 2
 N.init = 10
 brnin = 1000
 target = 2500
-algo = "RJexact"
+algo = "exact.seq"
 poi5 = function(x){
    return(dpois(x, lambda = 5))
 }
@@ -51,6 +51,11 @@ if (algo == "ESS.Nfixed"){
 }else if(algo == "RJexact"){
    Nk = c(3, 5, 8, 10, 15)
    result = sample.RJexact(X, Z, sigsq = 0.1^2, # N.pr = function(x){return(1)},
+                           N.pr = const,
+                           Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, thin = 1)
+}else if(algo == "exact.seq"){
+   Nk = c(3, 5, 8, 10, 15)
+   result = sample.exact2D.seq(X, Z, sigsq = 0.1^2, # N.pr = function(x){return(1)},
                            N.pr = const,
                            Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, thin = 1)
 }

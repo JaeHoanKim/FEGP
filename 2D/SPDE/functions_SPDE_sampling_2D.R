@@ -268,8 +268,7 @@ sample.RJexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
 }
 
 sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
-                          beta = 2, mcmc, brn, thin, sigsq = 0.01, kappa.init = 2, N.init = 20, 
-                          g.init = rep(0, N.init+1)){
+                          beta = 2, mcmc, brn, thin, sigsq = 0.01, kappa.init = 2){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## kappa init should be 2 to match with GPI method
@@ -283,7 +282,6 @@ sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
    g_list = vector("list", em)
    kappa_list = list()
    kappa = kappa.init
-   mv = 1/(4*pi*kappa^2)
    log_jump_prob_N = vector(length = length(Nk))
    mean_grid = list()
    var_grid = list()
@@ -291,25 +289,25 @@ sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
    for(k in 1:length(Nk)){
       N = Nk[k]
       kappa = kappa.init
-      gridsize = N
-      gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
-                      rep(c(0:gridsize)/gridsize, gridsize + 1))
+      gridmat = cbind(rep(c(0:N)/N, each = N+1),
+                      rep(c(0:N)/N, N+1))
       # sparse matrix Omega and Phi
       Omega = Q2D(N, kappa)
       Phi = Phi_2D(X, N)
       # computation of the mean and the variance vector
       var_grid[[k]] = solve(Omega + t(Phi) %*% Phi / sigsq)
       mean_grid[[k]] = var_grid[[k]] %*% t(Phi) %*% Z / sigsq
-      log_jump_prob_N[k] = log(N.pr(Nk[k])) - 1/2 * log(det(diag((N+1)^2) + solve(Omega) %*% t(Phi) %*% Phi / sigsq))
+      log_jump_prob_N[k] = log(N.pr(Nk[k])) - 1/2 * log(det(diag((N+1)^2) + solve(Omega) %*% t(Phi) %*% Phi / sigsq)) +
+         1/2 * t(mean_grid[[k]]) %*% (Omega + t(Phi) %*% Phi / sigsq) %*% mean_grid[[k]] - t(Z) %*% Z/(2*sigsq)
    }
    N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_jump_prob_N - log_jump_prob_N[1]))
    # 2. Sample from w | D, N
    for(k in 1:length(Nk)){
       N = Nk[k]
       index = which(N_list == N)
-      g_samples = mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[k]], sigma = var_grid[[k]],
-                                   checkSymmetry = FALSE)
       if (length(index) >= 1){
+         g_samples = mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[k]], sigma = var_grid[[k]],
+                                      checkSymmetry = FALSE)
          for(j in 1:length(index)){
             g_list[[(index[j])]] = g_samples[j, ]
          }
