@@ -118,4 +118,3 @@ plot(N_list, xlab = "Index", ylab = "N")
 lines(N_list)
 N_list <- factor(N_list)
 barplot(table(N_list))
-

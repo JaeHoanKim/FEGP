@@ -268,7 +268,7 @@ sample.RJexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
 }
 
 sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
-                          beta = 2, mcmc, brn, thin, sigsq = 0.01, kappa.init = 2){
+                          beta = 2, mcmc, brn, thin, sigsq = 0.01, kappa.init = 2, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## kappa init should be 2 to match with GPI method
@@ -300,12 +300,14 @@ sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
       log_jump_prob_N[k] = log(N.pr(Nk[k])) - 1/2 * log(det(diag((N+1)^2) + solve(Omega) %*% t(Phi) %*% Phi / sigsq)) +
          1/2 * t(mean_grid[[k]]) %*% (Omega + t(Phi) %*% Phi / sigsq) %*% mean_grid[[k]] - t(Z) %*% Z/(2*sigsq)
    }
+   set.seed(seed)
    N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_jump_prob_N - log_jump_prob_N[1]))
    # 2. Sample from w | D, N
    for(k in 1:length(Nk)){
       N = Nk[k]
       index = which(N_list == N)
       if (length(index) >= 1){
+         set.seed(seed * k)
          g_samples = mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[k]], sigma = var_grid[[k]],
                                       checkSymmetry = FALSE)
          for(j in 1:length(index)){
