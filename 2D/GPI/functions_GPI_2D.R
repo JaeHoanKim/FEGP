@@ -328,6 +328,38 @@ f_N_h_2D_multi = function(x, g){
    return(out)
 }
 
+
+Phi_2D = function(X, N){
+   n = nrow(X)
+   gridmat = cbind(rep(c(0:N)/N, each = N + 1),
+                   rep(c(0:N)/N, N + 1))
+   knot_N = c(0:N)/N
+   Phi = matrix(0, nrow = n, ncol = (N+1)^2)
+   # for the sparse matrix
+   ilist = c()
+   jlist = c()
+   plist = c()
+   for(index in 1:n){
+      Phi_row = matrix(0, nrow = N+1, ncol = N+1)
+      xx = X[index, 1]
+      yy = X[index, 2]
+      i = min(1 + floor(xx * N), N)
+      j = min(1 + floor(yy * N), N)
+      wx1 = (1 - abs(xx - knot_N[i]) * N)
+      wx2 = (1 - abs(xx - knot_N[i+1]) * N)
+      wy1 = (1 - abs(yy - knot_N[j]) * N)
+      wy2 = (1 - abs(yy - knot_N[j+1]) * N)
+      Phi_row[i, j] = wx1 * wy1
+      Phi_row[i, j+1] = wx1 * wy2
+      Phi_row[i+1, j] = wx2 * wy1
+      Phi_row[i+1, j+1] = wx2 * wy2
+      # instead of byrow = T option
+      Phi[index, ] = as.vector(t(Phi_row))
+   }
+   Phi = as(Phi, "sparseMatrix")
+   return(Phi)
+}
+
 ## log-likelihood for z = g(x) + epsilon given g at grid points
 ## g : (N1 + 1) by (N2 + 1) matrix
 ## x : n by 2 matrix (each row are x, y coordinates)
