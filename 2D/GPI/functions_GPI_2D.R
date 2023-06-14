@@ -328,17 +328,12 @@ f_N_h_2D_multi = function(x, g){
    return(out)
 }
 
-
 Phi_2D = function(X, N){
    n = nrow(X)
    gridmat = cbind(rep(c(0:N)/N, each = N + 1),
                    rep(c(0:N)/N, N + 1))
    knot_N = c(0:N)/N
    Phi = matrix(0, nrow = n, ncol = (N+1)^2)
-   # for the sparse matrix
-   ilist = c()
-   jlist = c()
-   plist = c()
    for(index in 1:n){
       Phi_row = matrix(0, nrow = N+1, ncol = N+1)
       xx = X[index, 1]
