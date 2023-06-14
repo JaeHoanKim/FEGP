@@ -31,6 +31,17 @@ f_N_h_vec = function(x, g){
    return(vec1 + vec2)
 }
 
+Phi_1D = function(x, N){
+   n = length(x)
+   knot_N = c(0:N)/N
+   Phi = matrix(0, nrow = n, ncol = (N+1))
+   for(index in 1:n){
+      i = pmin(1 + floor(x[index] * N), N)
+      Phi[index, i] = (1 - abs(x[index] - knot_N[i])) * N
+      Phi[index, i+1] = (1 - abs(x[index] - knot_N[i+1])) * N
+   }
+   return(Phi)
+}
 #Given a \nu (smoothness parameter of matern kernel) finding a value of 
 # l (length-scale parameter) such that the correlation between the 
 # maximum seperation is some small value, say 0.05
