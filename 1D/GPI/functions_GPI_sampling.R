@@ -205,3 +205,74 @@ sample.exact = function(X, Y, l.in = 0.5, nu.in = 0.75,
    return(list(g_list = g_list))
 }
 
+
+
+sample.ESS.seq = function(X, Y, N.pr, Nk, Tk, l.in, nu.in, mcmc, brn, sigsq, tausq = 1){
+   ## X, Y: given data
+   ## N.pr: prior distribution of N (function)
+   ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
+   if(length(X)!=length(Y))
+      stop("X and Y should be of same length!")
+   n = length(Y)
+   Nk = sort(Nk)
+   if(length(Nk) != length(Tk)){
+      stop("The length of Nk and Tk should be the same!")
+   }
+   if (Tk[1] != 1){
+      stop("The first element of Tk should be 1!")
+   }
+   em = mcmc + brn # total number of sampling
+   g_list = list()
+   log_prob_N_list = vector(length = length(Nk))
+   # starting with the initial N and g
+   # setting up for iterative work
+   for(k in 1:length(Nk)){
+      knot_N[[k]] = c(0:Nk[k]) / Nk[k]
+      g.in[[k]] = samp.WC(knot_N[[k]], nu.in, l.in, tausq)
+   }
+   for(i in 1:em){
+      ## sample of g at i th step
+      # k : chain order
+      # g.out : sample from N(g;0, Sigma) L(g)^{1/T}
+      for(k in 1:length(Nk)){
+         # reflecting the changing dimension of g.in[[k]]
+         # also reflecting that we sample from the tempered prior!
+         N = length(g.in[[k]]) - 1
+         knot_N = c(0:N)/N
+         g.ESS = samp.WC(knot_N, nu.in, l.in, tausq) * sqrt(Tk[k])
+         g.out[[k]] = ESS(g.in[[k]], g.ESS, Y, X, sigsq, Temper = Tk[k])
+      }
+      # try multiple swaps after one within sampling
+      # regulate the number of mixing
+      for (kk in 1:1){
+         ## swap states - Sambridge (2014)! randomly choose two chains and decide
+         chains = sample(1:(length(Tk)), 2, replace = F)
+         k1 = chains[1]
+         k2 = chains[2]
+         log.prob.swap = min(0, (Tk[k2] - Tk[k1])/(Tk[k1] * Tk[k2]) *
+                                (loglik(Y, X, g.out[[k2]], sigsq) + log(N.pr(Nk[k2])) -
+                                    loglik(Y, X, g.out[[k1]], sigsq) - log(N.pr(Nk[k1]))))
+         u = runif(1)
+         if (u < exp(log.prob.swap)){
+            # swapping the sample
+            x = g.out[[k1]]
+            g.out[[k1]] = g.out[[k2]]
+            g.out[[k2]] = x
+            # swapping the N
+            y = Nk[k1]
+            Nk[k1] = Nk[k2]
+            Nk[k2] = y
+         }
+      }
+      g.in = g.out
+      if (i %% 100 == 0){
+         print(c("iteration number: ", i))
+         print(c("N: ", nrow(g.out[[1]]) - 1))
+         print(c("N mixing status :", Nk))
+      }
+      g_list[[i]] = g.in[[1]]
+      N_list[i] = length(g.in[[1]]) - 1
+   }
+   return(list(g_list = g_list, N_list = N_list))
+}
+
