@@ -4,7 +4,7 @@ library(Rcpp)
 #########################################################################
 
 ## knitting v (size N vector) and g_N (size N+1 vector) in an alternative order
-sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init, g.init, tausq = 1){
+sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init, tausq = 1){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
@@ -18,8 +18,7 @@ sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init
    g_list = list()
    # starting with the initial N and g
    # setting up for iterative work
-   g.init = matrix(0, N.init+1, N.init + 1)
-   g.in = g.init
+   g.in = matrix(0, N.init+1, N.init + 1)
    N = N.init
    # since N does not change, we can fix 'result'.
    result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
@@ -283,6 +282,7 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.i
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
    if(length(Z) != dim(X)[1])
       stop("Z and X should have the same length!")
+   n = nrow(X)
    em = mcmc + brn # total number of sampling
    ## compatibility check when predicting
    N_list = c()
@@ -292,7 +292,17 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.i
    for(k in 1:length(Nk)){
       N = Nk[k]
       # log(p(N | D)) calculation
-      log_prob_N_list[k] = N.pr(N[k]) + 1234
+      Phi = Phi_2D(X, N)
+      PhiTPhi = t(Phi) %*% Phi
+      gridmat = cbind(rep(c(0:N)/N, each = N + 1), 
+                  rep(c(0:N)/N, N + 1))
+      Sigma_N = thekernel(gridmat, nu.in, lambda = l.in)
+      Q_N = solve(Sigma_N)
+      Q_N_star = Q_N + PhiTPhi/sigsq
+      mu_star = solve(Q_N_star, t(Phi) %*% Z) / sigsq
+      log_prob_N_list[k] = log(N.pr(N[k])) + 1/2 * log(det(diag((N+1)^2) + Sigma_N %*% PhiTPhi / sigsq)) +
+         1/2 * t(mu_star) %*% Q_N_star %*% mu_star - t(Z) %*% Z / 2 / sigsq
+      print(log_prob_N_list[k])
    }
    # sampling from p(N|D) - with fixed seed
    set.seed(seed)
@@ -312,6 +322,9 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.i
             g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq)
             if(a > brn.ESS){
                g_list[[(index[a - brn.ESS])]] = t(g.out)
+               if((a-brn.ESS) %% 100 == 0){
+                  print(a-brn.ESS)
+               }
             }
          }
       }
