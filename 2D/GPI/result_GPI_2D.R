@@ -24,7 +24,7 @@ dpois5 = function(x){
 ## discretized version of 1 over exponential distribution - which satisfy the condition for prior theoretically
 # N.pr = function(N){return (1/N^2 * 3 * exp(-3 / N))}
 # kappa in the SPDE method = 1 / l.in
-target = 500; brn = 100
+target = 50; brn = 10
 Ndoubling = 50
 kappa = 2
 algo = "RJESS"
@@ -41,7 +41,7 @@ if(algo == "ESS.Nfixed"){
    result = sample.PTESS2D(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, Tk = Tk, sigsq = 0.1^2,
                              mcmc = target, brn = brn, nu.in = 1, l.in = 1/kappa)
 }else if(algo == "RJESS"){
-   Nk = c(4, 6, 8, 10, 12)
+   Nk = c(4, 6, 8)
    result = sample.RJESS2D(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
                            mcmc = target, brn = brn, nu.in = 1, l.in = 1/kappa)
 }

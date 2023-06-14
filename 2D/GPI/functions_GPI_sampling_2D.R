@@ -276,11 +276,8 @@ sample.RJESS2D = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.in = 
    return(list(g_list = g_list, N_list = N_list))
 }
 
-
-
-
 sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.in = NULL, sigsq, 
-                          N.init, tausq){
+                          N.init, tausq, brn.ESS = 500, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
@@ -290,49 +287,35 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.i
    ## compatibility check when predicting
    N_list = c()
    g_list = list()
-   g.out = vector("list", em)
    log_prob_N_list = vector(length = length(Nk))
    ## g matrices for multiple N - before mixing
    for(k in 1:length(Nk)){
       N = Nk[k]
-      g.out[[k]][[1]] = matrix(0, N+1, N+1)
-   }
-   ## generate ESS samples for the PT
-   for(k in 1:length(Nk)){
-      N = rep(Nk[k], 2)
-      result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
-      for(i in 2:em){
-         nu.ess = matrix(samp_from_grid(N, mdim = result$mvec, egs = result$egvals, nu, lambda_g), 
-                         nrow = N[1] + 1, ncol = N[2] + 1, byrow = TRUE)
-         g.out[[k]][[i]] = ESS(g.out[[k]][[i-1]], nu.ess, z = Z, x = X, sigsq = sigsq, Temper = 1)
-         if (i%%100 == 0){
-            print(c(i, N[1]))
-         }
-      }
+      # log(p(N | D)) calculation
       log_prob_N_list[k] = N.pr(N[k]) + 1234
    }
-   for(i in 1:em){
-      # mixing for PT
-      for (kk in 1:1){
-         ## swap states - Sambridge (2014)! randomly choose two chains and decide
-         chains = sample(2:(length(Nk)), 1, replace = F)
-         k = chains
-         log.prob.swap = min(0, log_prob_N_list[k] - log_prob_N_list[1])
-         u = runif(1)
-         if (u < exp(log.prob.swap)){
-            # swapping the sample - should change the remaining thing as a whole. 
-            # Since we keep the required info of the previous steps, we swap the list as a hole.
-            x = g.out[[1]]
-            g.out[[1]] = g.out[[k]]
-            g.out[[k]] = x
-            # swapping the N
-            y = Nk[1]
-            Nk[1] = Nk[k]
-            Nk[k] = y
+   # sampling from p(N|D) - with fixed seed
+   set.seed(seed)
+   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_prob_N_list - log_prob_N_list[1]))
+   ## generate ESS samples for the PT
+   for(k in 1:length(Nk)){
+      N = Nk[k]
+      result = eigvals_exact(ndim = c(N, N), nu = nu.in, lambda_g = l.in)
+      index = which(N_list == N)
+      if (length(index) >= 1){
+         set.seed(seed * k)
+         # sampling length(index) vectors for each fixed N using ESS
+         g.out = matrix(0, N+1, N+1)
+         for(a in 1:(brn.ESS + length(index))){
+            nu.ess = matrix(samp_from_grid(ndim = c(N, N), mdim = result$mvec, egs = result$egvals, nu, lambda_g), 
+                            nrow = N + 1, ncol = N + 1, byrow = TRUE)
+            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq)
+            if(a > brn.ESS){
+               g_list[[(index[a - brn.ESS])]] = t(g.out)
+            }
          }
       }
-      N_list[i] = Nk[1]
-      g_list[[i]] = as.vector(t(g.out[[1]][[i]]))
+      print(N)
    }
    ## when pred is FALSE, Ypred would be the zero matrix
    return(list(g_list = g_list, N_list = N_list))
