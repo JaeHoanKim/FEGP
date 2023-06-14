@@ -275,3 +275,65 @@ sample.RJESS2D = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.in = 
    ## when pred is FALSE, Ypred would be the zero matrix
    return(list(g_list = g_list, N_list = N_list))
 }
+
+
+
+
+sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.in = NULL, sigsq, 
+                          N.init, tausq){
+   ## X, Y: given data
+   ## N.pr: prior distribution of N (function)
+   ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
+   if(length(Z) != dim(X)[1])
+      stop("Z and X should have the same length!")
+   em = mcmc + brn # total number of sampling
+   ## compatibility check when predicting
+   N_list = c()
+   g_list = list()
+   g.out = vector("list", em)
+   log_prob_N_list = vector(length = length(Nk))
+   ## g matrices for multiple N - before mixing
+   for(k in 1:length(Nk)){
+      N = Nk[k]
+      g.out[[k]][[1]] = matrix(0, N+1, N+1)
+   }
+   ## generate ESS samples for the PT
+   for(k in 1:length(Nk)){
+      N = rep(Nk[k], 2)
+      result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
+      for(i in 2:em){
+         nu.ess = matrix(samp_from_grid(N, mdim = result$mvec, egs = result$egvals, nu, lambda_g), 
+                         nrow = N[1] + 1, ncol = N[2] + 1, byrow = TRUE)
+         g.out[[k]][[i]] = ESS(g.out[[k]][[i-1]], nu.ess, z = Z, x = X, sigsq = sigsq, Temper = 1)
+         if (i%%100 == 0){
+            print(c(i, N[1]))
+         }
+      }
+      log_prob_N_list[k] = N.pr(N[k]) + 1234
+   }
+   for(i in 1:em){
+      # mixing for PT
+      for (kk in 1:1){
+         ## swap states - Sambridge (2014)! randomly choose two chains and decide
+         chains = sample(2:(length(Nk)), 1, replace = F)
+         k = chains
+         log.prob.swap = min(0, log_prob_N_list[k] - log_prob_N_list[1])
+         u = runif(1)
+         if (u < exp(log.prob.swap)){
+            # swapping the sample - should change the remaining thing as a whole. 
+            # Since we keep the required info of the previous steps, we swap the list as a hole.
+            x = g.out[[1]]
+            g.out[[1]] = g.out[[k]]
+            g.out[[k]] = x
+            # swapping the N
+            y = Nk[1]
+            Nk[1] = Nk[k]
+            Nk[k] = y
+         }
+      }
+      N_list[i] = Nk[1]
+      g_list[[i]] = as.vector(t(g.out[[1]][[i]]))
+   }
+   ## when pred is FALSE, Ypred would be the zero matrix
+   return(list(g_list = g_list, N_list = N_list))
+}

@@ -27,7 +27,7 @@ dpois5 = function(x){
 target = 500; brn = 100
 Ndoubling = 50
 kappa = 2
-algo = "ESS.nested"
+algo = "RJESS"
 if(algo == "ESS.Nfixed"){
    result = sample.ESS.Nfixed2D(Z = Z, X = X, sigsq = 0.1^2, mcmc = target, brn = brn, thin = 1, 
                        nu.in = 1, l.in = 1/kappa, N.init = N.init)
