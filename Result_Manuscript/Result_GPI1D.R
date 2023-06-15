@@ -44,7 +44,7 @@ obs = data.frame(X, Y)
 y.plot = glist_to_plotdf(g.plot, grid.plot, true = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
 
 ggplot(y.plot, aes(x = x)) +
-   geom_line(aes(y=med), colour="blue") + 
+   geom_line(aes(y=mean), colour="blue") + 
    geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
    geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
    geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
@@ -56,3 +56,4 @@ ggplot(y.plot, aes(x = x)) +
 N_list = tail(result$N_list, target)
 plot(N_list)
 lines(N_list)
+MSE = mean((y.plot$true - y.plot$mean)^2)

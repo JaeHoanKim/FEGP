@@ -143,12 +143,13 @@ eigval=function(knot,nu,l,tausq){
 ########## Samples drawn using Wood and Chan Algorithm ##########
 #################################################################
 
-samp.WC=function(knot,nu,l,tausq){
+samp.WC=function(knot,nu,l,tausq, seed = 0){
    N=length(knot)
    lambda=eigval(knot,nu,l,tausq)
    m=length(lambda)
    samp.vec=rep(0,N)
    a=rep(0,m)
+   set.seed(seed)
    a[1]=sqrt(lambda[1])*rnorm(1)/sqrt(m)
    a[(m/2)+1]=sqrt(lambda[(m/2)+1])*rnorm(1)/sqrt(m)
    i=sqrt(as.complex(-1))
@@ -213,10 +214,10 @@ knit_vec = function(a, b){
 #############################################
 ########## Functions for using ESS ##########
 #############################################
-ESS = function(g, nu_ess, y, x, sigsq, Temper = 1){
+ESS = function(g, nu_ess, y, x, sigsq, Temper = 1, seed = 1){
    thetamin = 0; 
    thetamax = 2*pi;
-   
+   set.seed(seed)
    u = runif(1)
    # tempered log likelihood
    logy = loglik(y, x, g, sigsq) / Temper + log(u); 
