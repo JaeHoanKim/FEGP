@@ -246,13 +246,9 @@ sample.ESS.seq = function(X, Y, N.pr, Nk, brn.ESS = 100, l.in, nu.in, mcmc, brn,
             g.out = ESS(g.out, g.ESS, Y, X, sigsq, Temper = 1, seed = a * seed)
             if(a > brn.ESS){
                g_list[[(index[a - brn.ESS])]] = g.out
-               if((a-brn.ESS) %% 100 == 0){
-                  print(a-brn.ESS)
-               }
             }
          }
       }
-      print(N)
    }
    return(list(g_list = g_list, N_list = N_list, log_prob_N_list = log_prob_N_list))
 }
