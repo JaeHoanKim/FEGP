@@ -27,7 +27,7 @@ const = function(x){
 dpoi5 = function(x){
    return(dpois(x, lambda = 5))
 }
-Nk = c(4, 6, 8, 10, 12)
+Nk = c(4, 6, 8, 10)
 result = sample.RJESS2D.seq(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
                         mcmc = target, brn = brnin, nu.in = 1, l.in = 1/kappa, brn.ESS = 10)
 
