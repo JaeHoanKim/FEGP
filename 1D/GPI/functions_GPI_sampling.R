@@ -232,7 +232,7 @@ sample.ESS.seq = function(X, Y, N.pr, Nk, brn.ESS = 100, l.in, nu.in, mcmc, brn,
          1/2 * t(mu_star) %*% Q_N_star %*% mu_star - t(Y) %*% Y / 2 / sigsq
    }
    set.seed(seed)
-   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_prob_N_list - log_prob_N_list[1]))
+   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_prob_N_list - log_prob_N_list[length(Nk)]))
    for(k in 1:length(Nk)){
       N = Nk[k]
       knot_N = c(0:N)/N
