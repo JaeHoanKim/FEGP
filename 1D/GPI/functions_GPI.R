@@ -286,8 +286,6 @@ Levinson = function (gamma, y){
    return(list(sol1, alpha))
 }
 
-
-
 glist_to_plotdf = function(g, grid, true, alpha1 = 0.95, alpha2 = 0.9){
    Nsample = length(g)
    N = length(grid)
@@ -315,6 +313,6 @@ glist_to_plotdf = function(g, grid, true, alpha1 = 0.95, alpha2 = 0.9){
    y.plot[, 8] = y.plot[, 4] - supband
    y.plot[, 9] = y.plot[, 4] + supband
    y.plot = data.frame(y.plot)
-   colnames(y.plot) <- c('x', 'low2', 'low1', 'med', 'upp1', 'upp2', 'true', 'lowsup', 'uppsup')
+   colnames(y.plot) <- c('x', 'low2', 'low1', 'mean', 'upp1', 'upp2', 'true', 'lowsup', 'uppsup')
    return(y.plot)
 }
