@@ -121,10 +121,10 @@ ESS_post_tempered = function(y, x, g, g_ESS, sigsq, Temp=1){
 
 
 
-
-glist_to_plotdf = function(g, grid, true = f0, alpha1 = 0.95, alpha2 = 0.9){
+glist_to_plotdf = function(g, grid, true, alpha1 = 0.95, alpha2 = 0.9){
    Nsample = length(g)
    N = length(grid)
+   f0 = true
    y.tot = matrix(nrow = Nsample, ncol = N)
    for(i in 1:Nsample){
       y.tot[i, ] = f_N_h_vec(grid, g[[i]])
@@ -151,5 +151,3 @@ glist_to_plotdf = function(g, grid, true = f0, alpha1 = 0.95, alpha2 = 0.9){
    colnames(y.plot) <- c('x', 'low2', 'low1', 'med', 'upp1', 'upp2', 'true', 'lowsup', 'uppsup')
    return(y.plot)
 }
-
-
