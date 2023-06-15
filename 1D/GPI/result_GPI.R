@@ -3,6 +3,7 @@ gc()
 library(grDevices)
 library(ggplot2)
 require(Rcpp)
+library(Matrix)
 sourceCpp("1D/GPI/inv_chol.cpp")
 source("1D/GPI/functions_GPI_sampling.R")
 source("1D/GPI/functions_GPI.R")
@@ -14,13 +15,17 @@ X = runif(n)
 f0 = function(x){return(1*x^2+sin(8*x))}
 Y = f0(X) + rnorm(n) * 0.1
 obs = data.frame(X, Y)
+kappa  = 2
 ## discretized version of 1 over exponential distribution - hich satisfy the condition for prior theoretically
 # N.pr = function(N){return (1/N^2 * 3 * exp(-3 / N))}
 # N.pr = function(N){return (ifelse(N <= N.max, 1, 0))}
-target = 2500
-brn = 1000
+target = 250
+brn = 100
+dpois5 = function(x){
+   return(dpois(x, lambda = 5))
+}
 
-algo = "PTESS"
+algo = "ESS.seq"
 if(algo == "ESS.nest"){
    ################ For the ESS.nested algorithm ####################
    result = sample.ESS.nest(X, Y, N.pr = function(x){return(dpois(x, lambda = 5))}, N.init = 2, 
@@ -36,6 +41,11 @@ if(algo == "ESS.nest"){
                          mcmc = target, brn=brn, thin = 1)
 } else if(algo == "exact"){
    result = sample.exact(X, Y, sigsq = 0.1^2, mcmc = target, brn=brn, thin = 1, grid = c(0:100)/100)
+} else if(algo == "ESS.seq"){
+   Nk = c(4, 6, 8, 10, 12)
+   result = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
+                         N.pr = dpois5,
+                         mcmc = target, brn=brn)
 }
 
 ## Plot 3. Fitting of the samples (credible intervals)
