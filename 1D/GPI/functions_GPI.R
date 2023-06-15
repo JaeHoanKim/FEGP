@@ -288,9 +288,10 @@ Levinson = function (gamma, y){
 
 
 
-glist_to_plotdf = function(g, grid, true = f0, alpha1 = 0.95, alpha2 = 0.9){
+glist_to_plotdf = function(g, grid, true, alpha1 = 0.95, alpha2 = 0.9){
    Nsample = length(g)
    N = length(grid)
+   f0 = true
    y.tot = matrix(nrow = Nsample, ncol = N)
    for(i in 1:Nsample){
       y.tot[i, ] = f_N_h_vec(grid, g[[i]])

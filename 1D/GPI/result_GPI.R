@@ -52,14 +52,14 @@ if(algo == "ESS.nest"){
 
 ################## converting predicted values into usable form ##################
 ##################################################################################
-
+f0_1D = function(x){return(1*x^2+sin(8*x))}
 alpha1 = 0.9 # coverage probability 1 (dark gray area)
 alpha2 = 0.95 # coverage probability 2 (light gray area)
 sample.num = target # number of samples used for the credible intervals
 g.plot = tail(result$g_list, sample.num) # choosing last `sample.num` samples
 grid.plot = c(0:1000)/1000
 
-y.plot = glist_to_plotdf(g.plot, grid.plot, true = f0, alpha1 = 0.95, alpha2 = 0.9)
+y.plot = glist_to_plotdf(g.plot, grid.plot, true = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
 
 ggplot(y.plot, aes(x = x)) +
    geom_line(aes(y=med), colour="blue") + 
