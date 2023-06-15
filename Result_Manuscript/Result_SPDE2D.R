@@ -8,7 +8,7 @@ source("2D/SPDE/functions_SPDE_sampling_2D.R")
 source("2D/SPDE/functions_SPDE_2D.R")
 
 n = 200 # the number of observed data; 200, 500, 1000
-filename = paste0("Result_Manuscript/obs_n", n, ".RData")
+filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
 load(filename)
 m = 1 # m th dataset among M = 50 dataset
 X = df[((m-1)*n+1):(m*n), c(1, 2)]
