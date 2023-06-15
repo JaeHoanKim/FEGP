@@ -313,13 +313,12 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.i
       result = eigvals_exact(ndim = c(N, N), nu = nu.in, lambda_g = l.in)
       index = which(N_list == N)
       if (length(index) >= 1){
-         set.seed(seed * k)
          # sampling length(index) vectors for each fixed N using ESS
          g.out = matrix(0, N+1, N+1)
          for(a in 1:(brn.ESS + length(index))){
-            nu.ess = matrix(samp_from_grid(ndim = c(N, N), mdim = result$mvec, egs = result$egvals, nu, lambda_g), 
+            nu.ess = matrix(samp_from_grid(ndim = c(N, N), mdim = result$mvec, egs = result$egvals, nu, lambda_g, seed = seed * a * k), 
                             nrow = N + 1, ncol = N + 1, byrow = TRUE)
-            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq)
+            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * a * k)
             if(a > brn.ESS){
                g_list[[(index[a - brn.ESS])]] = t(g.out)
                if((a-brn.ESS) %% 100 == 0){

@@ -202,7 +202,7 @@ calc_pos <- function(j,dimref){
 }
 #==================
 
-samp_from_grid <- function(ndim,mdim,egs,nu,lambda_g){
+samp_from_grid <- function(ndim,mdim,egs,nu,lambda_g, seed = 0){
    ## Efficient sampling from a regular grid by constructing a BCCB matrix from a BTTB matrix,
    ## based on Wood and Chan paper, section 5.2.4. `ndim' is a vector showing number of
    ## grid points at each dimension. `mdim' is the vector extended grid points in each dimension
@@ -224,6 +224,7 @@ samp_from_grid <- function(ndim,mdim,egs,nu,lambda_g){
    set_pr <- grid_gen(dimvecs)
    
    r <- 0
+   set.seed(seed)
    while (r < mplusbar){
       r <- r+1
       j <- set_pr[r,]
@@ -425,9 +426,10 @@ ESS_double = function(gdouble, g, gdouble_ess, nu, l, result_N = NULL, result_2N
    return(gdouble_prime)
 }
 
-ESS = function(g, nu_ess, z, x, sigsq, Temper = 1){
+ESS = function(g, nu_ess, z, x, sigsq, Temper = 1, seed = 0){
    thetamin = 0; 
    thetamax = 2*pi;
+   set.seed(seed)
    u = runif(1)
    logy = loglik(z, x, g, sigsq) / Temper + log(u); 
    theta = runif(1,thetamin,thetamax); 

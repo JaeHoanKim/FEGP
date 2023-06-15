@@ -19,8 +19,8 @@ Z = df$Z[((m-1)*n+1):(m*n)]
 
 kappa = 2
 N.init = 10
-brnin = 1000
-target = 2500
+brn.ESS = 100
+target = 250
 const = function(x){
    return(1)
 }
@@ -29,11 +29,13 @@ dpoi5 = function(x){
 }
 Nk = c(4, 6, 8, 10)
 result = sample.RJESS2D.seq(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                        mcmc = target, brn = brnin, nu.in = 1, l.in = 1/kappa, brn.ESS = 10)
+                        mcmc = target, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS)
 
 ################## plot ###################
 library(ggpubr)
-
+f0 = function(x, y){
+   return(sin(5*x + 2*y) + 2*y^2)
+}
 g_list = result$g_list
 gridsize = 40
 gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
