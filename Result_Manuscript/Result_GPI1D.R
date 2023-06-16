@@ -9,7 +9,7 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 source("1D/GPI/functions_GPI.R")
 source("1D/GPI/functions_GPI_sampling.R")
 
-target = 250
+target = 2500
 brn.ESS = 100
 kappa = 2
 dpois5 = function(x){

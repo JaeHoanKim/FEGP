@@ -9,4 +9,4 @@ MSE.df.SPDE$method = "SPDE"
 library(tidyverse)
 MSE.df = bind_rows(MSE.df.GPI, MSE.df.SPDE)
 ggplot(MSE.df) +
-   geom_boxplot(aes(x = n, y = MSE, group = method))
+   geom_boxplot(aes(x = n, y = MSE, color = method))
