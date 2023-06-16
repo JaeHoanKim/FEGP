@@ -61,4 +61,14 @@ ggplot(y.plot, aes(x = x)) +
 N_list = tail(result$N_list, target)
 plot(N_list)
 lines(N_list)
-MSE = mean((y.plot$true - y.plot$mean)^2)
+
+## Plot 4. For the replicated result ##
+library(tidyverse)
+MSE.df = data.frame(MSE_list)
+colnames(MSE.df) = nlist
+MSE.df.plot = gather(MSE.df, key = "n", value = "MSE")
+MSE.df.plot$n <- factor(MSE.df.plot$n, levels = c(200, 500, 1000))
+ggplot(MSE.df.plot) + 
+   geom_boxplot(aes(x = n, y = MSE))
+## save as Rdata
+save(MSE.df.plot, file = "Result_Manuscript/MSE_dataframe/MSE_SPDE_1D.RData")
