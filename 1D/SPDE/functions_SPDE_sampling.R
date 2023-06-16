@@ -169,7 +169,7 @@ sample.exact.seq = function(X, Y, kappa.pr = function(x){return(1)}, Nk, N.pr,
    }
    # sample from p(N|D)
    set.seed(seed)
-   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_jump_prob_N - log_jump_prob_N[1]))
+   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_jump_prob_N - log_jump_prob_N[length(Nk)]))
    
    for(k in 1:length(Nk)){
       N = Nk[k]
