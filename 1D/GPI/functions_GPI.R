@@ -1,6 +1,3 @@
-library(fields)
-library(FastGP)
-
 h_j = function(x, my_knot, delta_N){
    N = length(my_knot) - 1 # 0 / N to N / N
    i = pmin(1 + floor(x * N), N)
