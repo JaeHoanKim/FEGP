@@ -168,10 +168,7 @@ samp.WC=function(knot,nu,l,tausq, seed = 0){
 loglik = function(y, x, g, sigsq){
    ## X: n by 1 vector, y: n by 1 vector
    n = length(y)
-   f_N_x = vector(length = n)
-   for (i in 1:n){
-      f_N_x[i] = f_N_h(x[i], g)
-   }
+   f_N_x = f_N_h_vec(x, g)
    loglik_value = - sum((y - f_N_x)^2) / (2 * sigsq) - n/2 * log((2*pi) * sigsq) 
    return(loglik_value)
 }
