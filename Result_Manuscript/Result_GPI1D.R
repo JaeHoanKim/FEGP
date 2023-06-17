@@ -111,29 +111,29 @@ microbenchmark(
 
 # time comparison according to s
 microbenchmark(
-   result1 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
+   result1 = sample.ESS.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
                             N.pr = const, mcmc = 100, brn=0, brn.ESS = brn.ESS),
-   result2 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
+   result2 = sample.ESS.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
                             N.pr = const, mcmc = 500, brn=0, brn.ESS = brn.ESS),
-   result3 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
+   result3 = sample.ESS.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
                             N.pr = const, mcmc = 1000, brn=0, brn.ESS = brn.ESS),
    times = 10
 )
 
 # time comparison according to N
 microbenchmark(
-   result1 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = c(4, 6), nu.in = 1, l.in = 1/kappa,
+   result1 = sample.ESS.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(4, 6), nu.in = 1, l.in = 1/kappa,
                             N.pr = const, mcmc = target, brn=0, brn.ESS = brn.ESS),
-   result2 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = c(8, 12), nu.in = 1, l.in = 1/kappa,
+   result2 = sample.ESS.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(8, 12), nu.in = 1, l.in = 1/kappa,
                             N.pr = const, mcmc = target, brn=0, brn.ESS = brn.ESS),
-   result3 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = c(16, 24), nu.in = 1, l.in = 1/kappa,
+   result3 = sample.ESS.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(16, 24), nu.in = 1, l.in = 1/kappa,
                             N.pr = const, mcmc = target, brn=0, brn.ESS = brn.ESS),
    times = 10
 )
 
 # R profiling to see detailed time cost
 Rprof()
-invisible(sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = c(4, 6), nu.in = 1, l.in = 1/kappa,
-                         N.pr = const, mcmc = target, brn=0, brn.ESS = brn.ESS))
+invisible(sample.ESS.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(16, 24), nu.in = 1, l.in = 1/kappa,
+                         N.pr = const, mcmc = 1000, brn=0, brn.ESS = brn.ESS))
 Rprof(NULL)
 summaryRprof()
