@@ -82,3 +82,58 @@ MSE.df.plot$n <- factor(MSE.df.plot$n, levels = c(200, 500, 1000))
 
 ggplot(MSE.df.plot) + 
    geom_boxplot(aes(x = n, y = MSE)) + themegg
+
+
+# time comparison according to n
+library(microbenchmark)
+m = 1
+Xlist = list(length = length(nlist))
+Ylist = list(length = length(nlist))
+for(a in 1:length(nlist)){
+   n = nlist[a]
+   filename = paste0("Result_Manuscript/obs_n1D", n, ".RData")
+   load(filename)
+   Xlist[[a]] = df$X[((m-1)*n+1):(m*n)]
+   Ylist[[a]] = df$Z[((m-1)*n+1):(m*n)]
+}
+
+target = 200
+# time comparison according to n
+microbenchmark(
+   result1 = sample.ESS.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
+                            N.pr = const, mcmc = target, brn=0, brn.ESS = brn.ESS),
+   result2 = sample.ESS.seq(Xlist[[2]], Ylist[[2]], sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
+                            N.pr = const, mcmc = target, brn=0, brn.ESS = brn.ESS),
+   result3 = sample.ESS.seq(Xlist[[3]], Ylist[[3]], sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
+                            N.pr = const, mcmc = target, brn=0, brn.ESS = brn.ESS),
+   times = 10
+)
+
+# time comparison according to s
+microbenchmark(
+   result1 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
+                            N.pr = const, mcmc = 100, brn=0, brn.ESS = brn.ESS),
+   result2 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
+                            N.pr = const, mcmc = 500, brn=0, brn.ESS = brn.ESS),
+   result3 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
+                            N.pr = const, mcmc = 1000, brn=0, brn.ESS = brn.ESS),
+   times = 10
+)
+
+# time comparison according to N
+microbenchmark(
+   result1 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = c(4, 6), nu.in = 1, l.in = 1/kappa,
+                            N.pr = const, mcmc = target, brn=0, brn.ESS = brn.ESS),
+   result2 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = c(8, 12), nu.in = 1, l.in = 1/kappa,
+                            N.pr = const, mcmc = target, brn=0, brn.ESS = brn.ESS),
+   result3 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = c(16, 24), nu.in = 1, l.in = 1/kappa,
+                            N.pr = const, mcmc = target, brn=0, brn.ESS = brn.ESS),
+   times = 10
+)
+
+# R profiling to see detailed time cost
+Rprof()
+invisible(sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = c(4, 6), nu.in = 1, l.in = 1/kappa,
+                         N.pr = const, mcmc = target, brn=0, brn.ESS = brn.ESS))
+Rprof(NULL)
+summaryRprof()

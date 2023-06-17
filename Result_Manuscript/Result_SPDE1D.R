@@ -118,3 +118,10 @@ microbenchmark(
                               kappa.init = kappa, mcmc = 100, brn=brn, seed = 1234),
    times = 10
 )
+
+# R profiling to see detailed time cost
+Rprof()
+invisible(sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(5, 6, 7), N.pr = const,
+                           kappa.init = kappa, mcmc = 100, brn=brn, seed = 1234))
+Rprof(NULL)
+summaryRprof()
