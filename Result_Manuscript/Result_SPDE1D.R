@@ -7,7 +7,7 @@ source("1D/SPDE/functions_SPDE_sampling.R")
 source("1D/SPDE/functions_SPDE.R")
 
 target = 2500
-brn.ESS = 100
+brn = 0
 kappa = 2
 
 const = function(x){
@@ -71,4 +71,50 @@ MSE.df.plot$n <- factor(MSE.df.plot$n, levels = c(200, 500, 1000))
 ggplot(MSE.df.plot) + 
    geom_boxplot(aes(x = n, y = MSE))
 ## save as Rdata
-save(MSE.df.plot, file = "Result_Manuscript/MSE_dataframe/MSE_SPDE_1D.RData")
+# save(MSE.df.plot, file = "Result_Manuscript/MSE_dataframe/MSE_SPDE_1D.RData")
+
+## Time comparison
+library(microbenchmark)
+m = 1
+Xlist = list(length = length(nlist))
+Ylist = list(length = length(nlist))
+for(a in 1:length(nlist)){
+   n = nlist[a]
+   filename = paste0("Result_Manuscript/obs_n1D", n, ".RData")
+   load(filename)
+   Xlist[[a]] = df$X[((m-1)*n+1):(m*n)]
+   Ylist[[a]] = df$Z[((m-1)*n+1):(m*n)]
+}
+
+# time comparison according to n
+microbenchmark(
+   result1 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
+                             kappa.init = kappa, mcmc = target, brn=brn, seed = 1234),
+   result2 = sample.exact.seq(Xlist[[2]], Ylist[[2]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
+                             kappa.init = kappa, mcmc = target, brn=brn, seed = 1234),
+   result3 = sample.exact.seq(Xlist[[3]], Ylist[[3]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
+                             kappa.init = kappa, mcmc = target, brn=brn, seed = 1234),
+   times = 100
+)
+
+# time comparison according to s
+microbenchmark(
+   result1 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
+                              kappa.init = kappa, mcmc = 100, brn=brn, seed = 1234),
+   result2 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
+                              kappa.init = kappa, mcmc = 1000, brn=brn, seed = 1234),
+   result3 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
+                              kappa.init = kappa, mcmc = 10000, brn=brn, seed = 1234),
+   times = 10
+)
+
+# time comparison according to N
+microbenchmark(
+   result1 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(5, 6, 7), N.pr = const,
+                              kappa.init = kappa, mcmc = 100, brn=brn, seed = 1234),
+   result2 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(10, 12, 14), N.pr = const,
+                              kappa.init = kappa, mcmc = 100, brn=brn, seed = 1234),
+   result3 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(50, 60, 70), N.pr = const,
+                              kappa.init = kappa, mcmc = 100, brn=brn, seed = 1234),
+   times = 10
+)
