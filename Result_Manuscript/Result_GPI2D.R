@@ -87,3 +87,34 @@ plot(N_list, xlab = "Index", ylab = "N")
 lines(N_list)
 N_list <- factor(N_list)
 barplot(table(N_list))
+
+
+####  time comparison according to n
+library(microbenchmark)
+m = 1
+nlist = c(200, 500, 1000)
+Xlist = list(length = length(nlist))
+Zlist = list(length = length(nlist))
+for(a in 1:length(nlist)){
+   n = nlist[a]
+   filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
+   load(filename)
+   Xlist[[a]] = df[((m-1)*n+1):(m*n), c(1, 2)]
+   Zlist[[a]] = df$Z[((m-1)*n+1):(m*n)]
+}
+
+Nk = c(4, 6, 8, 10, 12)
+brn.ESS = 100
+
+# time comparison according to s
+microbenchmark(
+   result1 = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
+                                mcmc = 100, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS),
+   result2 = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
+                                mcmc = 500, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS),
+   result3 = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
+                                mcmc = 1000, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS),
+   times = 10
+)
+
+

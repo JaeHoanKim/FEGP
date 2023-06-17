@@ -109,16 +109,27 @@ microbenchmark(
    times = 10
 )
 
-# time comparison according to s
-microbenchmark(
+# time comparison according to the sample size
+s_list = c(100, 500, 1000)
+time_comparison = microbenchmark(
    result1 = sample.ESS.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
-                            N.pr = const, mcmc = 100, brn=0, brn.ESS = brn.ESS),
+                            N.pr = const, mcmc = s_list[1], brn=0, brn.ESS = brn.ESS),
    result2 = sample.ESS.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
-                            N.pr = const, mcmc = 500, brn=0, brn.ESS = brn.ESS),
+                            N.pr = const, mcmc = s_list[2], brn=0, brn.ESS = brn.ESS),
    result3 = sample.ESS.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
-                            N.pr = const, mcmc = 1000, brn=0, brn.ESS = brn.ESS),
+                            N.pr = const, mcmc = s_list[3], brn=0, brn.ESS = brn.ESS),
    times = 10
 )
+
+time_comparison$time = time_comparison$time / mean(time_comparison$time)
+time_comparison$s = time_comparison$expr
+levels(time_comparison$s) <- s_list
+time_comparison$s <- as.numeric(as.character(time_comparison$s))
+ggplot(time_comparison, aes(x = s, y = time)) +
+   geom_point() +
+   geom_smooth() +
+   labs(title = "GPI 1D time comparison")
+
 
 # time comparison according to N
 microbenchmark(

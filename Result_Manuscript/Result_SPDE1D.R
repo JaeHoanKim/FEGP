@@ -98,30 +98,45 @@ microbenchmark(
 )
 
 # time comparison according to s
-microbenchmark(
+s_list = c(100, 500, 1000, 5000, 10000)
+time_comparison = microbenchmark(
    result1 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
-                              kappa.init = kappa, mcmc = 100, brn=brn, seed = 1234),
+                              kappa.init = kappa, mcmc = s_list[1], brn=brn, seed = 1234),
    result2 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
-                              kappa.init = kappa, mcmc = 1000, brn=brn, seed = 1234),
+                              kappa.init = kappa, mcmc = s_list[2], brn=brn, seed = 1234),
    result3 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
-                              kappa.init = kappa, mcmc = 10000, brn=brn, seed = 1234),
+                              kappa.init = kappa, mcmc = s_list[3], brn=brn, seed = 1234),
+   result4 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
+                              kappa.init = kappa, mcmc = s_list[4], brn=brn, seed = 1234),
+   result5 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
+                              kappa.init = kappa, mcmc = s_list[5], brn=brn, seed = 1234),
    times = 10
 )
 
+time_comparison$time = time_comparison$time / mean(time_comparison$time)
+time_comparison$s = time_comparison$expr
+levels(time_comparison$s) <- s_list
+time_comparison$s <- as.numeric(as.character(time_comparison$s))
+ggplot(time_comparison, aes(x = s, y = time)) +
+   geom_point() +
+   geom_smooth() +
+   labs(title = "SPDE 1D time comparison")
+
+
 # time comparison according to N
 microbenchmark(
-   result1 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(5, 6, 7), N.pr = const,
-                              kappa.init = kappa, mcmc = 100, brn=brn, seed = 1234),
-   result2 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(10, 12, 14), N.pr = const,
-                              kappa.init = kappa, mcmc = 100, brn=brn, seed = 1234),
-   result3 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(50, 60, 70), N.pr = const,
-                              kappa.init = kappa, mcmc = 100, brn=brn, seed = 1234),
+   result1 = sample.exact.seq(Xlist[[2]], Ylist[[2]], sigsq = 0.1^2, Nk = c(5, 6, 7), N.pr = const,
+                              kappa.init = kappa, mcmc = 1000, brn=brn, seed = 1234),
+   result2 = sample.exact.seq(Xlist[[2]], Ylist[[2]], sigsq = 0.1^2, Nk = c(50, 60, 70), N.pr = const,
+                              kappa.init = kappa, mcmc = 1000, brn=brn, seed = 1234),
+   result3 = sample.exact.seq(Xlist[[2]], Ylist[[2]], sigsq = 0.1^2, Nk = c(200, 240, 280), N.pr = const,
+                              kappa.init = kappa, mcmc = 1000, brn=brn, seed = 1234),
    times = 10
 )
 
 # R profiling to see detailed time cost
 Rprof()
-invisible(sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(5, 6, 7), N.pr = const,
+invisible(sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = c(50, 60, 70), N.pr = const,
                            kappa.init = kappa, mcmc = 100, brn=brn, seed = 1234))
 Rprof(NULL)
 summaryRprof()
