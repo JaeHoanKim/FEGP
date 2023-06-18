@@ -87,19 +87,28 @@ for(a in 1:length(nlist)){
 }
 
 # time comparison according to n
-microbenchmark(
+target = 500
+time_comparison = microbenchmark(
    result1 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
                              kappa.init = kappa, mcmc = target, brn=brn, seed = 1234),
    result2 = sample.exact.seq(Xlist[[2]], Ylist[[2]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
                              kappa.init = kappa, mcmc = target, brn=brn, seed = 1234),
    result3 = sample.exact.seq(Xlist[[3]], Ylist[[3]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
                              kappa.init = kappa, mcmc = target, brn=brn, seed = 1234),
-   times = 100
+   times = 10
 )
+
+time_comparison$n = time_comparison$expr
+levels(time_comparison$n) <- nlist
+time_comparison$n <- as.numeric(as.character(time_comparison$n))
+ggplot(time_comparison, aes(x = n, y = time)) +
+   geom_point() +
+   geom_smooth() +
+   labs(title = "SPDE 1D time comparison")
 
 # time comparison according to s
 s_list = c(100, 500, 1000, 5000, 10000)
-time_comparison = microbenchmark(
+microbenchmark(
    result1 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
                               kappa.init = kappa, mcmc = s_list[1], brn=brn, seed = 1234),
    result2 = sample.exact.seq(Xlist[[1]], Ylist[[1]], sigsq = 0.1^2, Nk = Nk, N.pr = const,
@@ -113,14 +122,6 @@ time_comparison = microbenchmark(
    times = 10
 )
 
-time_comparison$time = time_comparison$time / mean(time_comparison$time)
-time_comparison$s = time_comparison$expr
-levels(time_comparison$s) <- s_list
-time_comparison$s <- as.numeric(as.character(time_comparison$s))
-ggplot(time_comparison, aes(x = s, y = time)) +
-   geom_point() +
-   geom_smooth() +
-   labs(title = "SPDE 1D time comparison")
 
 
 # time comparison according to N
