@@ -29,7 +29,7 @@ gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                 rep(c(0:gridsize)/gridsize, gridsize+ 1))
 MSE_list = matrix(nrow = M, ncol = length(nlist))
 
-
+############################################################
 for(a in 1:length(nlist)){
    n = nlist[a]
    filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")

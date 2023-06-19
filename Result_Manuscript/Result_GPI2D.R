@@ -8,19 +8,11 @@ library(ggplot2)
 source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
 
-n = 200 # the number of observed data; 200, 500, 1000
-filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
-load(filename)
-m = 1 # m th dataset among M = 50 dataset
-X = df[((m-1)*n+1):(m*n), c(1, 2)]
-Z = df$Z[((m-1)*n+1):(m*n)]
-## discretized version of 1 over exponential distribution - which satisfy the condition for prior theoretically
-# N.pr = function(N){return (1/N^2 * 3 * exp(-3 / N))}
-
 kappa = 2
-N.init = 10
 brn.ESS = 100
 target = 250
+nlist = c(200, 500, 1000)
+M = 500
 const = function(x){
    return(1)
 }
@@ -28,18 +20,34 @@ dpoi5 = function(x){
    return(dpois(x, lambda = 5))
 }
 Nk = c(4, 6, 8, 10)
-result = sample.RJESS2D.seq(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                        mcmc = target, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS)
-
-################## plot ###################
-library(ggpubr)
 f0 = function(x, y){
    return(sin(5*x + 2*y) + 2*y^2)
 }
-g_list = result$g_list
 gridsize = 40
 gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                 rep(c(0:gridsize)/gridsize, gridsize+ 1))
+MSE_list = matrix(nrow = M, ncol = length(nlist))
+
+############################################################
+
+for(a in 1:length(nlist)){
+   n = nlist[a]
+   filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
+   load(filename)
+   for(m in 1:M){
+      X = df[((m-1)*n+1):(m*n), c(1, 2)]
+      Z = df$Z[((m-1)*n+1):(m*n)]
+      result = sample.RJESS2D.seq(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
+                                  mcmc = target, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS)
+      g_list = result$g_list
+      y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)
+      MSE_list[m, a] = mean((y.plot$truefun - y.plot$mean)^2)
+      print(m)
+   }
+}
+
+################## plot ###################
+library(ggpubr)
 
 # gridmat is a (gridsize^2) by 2 matrix!
 y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)
