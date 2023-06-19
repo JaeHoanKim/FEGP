@@ -1,3 +1,5 @@
+library(ggplot2)
+source("Result_Manuscript/GraphAesthetics.R")
 fileloc = "Result_Manuscript/MSE_dataframe/"
 load(paste0(fileloc, "MSE_GPI_1D.RData"))
 MSE.df.GPI <- MSE.df.plot
@@ -9,4 +11,5 @@ MSE.df.SPDE$method = "SPDE"
 library(tidyverse)
 MSE.df = bind_rows(MSE.df.GPI, MSE.df.SPDE)
 ggplot(MSE.df) +
-   geom_boxplot(aes(x = n, y = MSE, color = method))
+   geom_boxplot(aes(x = n, y = MSE, color = method)) + labs(title = "MSE comparison plot") +
+   theme1
