@@ -22,6 +22,7 @@ Nk = c(4, 6, 8, 10, 12)
 M = 50
 nlist = c(200, 500, 1000)
 MSE_list = matrix(nrow = M, ncol = length(nlist))
+grid.plot = c(0:1000)/1000
 
 for(a in 1:length(nlist)){
    n = nlist[a]
@@ -34,7 +35,6 @@ for(a in 1:length(nlist)){
       result = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = const,
                                 kappa.init = kappa, mcmc = target, brn=brn, seed = 1234)
       g.plot = tail(result$g_list, target) # choosing last `target` samples
-      grid.plot = c(0:1000)/1000
       obs = data.frame(X, Y)
       y.plot = glist_to_plotdf(g.plot, grid.plot, true = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
       MSE_list[m, a] = mean((y.plot$true - y.plot$mean)^2)
