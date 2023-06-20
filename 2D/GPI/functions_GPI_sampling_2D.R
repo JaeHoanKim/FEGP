@@ -275,7 +275,7 @@ sample.RJESS2D = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.in = 
    return(list(g_list = g_list, N_list = N_list))
 }
 
-sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.in = NULL, sigsq, 
+sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NULL, sigsq, 
                           N.init, tausq, brn.ESS = 500, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
