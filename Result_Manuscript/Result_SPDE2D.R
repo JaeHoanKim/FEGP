@@ -39,7 +39,7 @@ for(a in 1:length(nlist)){
       Z = df$Z[((m-1)*n+1):(m*n)]
       result = sample.exact2D.seq(X, Z, sigsq = 0.1^2, # N.pr = function(x){return(1)},
                                   N.pr = dpoi5,
-                                  Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, thin = 1)
+                                  Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, seed = 1234)
       g_list = result$g_list
       y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)
       MSE_list[m, a] = mean((y.plot$truefun - y.plot$mean)^2)
