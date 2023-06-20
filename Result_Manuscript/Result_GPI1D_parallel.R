@@ -13,7 +13,7 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 source("1D/GPI/functions_GPI.R")
 source("1D/GPI/functions_GPI_sampling.R")
 
-target = 25
+target = 2500
 brn.ESS = 100
 kappa = 2
 const = function(x){
@@ -50,6 +50,7 @@ for(a in 1:length(nlist)){
       grid.plot = c(0:1000)/1000
       obs = data.frame(X, Y)
       y.plot = glist_to_plotdf(g.plot, grid.plot, true = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
+      print(m)
       mean((y.plot$true - y.plot$mean)^2)
    }
    MSE_list[, a] = simplify(output)
