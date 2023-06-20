@@ -47,6 +47,16 @@ for(a in 1:length(nlist)){
    }
 }
 
+## Plot 4. For the replicated result ##
+library(tidyverse)
+MSE.df = data.frame(MSE_list)
+colnames(MSE.df) = nlist
+MSE.df.plot = gather(MSE.df, key = "n", value = "MSE")
+MSE.df.plot$n <- factor(MSE.df.plot$n, levels = nlist)
+ggplot(MSE.df.plot) + 
+   geom_boxplot(aes(x = n, y = MSE))
+## save as Rdata
+save(MSE.df.plot, file = "Result_Manuscript/MSE_dataframe/MSE_SPDE_2D.RData")
 
 ################## plot ###################
 grandmin <- round(min(y.plot$truefun) - 0.5, 2)
@@ -85,7 +95,6 @@ final_plot
 
 ## difference plot
 
-MSE = mean((y.plot$truefun - y.plot$mean)^2)
 plot_diff <- ggplot(y.plot, aes(x1, x2)) +
    geom_contour_filled(aes(z = truefun - mean),  
                        show.legend = TRUE) + 

@@ -46,6 +46,17 @@ for(a in 1:length(nlist)){
    }
 }
 
+## Plot 4. For the replicated result ##
+library(tidyverse)
+MSE.df = data.frame(MSE_list)
+colnames(MSE.df) = nlist
+MSE.df.plot = gather(MSE.df, key = "n", value = "MSE")
+MSE.df.plot$n <- factor(MSE.df.plot$n, levels = nlist)
+ggplot(MSE.df.plot) + 
+   geom_boxplot(aes(x = n, y = MSE))
+## save as Rdata
+save(MSE.df.plot, file = "Result_Manuscript/MSE_dataframe/MSE_GPI_2D.RData")
+
 ################## plot ###################
 library(ggpubr)
 
