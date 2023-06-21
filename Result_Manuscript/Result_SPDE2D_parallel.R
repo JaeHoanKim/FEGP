@@ -4,12 +4,13 @@ library(Matrix)
 library(grDevices)
 library(ggplot2)
 library(rSPDE)
+library(doParallel)
 source("2D/SPDE/functions_SPDE_sampling_2D.R")
 source("2D/SPDE/functions_SPDE_2D.R")
 
 kappa = 2
 brnin = 0
-target = 2500
+target = 25
 
 const = function(x){
    return(1)
