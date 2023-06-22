@@ -9,7 +9,7 @@ source("2D/GPI/functions_GPI_sampling_2D.R")
 
 kappa = 2
 brn.ESS = 100
-target = 250
+target = 2500
 nlist = c(200, 500, 1000)
 M = 500
 const = function(x){
