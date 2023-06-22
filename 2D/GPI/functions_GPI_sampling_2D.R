@@ -306,7 +306,7 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NU
    }
    # sampling from p(N|D) - with fixed seed
    set.seed(seed)
-   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_prob_N_list - log_prob_N_list[1]))
+   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_prob_N_list - log_prob_N_list[length(Nk)]))
    ## generate ESS samples for the PT
    for(k in 1:length(Nk)){
       N = Nk[k]
