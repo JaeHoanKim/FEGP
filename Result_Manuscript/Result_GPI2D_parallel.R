@@ -46,7 +46,7 @@ for(a in 1:length(nlist)){
       print(m)
       mean((y.plot$truefun - y.plot$mean)^2)
    }
-   MSE_list[, a] = simplify(output)
+   MSE_list[, a] = purrr::simplify(output)
 }
 
 ## Plot 4. For the replicated result ##
