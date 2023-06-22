@@ -22,7 +22,7 @@ dpoi5 = function(x){
 f0 = function(x, y){
    return(sin(5*x + 2*y) + 2*y^2)
 }
-Nk = c(3, 5, 8, 10, 15)
+Nk = c(4, 6, 8, 10, 12)
 gridsize = 40
 M = 50
 nlist = c(200, 500, 1000)

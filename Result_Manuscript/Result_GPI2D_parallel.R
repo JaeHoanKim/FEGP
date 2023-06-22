@@ -18,7 +18,7 @@ const = function(x){
 dpoi5 = function(x){
    return(dpois(x, lambda = 5))
 }
-Nk = c(4, 6, 8, 10)
+Nk = c(4, 6, 8, 10, 12)
 f0 = function(x, y){
    return(sin(5*x + 2*y) + 2*y^2)
 }
