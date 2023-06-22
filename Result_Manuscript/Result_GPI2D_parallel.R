@@ -11,7 +11,7 @@ kappa = 2
 brn.ESS = 100
 target = 2500
 nlist = c(200, 500, 1000)
-M = 500
+M = 50
 const = function(x){
    return(1)
 }
