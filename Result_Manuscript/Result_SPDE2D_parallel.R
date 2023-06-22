@@ -10,7 +10,7 @@ source("2D/SPDE/functions_SPDE_2D.R")
 
 kappa = 2
 brnin = 0
-target = 25
+target = 2500
 
 const = function(x){
    return(1)
@@ -32,7 +32,7 @@ MSE_list = matrix(nrow = M, ncol = length(nlist))
 
 #################### Parallel computing ###########################
 nworkers <- detectCores() # Initialize the cluster
-cl <- makeCluster(nworkers)
+cl <- makeCluster(nworkers/2)
 registerDoParallel(cl)
 ############################################################
 for(a in 1:length(nlist)){
