@@ -35,7 +35,7 @@ time_comparison_SPDE = microbenchmark(
    result2 = sample.exact2D.seq(X = Xlist[[2]], Z = Zlist[[2]], sigsq = 0.1^2, # N.pr = function(x){return(1)},
                                 N.pr = const,
                                 Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, seed = 1234),
-   result3 = sample.exact2D.seq(Xlist[[3]], Zlist[[3]], sigsq = 0.1^2, # N.pr = function(x){return(1)},
+   result3 = sample.exact2D.seq(X = Xlist[[3]], Z = Zlist[[3]], sigsq = 0.1^2, # N.pr = function(x){return(1)},
                                 N.pr = const,
                                 Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, seed = 1234),
    times = 10
@@ -65,6 +65,9 @@ time_comparison_unify <- time_comparison_unify %>%
 levels(time_comparison_unify$n) <- nlist 
 time_comparison_unify <- time_comparison_unify %>% mutate(n = as.numeric(as.character(n)))
    
+
+save(time_comparison_unify, file = "Result_Manuscript/Time_dataframe/time_2D.RData")
+
 ggplot(time_comparison_unify) +
    geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
    labs(title = paste0("time comparison when generating ", target, " samples")) + theme1

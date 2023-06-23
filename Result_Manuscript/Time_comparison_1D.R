@@ -63,7 +63,11 @@ time_comparison_unify <- time_comparison_unify %>%
    mutate(method = factor(method))
 levels(time_comparison_unify$n) <- nlist 
 time_comparison_unify <- time_comparison_unify %>% mutate(n = as.numeric(as.character(n)))
-   
+
+# save time data
+
+save(time_comparison_unify, file = "Result_Manuscript/Time_dataframe/time_1D.RData")
+
 ggplot(time_comparison_unify) +
    geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
    labs(title = paste0("time comparison when generating ", target, " samples")) + theme1
