@@ -66,7 +66,8 @@ levels(time_comparison_unify$n) <- nlist
 time_comparison_unify <- time_comparison_unify %>% mutate(n = as.numeric(as.character(n)))
    
 
-save(time_comparison_unify, file = "Result_Manuscript/Time_dataframe/time_2D.RData")
+filename = paste0("Result_Manuscript/Time_dataframe/time_2D_", target, ".RData")
+save(time_comparison_unify, file = filename)
 
 ggplot(time_comparison_unify) +
    geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
