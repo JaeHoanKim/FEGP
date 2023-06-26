@@ -81,11 +81,15 @@ source("1D/SPDE/functions_SPDE.R")
 MSE_list_SPDE1D = matrix(nrow = M, ncol = length(nlist))
 grid.plot = c(0:1000)/1000
 
+### Parallel computing ###
+nworkers <- detectCores() # Initialize the cluster
+cl <- makeCluster(nworkers)
+registerDoParallel(cl)
+
 for(a in 1:length(nlist)){
    n = nlist[a]
    df = df_1D[[a]]
-   for(m in 1:M){
-      # m th dataset among M = 50 dataset
+   output <- foreach (m = 1:M, .packages = c("Matrix", "fields", "FastGP")) %dopar% {
       X = df$X[((m-1)*n+1):(m*n)]
       Y = df$Z[((m-1)*n+1):(m*n)]
       result = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = const,
@@ -93,8 +97,9 @@ for(a in 1:length(nlist)){
       g.plot = tail(result$g_list, target) # choosing last `target` samples
       obs = data.frame(X, Y)
       y.plot = glist_to_plotdf(g.plot, grid.plot, true = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
-      MSE_list_SPDE1D[m, a] = mean((y.plot$true - y.plot$mean)^2)
+      mean((y.plot$true - y.plot$mean)^2)
    }
+   MSE_list_SPDE1D[, a] = simplify(output)
 }
 
 ### 3. MSE calculation - 2D
