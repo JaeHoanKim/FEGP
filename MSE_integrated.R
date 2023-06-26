@@ -20,9 +20,9 @@ f0_2D = function(x, y){return(sin(11*x + 2*y) + 2 * y^2)}
 
 M = 50
 nlist = c(200, 500, 1000)
-target = 10
+target = 2500
 brn = 0
-brn.ESS = 10
+brn.ESS = 100
 kappa = 2
 const = function(x){
    return(1)
@@ -121,7 +121,7 @@ for(a in 1:length(nlist)){
       result = sample.RJESS2D.seq(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
                                   mcmc = target, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS)
       g_list = result$g_list
-      y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)
+      y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)
       print(m)
       mean((y.plot$truefun - y.plot$mean)^2)
    }
@@ -145,7 +145,7 @@ for(a in 1:length(nlist)){
                                   N.pr = dpoi5,
                                   Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, seed = 1234)
       g_list = result$g_list
-      y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)
+      y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)
       print(m)
       mean((y.plot$truefun - y.plot$mean)^2)
    }
