@@ -102,6 +102,10 @@ for(a in 1:length(nlist)){
    MSE_list_SPDE1D[, a] = simplify(output)
 }
 
+MSE_list_1D = rbind(MSE_list_GPI1D, MSE_list_SPDE1D)
+save(MSE_list_1D, file = "MSE_list_generated_data_1D.RData")
+
+
 ### 3. MSE calculation - 2D
 
 source("2D/GPI/functions_GPI_2D.R")
@@ -157,5 +161,5 @@ for(a in 1:length(nlist)){
    MSE_list_SPDE2D[, a] = purrr::simplify(output)
 }
 
-MSE_list = rbind(MSE_list_GPI1D, MSE_list_SPDE1D, MSE_list_GPI2D, MSE_list_SPDE2D)
-save(MSE_list, file = "MSE_list_generated_data.RData")
+MSE_list_2D = rbind(MSE_list_GPI2D, MSE_list_SPDE2D)
+save(MSE_list_2D, file = "MSE_list_generated_data_2D.RData")
