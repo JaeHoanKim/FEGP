@@ -68,7 +68,7 @@ for(a in 1:length(nlist)){
                               mcmc = target, brn=0, brn.ESS = brn.ESS)
       g.plot = tail(result$g_list, target) # choosing last `target` samples
       obs = data.frame(X, Y)
-      y.plot = glist_to_plotdf(g.plot, grid.plot, true = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
+      y.plot = glist_to_plotdf(g.plot, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
       print(m)
       mean((y.plot$true - y.plot$mean)^2)
    }
@@ -96,7 +96,7 @@ for(a in 1:length(nlist)){
                                 kappa.init = kappa, mcmc = target, brn=brn, seed = 1234)
       g.plot = tail(result$g_list, target) # choosing last `target` samples
       obs = data.frame(X, Y)
-      y.plot = glist_to_plotdf(g.plot, grid.plot, true = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
+      y.plot = glist_to_plotdf(g.plot, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
       mean((y.plot$true - y.plot$mean)^2)
    }
    MSE_list_SPDE1D[, a] = simplify(output)
