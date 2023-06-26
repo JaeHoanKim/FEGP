@@ -599,10 +599,11 @@ inv_BTTB = function(Mat, blocksize){
 # gridmat is a (gridsize^2) by 2 matrix!
 # input: g_N value ((N+1)^2 by 2 matrix) and grid matrix at which we want to obtain f_N value
 # ouput: matrices of f_N values - low1, upp1, true, lowsup, uppsup, means
-glist_to_plotdf_2D = function(g, gridmat, truefun = f0, alpha1 = 0.95, alpha2 = 0.9){
+glist_to_plotdf_2D = function(g, gridmat, truefun, alpha1 = 0.95, alpha2 = 0.9){
    # Nsample = number of samples (em)
    Nsample = length(g)
    N = nrow(gridmat)
+   f0 = truefun
    y.tot = matrix(nrow = Nsample, ncol = N)
    for(i in 1:Nsample){
       gi.mat = matrix(g[[i]], nrow = sqrt(length(g[[i]])), byrow = TRUE)

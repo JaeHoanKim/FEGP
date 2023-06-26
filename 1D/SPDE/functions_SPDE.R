@@ -121,10 +121,10 @@ ESS_post_tempered = function(y, x, g, g_ESS, sigsq, Temp=1){
 
 
 
-glist_to_plotdf = function(g, grid, true, alpha1 = 0.95, alpha2 = 0.9){
+glist_to_plotdf = function(g, grid, truefun, alpha1 = 0.95, alpha2 = 0.9){
    Nsample = length(g)
    N = length(grid)
-   f0 = true
+   f0 = truefun
    y.tot = matrix(nrow = Nsample, ncol = N)
    for(i in 1:Nsample){
       y.tot[i, ] = f_N_h_vec(grid, g[[i]])
