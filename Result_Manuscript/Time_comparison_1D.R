@@ -22,7 +22,7 @@ for(a in 1:length(nlist)){
    Xlist[[a]] = df$X[((m-1)*n+1):(m*n)]
    Ylist[[a]] = df$Z[((m-1)*n+1):(m*n)]
 }
-target = 500
+target = 1
 Nk = c(4, 6, 8, 10, 12)
 const = function(x){return(1)}
 kappa = 2
