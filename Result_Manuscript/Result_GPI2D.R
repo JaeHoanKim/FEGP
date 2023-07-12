@@ -29,7 +29,7 @@ gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
 
 ############################################################
 ## specify n
-a =  1
+a =  2
 n = nlist[a]
 filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
 load(filename)
