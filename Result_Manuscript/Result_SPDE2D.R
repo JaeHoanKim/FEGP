@@ -1,7 +1,6 @@
 rm(list = ls())
 gc()
 library(Matrix)
-library(grDevices)
 library(ggplot2)
 library(rSPDE)
 source("2D/SPDE/functions_SPDE_sampling_2D.R")

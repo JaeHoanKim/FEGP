@@ -1,6 +1,5 @@
 rm(list = ls())
 gc()
-library(plotly)
 library(tidyverse)
 library(ggpubr)
 library(Rcpp)
