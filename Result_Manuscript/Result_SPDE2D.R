@@ -5,6 +5,7 @@ library(ggplot2)
 library(rSPDE)
 source("2D/SPDE/functions_SPDE_sampling_2D.R")
 source("2D/SPDE/functions_SPDE_2D.R")
+source("Result_Manuscript/GraphAesthetics.R")
 
 kappa = 2
 brnin = 0

@@ -6,6 +6,7 @@ library(Rcpp)
 library(ggplot2)
 source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
+source("Result_Manuscript/GraphAesthetics.R")
 
 kappa = 2
 brn.ESS = 100
