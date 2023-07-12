@@ -113,14 +113,14 @@ Nk = c(4, 6, 8, 10, 12)
 brn.ESS = 100
 
 # time comparison according to s
-microbenchmark(
-   result1 = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                                mcmc = 100, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS),
-   result2 = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                                mcmc = 500, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS),
-   result3 = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                                mcmc = 1000, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS),
-   times = 10
-)
+# microbenchmark(
+#    result1 = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
+#                                 mcmc = 100, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS),
+#    result2 = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
+#                                 mcmc = 500, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS),
+#    result3 = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
+#                                 mcmc = 1000, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS),
+#    times = 10
+# )
 
 
