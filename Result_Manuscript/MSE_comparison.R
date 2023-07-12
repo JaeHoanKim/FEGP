@@ -10,7 +10,7 @@ MSE.df.SPDE$method = "SPDE"
 
 library(tidyverse)
 MSE.df = bind_rows(MSE.df.GPI, MSE.df.SPDE)
-ggplot(MSE.df) +
+MSE.plot.1D = ggplot(MSE.df) +
    geom_boxplot(aes(x = n, y = MSE, color = method)) + labs(title = "MSE comparison plot - 1D") +
    theme1
 
@@ -22,6 +22,17 @@ MSE.df.SPDE <- MSE.df.plot
 MSE.df.SPDE$method = "SPDE"
 
 MSE.df = bind_rows(MSE.df.GPI, MSE.df.SPDE)
-ggplot(MSE.df) +
+MSE.plot.2D = ggplot(MSE.df) +
    geom_boxplot(aes(x = n, y = MSE, color = method)) + labs(title = "MSE comparison plot - 2D") +
    theme1
+
+
+## Save plots ##
+library(gridExtra)
+# MSE.plot = grid.arrange(MSE.plot.1D, MSE.plot.2D, ncol = 2)
+# ggsave("Graphs/MSE_plot.pdf", MSE.plot)
+
+
+pdf(file = "Graphs/MSE_plot.pdf", width = 12, height = 4)
+grid.arrange(MSE.plot.1D, MSE.plot.2D, ncol = 2)
+dev.off()
