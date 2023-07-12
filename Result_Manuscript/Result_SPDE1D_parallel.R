@@ -3,6 +3,9 @@ gc()
 library(grDevices)
 library(ggplot2)
 library(Matrix)
+library(doParallel)
+library(foreach)
+library(rSPDE)
 source("1D/SPDE/functions_SPDE_sampling.R")
 source("1D/SPDE/functions_SPDE.R")
 
@@ -24,11 +27,17 @@ nlist = c(200, 500, 1000)
 MSE_list = matrix(nrow = M, ncol = length(nlist))
 grid.plot = c(0:1000)/1000
 
+
+### Parallel computing ###
+nworkers <- detectCores() # Initialize the cluster
+cl <- makeCluster(nworkers)
+registerDoParallel(cl)
+##########################
 for(a in 1:length(nlist)){
    n = nlist[a]
    filename = paste0("Result_Manuscript/obs_n1D", n, ".RData")
    load(filename)
-   for(m in 1:M){
+   output <- foreach (m = 1:M, .packages = c("Matrix", "rSPDE")) %dopar% {
       # m th dataset among M = 50 dataset
       X = df$X[((m-1)*n+1):(m*n)]
       Y = df$Z[((m-1)*n+1):(m*n)]
@@ -37,9 +46,9 @@ for(a in 1:length(nlist)){
       g.plot = tail(result$g_list, target) # choosing last `target` samples
       obs = data.frame(X, Y)
       y.plot = glist_to_plotdf(g.plot, grid.plot, true = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
-      MSE_list[m, a] = mean((y.plot$true - y.plot$mean)^2)
-      print(m)
+      mean((y.plot$true - y.plot$mean)^2)
    }
+   MSE_list[, a] = simplify(output)
 }
 ## Plot 3. Fitting of the samples (credible intervals)
 
