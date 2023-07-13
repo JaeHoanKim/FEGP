@@ -32,7 +32,7 @@ n.report <- 10 #any small integer
 
 #################### Parallel computing ###########################
 nworkers <- detectCores() # Initialize the cluster
-cl <- makeCluster(nworkers/2)
+cl <- makeCluster(nworkers)
 registerDoParallel(cl)
 ###################################################################
 
