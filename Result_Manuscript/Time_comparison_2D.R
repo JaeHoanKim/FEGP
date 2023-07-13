@@ -109,6 +109,10 @@ time_comparison_unify <- time_comparison_unify %>% mutate(n = as.numeric(as.char
 filename = paste0("Result_Manuscript/Time_dataframe/time_2D_", target, ".RData")
 save(time_comparison_unify, file = filename)
 
-ggplot(time_comparison_unify) +
-   geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
-   labs(title = paste0("time comparison when generating ", target, " samples")) + theme1
+
+############### code for plots ################
+# target = 2
+# load("Result_Manuscript/Time_dataframe/time_2D_2.Rdata")
+# ggplot(time_comparison_unify) +
+#    geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
+#    labs(title = paste0("time comparison when generating ", target, " samples"), x = "n", y = "log(time)") + theme1
