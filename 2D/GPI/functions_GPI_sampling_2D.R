@@ -302,7 +302,6 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NU
       mu_star = solve(Q_N_star, t(Phi) %*% Z) / sigsq
       log_prob_N_list[k] = log(N.pr(N[k])) + 1/2 * log(det(diag((N+1)^2) + Sigma_N %*% PhiTPhi / sigsq)) +
          1/2 * t(mu_star) %*% Q_N_star %*% mu_star - t(Z) %*% Z / 2 / sigsq
-      print(log_prob_N_list[k])
    }
    # sampling from p(N|D) - with fixed seed
    set.seed(seed)
@@ -327,7 +326,6 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NU
             }
          }
       }
-      print(N)
    }
    ## when pred is FALSE, Ypred would be the zero matrix
    return(list(g_list = g_list, N_list = N_list))
