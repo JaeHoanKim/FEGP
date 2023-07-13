@@ -20,8 +20,11 @@ MSE.df.GPI$method = "GPI"
 load(paste0(fileloc, "MSE_SPDE_2D.RData"))
 MSE.df.SPDE <- MSE.df.plot
 MSE.df.SPDE$method = "SPDE"
+load(paste0(fileloc, "MSE_NNGP_2D.RData"))
+MSE.df.NNGP <- MSE.df.plot
+MSE.df.NNGP$method = "NNGP"
 
-MSE.df = bind_rows(MSE.df.GPI, MSE.df.SPDE)
+MSE.df = bind_rows(MSE.df.GPI, MSE.df.SPDE, MSE.df.NNGP)
 MSE.plot.2D = ggplot(MSE.df) +
    geom_boxplot(aes(x = n, y = MSE, color = method)) + labs(title = "MSE comparison plot - 2D") +
    theme1
