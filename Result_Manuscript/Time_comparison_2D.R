@@ -110,9 +110,21 @@ filename = paste0("Result_Manuscript/Time_dataframe/time_2D_", target, ".RData")
 save(time_comparison_unify, file = filename)
 
 
-############### code for plots ################
-# target = 2
-# load("Result_Manuscript/Time_dataframe/time_2D_2.Rdata")
-# ggplot(time_comparison_unify) +
-#    geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
-#    labs(title = paste0("time comparison when generating ", target, " samples"), x = "n", y = "log(time)") + theme1
+############## code for plots ################
+library(ggplot2)
+target = 2
+load("Result_Manuscript/Time_dataframe/time_2D_2.Rdata")
+time.plot.1 <- ggplot(time_comparison_unify) +
+   geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
+   labs(title = paste0(target, " samples"), x = "n", y = "log(time)") + theme1
+
+target = 500
+load("Result_Manuscript/Time_dataframe/time_2D_500.Rdata")
+time.plot.2 <- ggplot(time_comparison_unify) +
+   geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
+   labs(title = paste0(target, " samples"), x = "n", y = "log(time)") + theme1
+
+library(gridExtra)
+pdf(file = "Graphs/Time_plot.pdf", width = 12, height = 4)
+grid.arrange(time.plot.1, time.plot.2, ncol = 2)
+dev.off()
