@@ -20,7 +20,7 @@ for(a in 1:length(nlist)){
    Xlist[[a]] = df[((m-1)*n+1):(m*n), c(1, 2)]
    Zlist[[a]] = df$Z[((m-1)*n+1):(m*n)]
 }
-target = 1
+target = 2
 brnin = 0
 Nk = c(4, 6, 8, 10, 12)
 const = function(x){return(1)}
