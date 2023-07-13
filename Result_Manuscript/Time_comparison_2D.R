@@ -28,6 +28,11 @@ kappa = 2
 f0 = function(x, y){
    return(sin(5*x + 2*y) + 2*y^2)
 }
+
+gridsize = 40
+gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
+                rep(c(0:gridsize)/gridsize, gridsize + 1))
+
 # import time from SPDE
 source("2D/SPDE/functions_SPDE_sampling_2D.R")
 source("2D/SPDE/functions_SPDE_2D.R")
