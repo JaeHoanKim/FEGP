@@ -320,9 +320,6 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NU
             g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * a * k)
             if(a > brn.ESS){
                g_list[[(index[a - brn.ESS])]] = t(g.out)
-               if((a-brn.ESS) %% 100 == 0){
-                  print(a-brn.ESS)
-               }
             }
          }
       }
