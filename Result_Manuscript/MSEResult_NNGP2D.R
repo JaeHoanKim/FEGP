@@ -66,4 +66,3 @@ ggplot(MSE.df.plot) +
    geom_boxplot(aes(x = n, y = MSE))
 ## save as Rdata
 save(MSE.df.plot, file = "Result_Manuscript/MSE_dataframe/MSE_NNGP_2D.RData")
-
