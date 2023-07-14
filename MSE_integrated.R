@@ -109,6 +109,11 @@ save(MSE_list_1D, file = "MSE_list_generated_data_1D.RData")
 
 ### 3. MSE calculation - 2D
 
+target = 2500
+brn = 0
+brn.ESS = 100
+kappa = 2
+
 source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
 MSE_list_GPI2D = matrix(nrow = M, ncol = length(nlist))
@@ -169,13 +174,19 @@ cl <- makeCluster(nworkers)
 registerDoParallel(cl)
 ###################################################################
 
+starting <- list("phi" = 1/kappa, "sigma.sq" = 1, "tau.sq"=0.01, "nu" = 1)
+tuning <- list("phi"= 0, "sigma.sq"= 0, "tau.sq"= 0, "nu" = 0)
+priors <- list("phi.Unif"=c(3/1, 3/0.01), "sigma.sq.IG"=c(2, 5), "tau.sq.IG"=c(2, 1), "nu.unif" = c(1, 1.001))
+cov.model <- "matern"
+n.report <- 10 
+
 MSE_list_NNGP2D = matrix(nrow = M, ncol = length(nlist))
 
 for(a in 1:length(nlist)){
    n = nlist[a]
    filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
    load(filename)
-   output <- foreach (m = 1:M, .packages = c("Matrix", "rSPDE", "spNNGP")) %dopar% {
+   output <- foreach (m = 1:M, .packages = c("Matrix", "spNNGP")) %dopar% {
       X = as.matrix(df[((m-1)*n+1):(m*n), c(1, 2)])
       Z = as.matrix(df$Z[((m-1)*n+1):(m*n)])
       ## Response
@@ -184,7 +195,7 @@ for(a in 1:length(nlist)){
                     n.samples=target, n.omp.threads=1, n.report=n.report)
       p.r <- predict(m.r, X.0 = gridmat, coords.0 = gridmat, n.omp.threads=1)
       pred.grid <- p.r$p.y.0
-      true.grid <- f0(gridmat[, 1], gridmat[, 2])
+      true.grid <- f0_2D(gridmat[, 1], gridmat[, 2])
       mean.grid <- apply(pred.grid, 1, mean)
       mean((true.grid - mean.grid)^2)
    }
