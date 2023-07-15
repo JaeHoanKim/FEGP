@@ -317,7 +317,7 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NU
          for(a in 1:(brn.ESS + length(index))){
             nu.ess = matrix(samp_from_grid(ndim = c(N, N), mdim = result$mvec, egs = result$egvals, nu, lambda_g, seed = seed * a * k), 
                             nrow = N + 1, ncol = N + 1, byrow = TRUE)
-            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * a * k)
+            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * (k+100))
             if(a > brn.ESS){
                g_list[[(index[a - brn.ESS])]] = t(g.out)
             }
@@ -371,19 +371,18 @@ sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in 
       index = which(N_list == N)
    }
    ## when pred is FALSE, Ypred would be the zero matrix
-   return(list(result = result, N_list = N_list))
+   return(list(result_list = result_list, N_list = N_list))
 }
 
 # once one time calculation is done
-sample.RJESS2D.iter = function(Z, X, Nk, N.pr, result, N_list, sigsq, brn.ESS = 500, seed = 1234){
+sample.RJESS2D.iter = function(Z, X, Nk, N.pr, result_list, N_list, sigsq, brn.ESS = 500, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
    ## generate ESS samples for the PT
    for(k in 1:length(Nk)){
-      
       N = Nk[k]
-      result = eigvals_exact(ndim = c(N, N), nu = nu.in, lambda_g = l.in)
+      result = result_list[[k]]
       index = which(N_list == N)
       if (length(index) >= 1){
          # sampling length(index) vectors for each fixed N using ESS
@@ -391,7 +390,7 @@ sample.RJESS2D.iter = function(Z, X, Nk, N.pr, result, N_list, sigsq, brn.ESS = 
          for(a in 1:(brn.ESS + length(index))){
             nu.ess = matrix(samp_from_grid(ndim = c(N, N), mdim = result$mvec, egs = result$egvals, nu, lambda_g, seed = seed * a * k), 
                             nrow = N + 1, ncol = N + 1, byrow = TRUE)
-            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * a * k)
+            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * (k+100))
             if(a > brn.ESS){
                g_list[[(index[a - brn.ESS])]] = t(g.out)
             }
