@@ -121,6 +121,42 @@ gridsize = 40
 # gridmat is a (gridsize^2) by 2 matrix!
 gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                 rep(c(0:gridsize)/gridsize, gridsize+ 1))
+
+
+#################### Parallel computing ###########################
+nworkers <- detectCores() # Initialize the cluster
+cl <- makeCluster(nworkers)
+registerDoParallel(cl)
+###################################################################
+
+starting <- list("phi" = 1/kappa, "sigma.sq" = 1, "tau.sq"=0.01, "nu" = 1)
+tuning <- list("phi"= 0, "sigma.sq"= 0, "tau.sq"= 0, "nu" = 0)
+priors <- list("phi.Unif"=c(3/1, 3/0.01), "sigma.sq.IG"=c(2, 5), "tau.sq.IG"=c(2, 1), "nu.unif" = c(1, 1.001))
+cov.model <- "matern"
+n.report <- 10 
+
+MSE_list_NNGP2D = matrix(nrow = M, ncol = length(nlist))
+
+for(a in 1:length(nlist)){
+   n = nlist[a]
+   filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
+   load(filename)
+   output <- foreach (m = 1:M, .packages = c("Matrix", "spNNGP")) %dopar% {
+      X = as.matrix(df[((m-1)*n+1):(m*n), c(1, 2)])
+      Z = as.matrix(df$Z[((m-1)*n+1):(m*n)])
+      ## Response
+      m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
+                    tuning=tuning, priors=priors, cov.model=cov.model,
+                    n.samples=target, n.omp.threads=1, n.report=n.report)
+      p.r <- predict(m.r, X.0 = gridmat, coords.0 = gridmat, n.omp.threads=1)
+      pred.grid <- p.r$p.y.0
+      true.grid <- f0_2D(gridmat[, 1], gridmat[, 2])
+      mean.grid <- apply(pred.grid, 1, mean)
+      mean((true.grid - mean.grid)^2)
+   }
+   MSE_list_NNGP2D[, a] = purrr::simplify(output)
+}
+
 MSE_list_GPI2D = matrix(nrow = M, ncol = length(nlist))
 #################### Parallel computing ###########################
 nworkers <- detectCores() # Initialize the cluster
@@ -168,38 +204,5 @@ for(a in 1:length(nlist)){
 }
 
 
-#################### Parallel computing ###########################
-nworkers <- detectCores() # Initialize the cluster
-cl <- makeCluster(nworkers)
-registerDoParallel(cl)
-###################################################################
-
-starting <- list("phi" = 1/kappa, "sigma.sq" = 1, "tau.sq"=0.01, "nu" = 1)
-tuning <- list("phi"= 0, "sigma.sq"= 0, "tau.sq"= 0, "nu" = 0)
-priors <- list("phi.Unif"=c(3/1, 3/0.01), "sigma.sq.IG"=c(2, 5), "tau.sq.IG"=c(2, 1), "nu.unif" = c(1, 1.001))
-cov.model <- "matern"
-n.report <- 10 
-
-MSE_list_NNGP2D = matrix(nrow = M, ncol = length(nlist))
-
-for(a in 1:length(nlist)){
-   n = nlist[a]
-   filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
-   load(filename)
-   output <- foreach (m = 1:M, .packages = c("Matrix", "spNNGP")) %dopar% {
-      X = as.matrix(df[((m-1)*n+1):(m*n), c(1, 2)])
-      Z = as.matrix(df$Z[((m-1)*n+1):(m*n)])
-      ## Response
-      m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
-                    tuning=tuning, priors=priors, cov.model=cov.model,
-                    n.samples=target, n.omp.threads=1, n.report=n.report)
-      p.r <- predict(m.r, X.0 = gridmat, coords.0 = gridmat, n.omp.threads=1)
-      pred.grid <- p.r$p.y.0
-      true.grid <- f0_2D(gridmat[, 1], gridmat[, 2])
-      mean.grid <- apply(pred.grid, 1, mean)
-      mean((true.grid - mean.grid)^2)
-   }
-   MSE_list_NNGP2D[, a] = purrr::simplify(output)
-}
 MSE_list_2D = rbind(MSE_list_GPI2D, MSE_list_SPDE2D, MSE_list_NNGP2D)
 save(MSE_list_2D, file = "MSE_list_generated_data_2D.RData")
