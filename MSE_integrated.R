@@ -114,8 +114,6 @@ brn = 0
 brn.ESS = 100
 kappa = 2
 
-source("2D/GPI/functions_GPI_2D.R")
-source("2D/GPI/functions_GPI_sampling_2D.R")
 MSE_list_GPI2D = matrix(nrow = M, ncol = length(nlist))
 gridsize = 40
 # gridmat is a (gridsize^2) by 2 matrix!
@@ -158,6 +156,9 @@ for(a in 1:length(nlist)){
 }
 
 MSE_list_GPI2D = matrix(nrow = M, ncol = length(nlist))
+
+source("2D/GPI/functions_GPI_2D.R")
+source("2D/GPI/functions_GPI_sampling_2D.R")
 #################### Parallel computing ###########################
 nworkers <- detectCores() # Initialize the cluster
 cl <- makeCluster(nworkers)
@@ -180,6 +181,9 @@ for(a in 1:length(nlist)){
 }
 
 MSE_list_SPDE2D = matrix(nrow = M, ncol = length(nlist))
+
+source("2D/SPDE/functions_SPDE_sampling_2D.R")
+source("2D/SPDE/functions_SPDE_2D.R")
 
 #################### Parallel computing ###########################
 nworkers <- detectCores() # Initialize the cluster
