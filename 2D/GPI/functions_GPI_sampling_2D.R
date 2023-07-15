@@ -327,3 +327,77 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NU
    ## when pred is FALSE, Ypred would be the zero matrix
    return(list(g_list = g_list, N_list = N_list))
 }
+
+
+############### function splitting for one time & iterative time comparison ###################
+
+
+sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NULL, sigsq, 
+                              N.init, tausq, brn.ESS = 500, seed = 1234){
+   ## X, Y: given data
+   ## N.pr: prior distribution of N (function)
+   ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
+   if(length(Z) != dim(X)[1])
+      stop("Z and X should have the same length!")
+   n = nrow(X)
+   em = mcmc + brn # total number of sampling
+   ## compatibility check when predicting
+   N_list = c()
+   g_list = list()
+   log_prob_N_list = vector(length = length(Nk))
+   result_list = list()
+   ## g matrices for multiple N - before mixing
+   for(k in 1:length(Nk)){
+      N = Nk[k]
+      # log(p(N | D)) calculation
+      Phi = Phi_2D(X, N)
+      PhiTPhi = t(Phi) %*% Phi
+      gridmat = cbind(rep(c(0:N)/N, each = N + 1), 
+                      rep(c(0:N)/N, N + 1))
+      Sigma_N = thekernel(gridmat, nu.in, lambda = l.in)
+      Q_N = solve(Sigma_N)
+      Q_N_star = Q_N + PhiTPhi/sigsq
+      mu_star = solve(Q_N_star, t(Phi) %*% Z) / sigsq
+      log_prob_N_list[k] = log(N.pr(N[k])) + 1/2 * log(det(diag((N+1)^2) + Sigma_N %*% PhiTPhi / sigsq)) +
+         1/2 * t(mu_star) %*% Q_N_star %*% mu_star - t(Z) %*% Z / 2 / sigsq
+   }
+   # sampling from p(N|D) - with fixed seed
+   set.seed(seed)
+   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_prob_N_list - log_prob_N_list[length(Nk)]))
+   ## generate ESS samples for the PT
+   for(k in 1:length(Nk)){
+      N = Nk[k]
+      result_list[[k]] = eigvals_exact(ndim = c(N, N), nu = nu.in, lambda_g = l.in)
+      index = which(N_list == N)
+   }
+   ## when pred is FALSE, Ypred would be the zero matrix
+   return(list(result = result, N_list = N_list))
+}
+
+# once one time calculation is done
+sample.RJESS2D.iter = function(Z, X, Nk, N.pr, result, N_list, sigsq, brn.ESS = 500, seed = 1234){
+   ## X, Y: given data
+   ## N.pr: prior distribution of N (function)
+   ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
+   ## generate ESS samples for the PT
+   for(k in 1:length(Nk)){
+      
+      N = Nk[k]
+      result = eigvals_exact(ndim = c(N, N), nu = nu.in, lambda_g = l.in)
+      index = which(N_list == N)
+      if (length(index) >= 1){
+         # sampling length(index) vectors for each fixed N using ESS
+         g.out = matrix(0, N+1, N+1)
+         for(a in 1:(brn.ESS + length(index))){
+            nu.ess = matrix(samp_from_grid(ndim = c(N, N), mdim = result$mvec, egs = result$egvals, nu, lambda_g, seed = seed * a * k), 
+                            nrow = N + 1, ncol = N + 1, byrow = TRUE)
+            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * a * k)
+            if(a > brn.ESS){
+               g_list[[(index[a - brn.ESS])]] = t(g.out)
+            }
+         }
+      }
+   }
+   ## when pred is FALSE, Ypred would be the zero matrix
+   return(list(g_list = g_list, N_list = N_list))
+}
