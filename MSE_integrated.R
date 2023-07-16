@@ -94,7 +94,7 @@ for(a in 1:length(nlist)){
       X = df$X[((m-1)*n+1):(m*n)]
       Y = df$Z[((m-1)*n+1):(m*n)]
       result = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = const,
-                                kappa.init = kappa, mcmc = target, brn=brn, seed = 1234)
+                                kappa.init = kappa, mcmc = target, brn=0, seed = 1234)
       g.plot = tail(result$g_list, target) # choosing last `target` samples
       obs = data.frame(X, Y)
       y.plot = glist_to_plotdf(g.plot, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
@@ -187,7 +187,7 @@ source("2D/SPDE/functions_SPDE_2D.R")
 
 #################### Parallel computing ###########################
 nworkers <- detectCores() # Initialize the cluster
-cl <- makeCluster(nworkers/2)
+cl <- makeCluster(nworkers)
 registerDoParallel(cl)
 ############################################################
 for(a in 1:length(nlist)){
@@ -197,8 +197,8 @@ for(a in 1:length(nlist)){
       X = df[((m-1)*n+1):(m*n), c(1, 2)]
       Z = df$Z[((m-1)*n+1):(m*n)]
       result = sample.exact2D.seq(X, Z, sigsq = 0.1^2, # N.pr = function(x){return(1)},
-                                  N.pr = dpoi5,
-                                  Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, seed = 1234)
+                                  N.pr = const,
+                                  Nk = Nk, kappa.init = kappa, mcmc = target, brn = brn, seed = 1234)
       g_list = result$g_list
       y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)
       print(m)
