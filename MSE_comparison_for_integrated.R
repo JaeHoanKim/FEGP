@@ -22,10 +22,9 @@ MSE_plot_1D <- ggplot(MSE_list_1D) +
 load(paste0(filename, "_2D.RData"))
 MSE_list_2D = data.frame(MSE_list_2D)
 
-
 M = 50
 n_list = c(200, 500, 1000)
-MSE_list_2D$method = c(rep("NNGP", M), rep("GPI", M), rep("SPDE", M))
+MSE_list_2D$method = c(rep("GPI", M), rep("SPDE", M), rep("NNGP", M))
 colnames(MSE_list_2D) = c(n_list, "method")
 MSE_list_2D <- MSE_list_2D %>%
    gather(key = "n", value = "MSE", `200`:`1000`) %>%
