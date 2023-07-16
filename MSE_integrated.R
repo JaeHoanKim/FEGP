@@ -16,7 +16,7 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 ### 1. true function setting & data generation
 
 f0_1D = function(x){return (x^2 + sin(x))}
-f0_2D = function(x, y){return(sin(11*x + 2*y) + 2 * y^2)}
+f0_2D = function(x, y){return(sin(5*x + 2*y) + 2 * y^2 * sign(y - 0.5))}
 
 
 M = 50
@@ -127,7 +127,7 @@ cl <- makeCluster(nworkers)
 registerDoParallel(cl)
 ###################################################################
 
-starting <- list("phi" = 1/kappa, "sigma.sq" = 1, "tau.sq"=0.01, "nu" = 1)
+starting <- list("phi" = 1/kappa, "sigma.sq" = 1, "tau.sq" = 0.01, "nu" = 1)
 tuning <- list("phi"= 0, "sigma.sq"= 0, "tau.sq"= 0, "nu" = 0)
 priors <- list("phi.Unif"=c(3/1, 3/0.01), "sigma.sq.IG"=c(2, 5), "tau.sq.IG"=c(2, 1), "nu.unif" = c(1, 1.001))
 cov.model <- "matern"
@@ -137,8 +137,7 @@ MSE_list_NNGP2D = matrix(nrow = M, ncol = length(nlist))
 
 for(a in 1:length(nlist)){
    n = nlist[a]
-   filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
-   load(filename)
+   df = df_2D[[a]]
    output <- foreach (m = 1:M, .packages = c("Matrix", "spNNGP")) %dopar% {
       X = as.matrix(df[((m-1)*n+1):(m*n), c(1, 2)])
       Z = as.matrix(df$Z[((m-1)*n+1):(m*n)])
