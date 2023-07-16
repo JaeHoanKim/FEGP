@@ -114,7 +114,6 @@ brn = 0
 brn.ESS = 100
 kappa = 2
 
-MSE_list_GPI2D = matrix(nrow = M, ncol = length(nlist))
 gridsize = 40
 # gridmat is a (gridsize^2) by 2 matrix!
 gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
@@ -153,6 +152,7 @@ for(a in 1:length(nlist)){
    }
    MSE_list_NNGP2D[, a] = purrr::simplify(output)
 }
+
 
 MSE_list_GPI2D = matrix(nrow = M, ncol = length(nlist))
 
