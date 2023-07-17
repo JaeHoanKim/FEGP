@@ -16,7 +16,8 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 ### 1. true function setting & data generation
 
 f0_1D = function(x){return (x^2 + sin(x))}
-f0_2D = function(x, y){return(2 * (x^2) + 2 * (y - 0.5)^2 * sign(y - 0.5))}
+f0_2D = function(x, y){return(2 * (x^2) + 2 * abs(y - 0.5))}
+# next try if it still preserves the pattern: abs(y-0.5)
 
 
 M = 50
