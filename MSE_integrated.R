@@ -16,7 +16,7 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 ### 1. true function setting & data generation
 
 f0_1D = function(x){return (x^2 + sin(x))}
-f0_2D = function(x, y){return(x^2 + sqrt(abs(y-0.5)) + 2*sin(8*x))}
+f0_2D = function(x, y){return(x^2 + sqrt(abs(y-0.5)) + sin(8*x))}
 # next try if it still preserves the pattern: abs(y-0.5)
 
 
@@ -24,7 +24,7 @@ M = 50
 nlist = c(200, 500, 1000)
 target = 2500
 brn = 0
-brn.ESS = 100
+brn.ESS = 1000
 kappa = 2
 const = function(x){
    return(1)
