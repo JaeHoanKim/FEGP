@@ -76,6 +76,7 @@ for(a in 1:length(nlist)){
    }
    MSE_list_GPI1D[, a] = simplify(output)
 }
+stopCluster(cl)
 
 
 source("1D/SPDE/functions_SPDE_sampling.R")
@@ -104,6 +105,8 @@ for(a in 1:length(nlist)){
    MSE_list_SPDE1D[, a] = simplify(output)
 }
 
+stopCluster(cl)
+
 MSE_list_1D = rbind(MSE_list_GPI1D, MSE_list_SPDE1D)
 save(MSE_list_1D, file = "MSE_list_generated_data_1D.RData")
 
@@ -120,11 +123,6 @@ gridsize = 40
 gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                 rep(c(0:gridsize)/gridsize, gridsize+ 1))
 
-
-#################### Parallel computing ###########################
-nworkers <- detectCores() # Initialize the cluster
-cl <- makeCluster(nworkers)
-registerDoParallel(cl)
 ###################################################################
 
 starting <- list("phi" = 1/kappa, "sigma.sq" = 1, "tau.sq" = 0.01, "nu" = 1)
@@ -134,6 +132,11 @@ cov.model <- "matern"
 n.report <- 10 
 
 MSE_list_NNGP2D = matrix(nrow = M, ncol = length(nlist))
+
+### Parallel computing ###
+nworkers <- detectCores() # Initialize the cluster
+cl <- makeCluster(nworkers)
+registerDoParallel(cl)
 
 for(a in 1:length(nlist)){
    n = nlist[a]
@@ -153,13 +156,14 @@ for(a in 1:length(nlist)){
    }
    MSE_list_NNGP2D[, a] = purrr::simplify(output)
 }
-
+stopCluster(cl)
 
 MSE_list_GPI2D = matrix(nrow = M, ncol = length(nlist))
 
 source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
-#################### Parallel computing ###########################
+
+### Parallel computing ###
 nworkers <- detectCores() # Initialize the cluster
 cl <- makeCluster(nworkers)
 registerDoParallel(cl)
@@ -180,15 +184,18 @@ for(a in 1:length(nlist)){
    MSE_list_GPI2D[, a] = purrr::simplify(output)
 }
 
+stopCluster(cl)
+
 MSE_list_SPDE2D = matrix(nrow = M, ncol = length(nlist))
 
 source("2D/SPDE/functions_SPDE_sampling_2D.R")
 source("2D/SPDE/functions_SPDE_2D.R")
 
-#################### Parallel computing ###########################
+### Parallel computing ###
 nworkers <- detectCores() # Initialize the cluster
 cl <- makeCluster(nworkers)
 registerDoParallel(cl)
+
 ############################################################
 for(a in 1:length(nlist)){
    n = nlist[a]
@@ -206,7 +213,7 @@ for(a in 1:length(nlist)){
    }
    MSE_list_SPDE2D[, a] = purrr::simplify(output)
 }
-
+stopCluster(cl)
 
 MSE_list_2D = rbind(MSE_list_GPI2D, MSE_list_SPDE2D, MSE_list_NNGP2D)
 save(MSE_list_2D, file = "MSE_list_generated_data_2D.RData")
