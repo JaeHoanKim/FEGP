@@ -24,7 +24,7 @@ M = 50
 nlist = c(200, 500, 1000)
 target = 2500
 brn = 0
-brn.ESS = 1000
+brn.ESS = 100
 kappa = 2
 const = function(x){
    return(1)
@@ -115,7 +115,7 @@ save(MSE_list_1D, file = "MSE_list_generated_data_1D.RData")
 
 target = 2500
 brn = 0
-brn.ESS = 100
+brn.ESS = 1000
 kappa = 2
 
 gridsize = 40
