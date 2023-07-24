@@ -38,7 +38,7 @@ target = 2500
 brn = 0
 brn.ESS = 1000
 # setting for the Matern parameters
-kappa = 2
+kappa = 0.5
 beta = 6
 d = 1
 nu = beta - d/2
