@@ -292,7 +292,7 @@ sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
       gridmat = cbind(rep(c(0:N)/N, each = N+1),
                       rep(c(0:N)/N, N+1))
       # sparse matrix Omega and Phi
-      Omega = Q2D(N, kappa)
+      Omega = Q2D(N, kappa, beta = 2)
       Phi = Phi_2D(X, N)
       # computation of the mean and the variance vector
       var_grid[[k]] = solve(Omega + t(Phi) %*% Phi / sigsq)

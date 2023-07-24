@@ -38,6 +38,7 @@ Q2D = function(N, kappa, beta){
    A = kappa^2 * kronecker(I, I) + N * kronecker(I, G) + N * kronecker(G, I)
    Q = crossprod(A, kronecker(C, C)) %*% A
    return(Q)
+   
 }
 
 # when w is sampled from N(0, Q) in 1D case
