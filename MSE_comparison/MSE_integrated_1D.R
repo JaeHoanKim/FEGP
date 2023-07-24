@@ -22,7 +22,7 @@ alpha = 1.5
 f0_1D = function(x, trun = 200){
    value = 0
    for(j in 1:trun){
-      value = value + cos(pi * (j - 1/2) * x) * sin(j) * j^(- alpha - 1)
+      value = value + cos(pi * (j - 1/2) * x) * j^(- alpha - 1)
    }
    return(value * sqrt(2))
 }
