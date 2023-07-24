@@ -36,7 +36,7 @@ M = 50
 nlist = c(200, 500, 1000)
 target = 2500
 brn = 0
-brn.ESS = 100
+brn.ESS = 1000
 # setting for the Matern parameters
 kappa = 2
 beta = 4
