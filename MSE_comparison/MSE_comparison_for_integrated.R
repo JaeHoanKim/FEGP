@@ -2,7 +2,7 @@ rm(list = ls())
 library(ggplot2)
 library(tidyverse)
 source("Result_Manuscript/GraphAesthetics.R")
-filename = "MSE_comparison/comparison_burnin/brn100/MSE_list_generated_data"
+filename = "MSE_comparison/comparison_smoothness/MSE_list_generated_data"
 load(paste0(filename, "_1D.RData"))
 MSE_list_1D = data.frame(MSE_list_1D)
 M = 50
