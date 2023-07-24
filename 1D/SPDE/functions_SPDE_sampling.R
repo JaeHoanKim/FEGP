@@ -178,8 +178,8 @@ sample.exact.seq = function(X, Y, kappa.pr = function(x){return(1)}, Nk, N.pr,
       index = which(N_list == N)
       if (length(index) >= 1){
          set.seed(seed * k)
-         suppressWarnings(g_samples <- mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[k]], sigma = var_grid[[k]],
-                                      checkSymmetry = FALSE))
+         g_samples <- mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[k]], sigma = var_grid[[k]],
+                                      checkSymmetry = FALSE)
          for(j in 1:length(index)){
             g_list[[(index[j])]] = g_samples[j, ]
          }
