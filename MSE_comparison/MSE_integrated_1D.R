@@ -39,7 +39,7 @@ brn = 0
 brn.ESS = 1000
 # setting for the Matern parameters
 kappa = 2
-beta = 4
+beta = 6
 d = 1
 nu = beta - d/2
 l.in = 1/kappa
