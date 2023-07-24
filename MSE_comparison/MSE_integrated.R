@@ -126,7 +126,7 @@ brn.ESS = 1000
 
 # setting for the Matern parameters
 kappa = 2
-beta = 2 
+beta = 2 # For the SPDE, only beta = 2 is proven theoretically.
 d = 2
 nu = beta - d/2
 l.in = 1/kappa
@@ -217,7 +217,7 @@ for(a in 1:length(nlist)){
       X = df[((m-1)*n+1):(m*n), c(1, 2)]
       Z = df$Z[((m-1)*n+1):(m*n)]
       result = sample.exact2D.seq(X, Z, sigsq = 0.1^2, # N.pr = function(x){return(1)},
-                                  N.pr = const,
+                                  N.pr = const, beta = 2,
                                   Nk = Nk, kappa.init = kappa, mcmc = target, brn = brn, seed = 1234)
       g_list = result$g_list
       y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)
