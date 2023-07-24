@@ -275,6 +275,9 @@ sample.RJESS2D = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.in = 
    return(list(g_list = g_list, N_list = N_list))
 }
 
+# nu.in : BesselK(d, nu)
+# l.in : K_nu(d/lambda) = K_nu(d/l.in)
+# kappa = 1/l.in should hold
 sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NULL, sigsq, 
                           N.init, tausq, brn.ESS = 500, seed = 1234){
    ## X, Y: given data

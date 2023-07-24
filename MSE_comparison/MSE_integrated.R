@@ -13,6 +13,7 @@ library(doParallel)
 library(tidyverse)
 library(spNNGP)
 sourceCpp("1D/GPI/inv_chol.cpp")
+
 ### 1. true function setting & data generation
 
 f0_1D = function(x){return (x^2 + sin(x))}
@@ -25,7 +26,13 @@ nlist = c(200, 500, 1000)
 target = 2500
 brn = 0
 brn.ESS = 100
+# setting for the Matern parameters
 kappa = 2
+beta = 2 
+d = 1
+nu = beta - d/2
+l.in = 1/kappa
+
 const = function(x){
    return(1)
 }
@@ -65,7 +72,7 @@ for(a in 1:length(nlist)){
       # m th dataset among M = 50 dataset
       X = df$X[((m-1)*n+1):(m*n)]
       Y = df$Z[((m-1)*n+1):(m*n)]
-      result = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, nu.in = 1, l.in = 1/kappa,
+      result = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, nu.in = nu, l.in = 1/kappa,
                               N.pr = const,
                               mcmc = target, brn=0, brn.ESS = brn.ESS)
       g.plot = tail(result$g_list, target) # choosing last `target` samples
@@ -116,7 +123,13 @@ save(MSE_list_1D, file = "MSE_list_generated_data_1D.RData")
 target = 2500
 brn = 0
 brn.ESS = 1000
+
+# setting for the Matern parameters
 kappa = 2
+beta = 2 
+d = 2
+nu = beta - d/2
+l.in = 1/kappa
 
 gridsize = 40
 # gridmat is a (gridsize^2) by 2 matrix!
@@ -125,7 +138,7 @@ gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
 
 ###################################################################
 
-starting <- list("phi" = 1/kappa, "sigma.sq" = 1, "tau.sq" = 0.01, "nu" = 1)
+starting <- list("phi" = 1/kappa, "sigma.sq" = 1, "tau.sq" = 0.01, "nu" = nu)
 tuning <- list("phi"= 0, "sigma.sq"= 0, "tau.sq"= 0, "nu" = 0)
 priors <- list("phi.Unif"=c(3/1, 3/0.01), "sigma.sq.IG"=c(2, 5), "tau.sq.IG"=c(2, 1), "nu.unif" = c(1, 1.001))
 cov.model <- "matern"
@@ -175,7 +188,7 @@ for(a in 1:length(nlist)){
       X = df[((m-1)*n+1):(m*n), c(1, 2)]
       Z = df$Z[((m-1)*n+1):(m*n)]
       result = sample.RJESS2D.seq(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                                  mcmc = target, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS)
+                                  mcmc = target, brn = 0, nu.in = nu, l.in = 1/kappa, brn.ESS = brn.ESS)
       g_list = result$g_list
       y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)
       print(m)
