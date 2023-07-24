@@ -144,7 +144,7 @@ sample.exact = function(X, Y, kappa.pr = function(x){return(1)},
 
 
 sample.exact.seq = function(X, Y, kappa.pr = function(x){return(1)}, Nk, N.pr,
-                        beta = 2, mcmc, brn, sigsq = 0.01, kappa.init, seed = 1000){
+                        beta, mcmc, brn, sigsq = 0.01, kappa.init, seed = 1000){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## kappa.pr: prior distribution of kappa (function); by default, noninformative prior
@@ -158,7 +158,7 @@ sample.exact.seq = function(X, Y, kappa.pr = function(x){return(1)}, Nk, N.pr,
    mean_grid = list()
    for(k in 1:length(Nk)){
       N = Nk[k]
-      Omega = Q1D(N, kappa)
+      Omega = Q1D(N, kappa, beta)
       Phi = Phi_1D(X, N)
       # computation of the mean and the variance vector
       var_grid[[k]] = solve(Omega + t(Phi) %*% Phi / sigsq)

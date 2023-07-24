@@ -30,8 +30,8 @@ loglik_w = function(N, kappa, w){
    return(sum(log(diag(L))) - (N+1)/2*log(2*pi) - 1/2* sum(x^2))
 }
 
-Sampling_N_new = function(N, kappa, beta = 2){
-   Q = Q1D(N, kappa)
+Sampling_N_new = function(N, kappa, beta){
+   Q = Q1D(N, kappa, beta)
    L = chol(Q)
    x = rnorm(N+1)
    vec = solve(L, x)
