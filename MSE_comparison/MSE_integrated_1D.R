@@ -19,7 +19,7 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 alpha = 1.5
 
 # f0_1D = function(x){return (x^2 + sin(x))}s
-f0_1D = function(x, trun = 200){
+f0_1D = function(x, trun = 500){
    value = 0
    for(j in 1:trun){
       value = value + cos(j) * cos(pi * (j - 1/2) * x) * j^(- alpha - 1)
