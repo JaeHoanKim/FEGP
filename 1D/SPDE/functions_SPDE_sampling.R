@@ -156,11 +156,13 @@ sample.exact.seq = function(X, Y, kappa.pr = function(x){return(1)}, Nk, N.pr,
    log_jump_prob_N = vector(length = length(Nk))
    var_grid = list()
    mean_grid = list()
+   prec_grid = list()
    for(k in 1:length(Nk)){
       N = Nk[k]
       Omega = Q1D(N, kappa, beta)
       Phi = Phi_1D(X, N)
       # computation of the mean and the variance vector
+      prec_grid = Omega + t(Phi) %*% Phi / sigsq
       var_grid[[k]] = solve(Omega + t(Phi) %*% Phi / sigsq)
       mean_grid[[k]] = var_grid[[k]] %*% t(Phi) %*% Y / sigsq
       # computation of p(N | D)
@@ -176,8 +178,8 @@ sample.exact.seq = function(X, Y, kappa.pr = function(x){return(1)}, Nk, N.pr,
       index = which(N_list == N)
       if (length(index) >= 1){
          set.seed(seed * k)
-         g_samples = mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[k]], sigma = var_grid[[k]],
-                                      checkSymmetry = FALSE)
+         suppressWarnings(g_samples <- mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[k]], sigma = var_grid[[k]],
+                                      checkSymmetry = FALSE))
          for(j in 1:length(index)){
             g_list[[(index[j])]] = g_samples[j, ]
          }
