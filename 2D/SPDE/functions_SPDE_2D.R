@@ -14,11 +14,11 @@ Q1D = function(N, kappa, beta){
    G = sparseMatrix(i = i2, j = j2, x = x2, dims = c(N+1, N+1))
    A = kappa^2 * C + G
    if (beta == 2){
-      Q = A %*% invC %*% A
+      Q = t(A) %*% invC %*% A
       return(Q)
    }
    else if (beta %% 2 == 0){
-      Q = A %*% invC %*% Q1D(N, kappa, beta - 2) %*% invC %*% A
+      Q = t(A) %*% invC %*% Q1D(N, kappa, beta - 2) %*% invC %*% A
       return(Q)
    }
 }
