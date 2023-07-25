@@ -16,13 +16,13 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 
 ### 1. true function setting & data generation
 
-alpha = 0.5
+alpha = 0.2
 
 # f0_1D = function(x){return (x^2 + sin(x))}
 f0_1D = function(x, trun = 500){
    value = 0
    for(j in 1:trun){
-      value = value + cos(j) * cos(pi * (j - 1/2) * x) * j^(- alpha - 1)
+      value = value + sin(j) * cos(pi * (j - 1/2) * x) * j^(- alpha - 1)
    }
    return(value * sqrt(2))
 }
