@@ -225,7 +225,7 @@ sample.ESS.seq = function(X, Y, N.pr, Nk, brn.ESS = 100, l.in, nu.in, mcmc, brn,
       Phi = Phi_1D(X, N)
       PhiTPhi = t(Phi) %*% Phi
       Sigma_N = covmat(knot_N, nu.in, l.in)
-      Q_N = solve(Sigma_N)
+      Q_N = solve(Sigma_N, tol = 1e-30)
       Q_N_star = Q_N + PhiTPhi/sigsq
       mu_star = solve(Q_N_star, t(Phi) %*% Y) / sigsq
       log_prob_N_list[k] = log(N.pr(Nk[k])) + 1/2 * log(det(diag(N+1) + Sigma_N %*% PhiTPhi / sigsq)) +
