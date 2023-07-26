@@ -39,7 +39,7 @@ brn = 0
 brn.ESS = 1000
 # setting for the Matern parameters
 kappa = 2
-beta = 6
+beta = 10
 d = 1
 nu = beta - d/2
 l.in = 1/kappa
@@ -47,7 +47,7 @@ l.in = 1/kappa
 const = function(x){
    return(1)
 }
-Nk = c(4, 6, 8, 10, 12)
+Nk = c(4, 8, 12, 20, 30, 50)
 grid.plot = c(0:1000)/1000
 df_1D = list(length = length(nlist))
 df_2D = list(length = length(nlist))
