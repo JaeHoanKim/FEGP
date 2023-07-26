@@ -17,6 +17,7 @@ MSE_plot_1D <- ggplot(MSE_list_1D) +
    geom_boxplot(aes(x = factor(n), y = MSE, color = method)) + labs(title = "MSE comparison plot - 1D", x = "n") +
    theme1
 
+MSE_plot_1D
 ### plot for 2D
 
 load(paste0(filename, "_2D.RData"))
