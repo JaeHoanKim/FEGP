@@ -16,7 +16,7 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 
 ### 1. true function setting & data generation
 
-alpha = 0.5
+alpha = 0.6
 
 f0_1D = function(x, trun = 500){
    value = 0
@@ -42,7 +42,7 @@ l.in = 1/kappa
 const = function(x){
    return(1)
 }
-Nk = c(4, 8, 12, 20, 30, 40, 50)
+Nk = c(8, 12, 20, 30, 50)
 grid.plot = c(0:1000)/1000
 df_1D = list(length = length(nlist))
 
@@ -119,3 +119,57 @@ stopCluster(cl)
 
 MSE_list_1D = rbind(MSE_list_GPI1D, MSE_list_SPDE1D)
 save(MSE_list_1D, file = "MSE_list_generated_data_1D.RData")
+
+## Coverage plot for a specific data
+m = 1
+cover.plot.GPI.list = list(length = length(nlist))
+cover.plot.SPDE.list = list(length = length(nlist))
+for(a in 1:length(nlist)){
+   n = nlist[a] # the number of observed data; 200, 500, 1000
+   df = df_1D[[a]]
+   X = df$X[((m-1)*n+1):(m*n)]
+   Y = df$Z[((m-1)*n+1):(m*n)]
+   obs = data.frame(X, Y)
+   # result for SPDE
+   result.SPDE = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = const, beta = 2,
+                                  kappa.init = kappa, mcmc = target, brn=0, seed = 1234)
+   g.plot.SPDE = tail(result.SPDE$g_list, target) # choosing last `target` samples
+   y.plot.SPDE = glist_to_plotdf(g.plot.SPDE, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
+   
+   # result for GPI
+   result.GPI = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, nu.in = nu, l.in = 1/kappa,
+                               N.pr = const,
+                               mcmc = target, brn=0, brn.ESS = brn.ESS)
+   g.plot.GPI = tail(result.GPI$g_list, target) # choosing last `target` samples
+   y.plot.GPI = glist_to_plotdf(g.plot.GPI, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
+   
+   # Coverage plot
+   
+   
+   cover.plot.GPI.list[[a]] <- ggplot(y.plot.GPI, aes(x = x)) +
+      geom_line(aes(y=mean), colour="blue") + 
+      geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
+      geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
+      # geom_point(data = obs, aes(X, Y), size = 0.3) +
+      labs(title = paste0("GPI (n = ", n, ")"), x = "x", y = "y")+
+      geom_point(data = obs, aes(X, Y), size = 0.3) +
+      theme(plot.title = element_text(hjust = 0.5))
+   
+   cover.plot.SPDE.list[[a]] <- ggplot(y.plot.SPDE, aes(x = x)) +
+      geom_line(aes(y=mean), colour="blue") + 
+      geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
+      geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
+      # geom_point(data = obs, aes(X, Y), size = 0.3) +
+      labs(title = paste0("SPDE (n = ", n, ")"), x = "x", y = "y")+
+      geom_point(data = obs, aes(X, Y), size = 0.3) +
+      theme(plot.title = element_text(hjust = 0.5))
+}
+
+library(gridExtra)
+pdf(file = "Graphs/coverage_plot.pdf", width = 12, height = 8)
+grid.arrange(cover.plot.GPI.list[[1]], cover.plot.SPDE.list[[1]],
+             cover.plot.GPI.list[[2]], cover.plot.SPDE.list[[2]],
+             cover.plot.GPI.list[[3]], cover.plot.SPDE.list[[3]], nrow = 2, as.table = FALSE)
+dev.off()
