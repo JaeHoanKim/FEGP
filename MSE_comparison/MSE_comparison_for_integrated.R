@@ -15,7 +15,7 @@ MSE_list_1D <- MSE_list_1D %>%
    
 MSE_plot_1D <- ggplot(MSE_list_1D) +
    geom_boxplot(aes(x = factor(n), y = MSE, color = method)) + labs(title = "MSE comparison plot - 1D", x = "n") +
-   theme1
+   theme1 + ylim(c(0, max(MSE_list_1D$MSE)))
 
 MSE_plot_1D
 ### plot for 2D
