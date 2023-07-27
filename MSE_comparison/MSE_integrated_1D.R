@@ -16,7 +16,7 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 
 ### 1. true function setting & data generation
 
-alpha = 0.6
+alpha = 0.4
 
 f0_1D = function(x, trun = 500){
    value = 0
@@ -42,7 +42,7 @@ l.in = 1/kappa
 const = function(x){
    return(1)
 }
-Nk = c(8, 12, 20, 30, 50)
+Nk = 2 * c(3:25)
 grid.plot = c(0:1000)/1000
 df_1D = list(length = length(nlist))
 
