@@ -34,7 +34,7 @@ brn = 0
 brn.ESS = 1000
 # setting for the Matern parameters
 kappa = 2
-beta = 20
+beta = 4
 d = 1
 nu = beta - d/2
 l.in = 1/kappa
@@ -105,7 +105,7 @@ for(a in 1:length(nlist)){
    output <- foreach (m = 1:M, .packages = c("Matrix", "fields", "FastGP")) %dopar% {
       X = df$X[((m-1)*n+1):(m*n)]
       Y = df$Z[((m-1)*n+1):(m*n)]
-      result = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = const, beta = 2,
+      result = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = const, beta = beta,
                                 kappa.init = kappa, mcmc = target, brn=0, seed = 1234)
       g.plot = tail(result$g_list, target) # choosing last `target` samples
       obs = data.frame(X, Y)
@@ -131,7 +131,7 @@ for(a in 1:length(nlist)){
    Y = df$Z[((m-1)*n+1):(m*n)]
    obs = data.frame(X, Y)
    # result for SPDE
-   result.SPDE = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = const, beta = 2,
+   result.SPDE = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = const, beta = beta,
                                   kappa.init = kappa, mcmc = target, brn=0, seed = 1234)
    g.plot.SPDE = tail(result.SPDE$g_list, target) # choosing last `target` samples
    y.plot.SPDE = glist_to_plotdf(g.plot.SPDE, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
