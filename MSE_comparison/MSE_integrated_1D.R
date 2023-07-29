@@ -39,8 +39,6 @@ tausqk = c(0.2, 0.5, 1)
 Nk = c(4, 6, 10, 14, 18, 22)
 kappa.pr = tausq.pr = N.pr = const 
 beta = 4
-d = 1
-nu = beta - d/2
 lk = 1/kappak
 
 const = function(x){
@@ -79,9 +77,10 @@ for(a in 1:length(nlist)){
       # m th dataset among M = 50 dataset
       X = df$X[((m-1)*n+1):(m*n)]
       Y = df$Z[((m-1)*n+1):(m*n)]
-      result = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, nu.in = nu, l.in = 1/kappa,
-                              N.pr = const,
-                              mcmc = target, brn=0, brn.ESS = brn.ESS)
+      result = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr,
+                              kappak = kappak, kappa.pr = kappa.pr, 
+                              tausqk = tausqk, tausq.pr = tausq.pr, 
+                              beta = beta, mcmc = target, brn=0, brn.ESS = brn.ESS)
       g.plot = tail(result$g_list, target) # choosing last `target` samples
       obs = data.frame(X, Y)
       y.plot = glist_to_plotdf(g.plot, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
