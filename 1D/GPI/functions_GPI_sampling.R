@@ -206,14 +206,14 @@ sample.exact = function(X, Y, l.in = 0.5, nu.in = 0.75,
 }
 
 
-sample.ESS.seq = function(X, Y, N.pr, Nk, brn.ESS = 100, l.in, nu.in, mcmc, brn, sigsq, tausq = 1, seed = 1234){
+sample.ESS.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr, 
+                          brn.ESS = 100, beta, mcmc, brn, sigsq, tausq = 1, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
    if(length(X)!=length(Y))
       stop("X and Y should be of same length!")
    n = length(Y)
-   Nk = sort(Nk)
    em = mcmc + brn # total number of sampling
    g_list = list()
    log_prob_N_list = vector(length = length(Nk))
