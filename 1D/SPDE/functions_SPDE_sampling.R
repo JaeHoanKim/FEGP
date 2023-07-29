@@ -51,7 +51,7 @@ sample.exact.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
          for(j in 1:length(index)){
             g_list[[(index[j])]] = g_samples[j, ]
             N_list[index[j]] = Nk[(param_index - 1) %/% (N2 * N3) + 1]
-            kappa_list[index[j]] = kappak[((param_index %% (N2 * N3)) - 1) %/% N3 + 1]
+            kappa_list[index[j]] = kappak[((param_index - 1) %% (N2 * N3)) %/% N3 + 1]
             tausq_list[index[j]] = tausqk[(param_index - 1) %% N3 + 1]
          }
       }
