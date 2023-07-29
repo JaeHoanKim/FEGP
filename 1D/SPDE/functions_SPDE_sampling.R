@@ -18,7 +18,6 @@ sample.exact.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
    var_grid = list()
    mean_grid = list()
    prec_grid = list()
-   
    for(k1 in 1:N1){
       for(k2 in 1:N2){
          for(k3 in 1:N3){
