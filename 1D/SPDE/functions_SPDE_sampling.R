@@ -10,7 +10,7 @@ sample.exact.seq = function(X, Y, kappa.pr = function(x){return(1)}, Nk, N.pr,
    n = length(Y)
    em = mcmc + brn # total number of sampling
    g_list = list()
-   log_jump_prob_N = vector(length = length(Nk))
+   log_prob_N_list = vector(length = length(Nk))
    var_grid = list()
    mean_grid = list()
    prec_grid = list()
@@ -23,12 +23,12 @@ sample.exact.seq = function(X, Y, kappa.pr = function(x){return(1)}, Nk, N.pr,
       var_grid[[k]] = solve(Omega + t(Phi) %*% Phi / sigsq)
       mean_grid[[k]] = var_grid[[k]] %*% t(Phi) %*% Y / sigsq
       # computation of p(N | D)
-      log_jump_prob_N[k] = log(N.pr(Nk[k])) - 1/2 * log(det(diag((N+1)) + solve(Omega) %*% t(Phi) %*% Phi / sigsq)) +
+      log_prob_N_list[k] = log(N.pr(Nk[k])) - 1/2 * log(det(diag((N+1)) + solve(Omega) %*% t(Phi) %*% Phi / sigsq)) +
          1/2 * t(mean_grid[[k]]) %*% (Omega + t(Phi) %*% Phi / sigsq) %*% mean_grid[[k]] - t(Y) %*% Y/(2*sigsq)
    }
    # sample from p(N|D)
    set.seed(seed)
-   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_jump_prob_N - log_jump_prob_N[length(Nk)]))
+   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_prob_N_list - log_prob_N_list[length(Nk)]))
    
    for(k in 1:length(Nk)){
       N = Nk[k]
@@ -42,7 +42,7 @@ sample.exact.seq = function(X, Y, kappa.pr = function(x){return(1)}, Nk, N.pr,
          }
       }
    }
-   return(list(g_list = g_list, N_list = N_list, log_jump_prob_N = log_jump_prob_N))
+   return(list(g_list = g_list, N_list = N_list, log_prob_N_list = log_prob_N_list))
 }
 
 
