@@ -135,22 +135,22 @@ for(a in 1:length(nlist)){
    Y = df$Z[((m-1)*n+1):(m*n)]
    obs = data.frame(X, Y)
    # result for SPDE
-   result.SPDE = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = const, 
-                                  kappak = kappak, kappa.pr = kappa.pr,
-                                  tausqk = tausqk, tausq.pr = tausq.pr, beta = beta,
-                                  mcmc = target, brn=0, seed = 1234)
+   result.SPDE = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr, beta = beta,
+                             kappak = kappak, kappa.pr = kappa.pr,
+                             tausqk = tausqk, tausq.pr = tausq.pr,
+                             mcmc = target, brn=0, seed = 1234)
    g.plot.SPDE = tail(result.SPDE$g_list, target) # choosing last `target` samples
    y.plot.SPDE = glist_to_plotdf(g.plot.SPDE, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
    
    # result for GPI
-   result.GPI = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, nu.in = nu, l.in = 1/kappa,
-                               N.pr = const,
-                               mcmc = target, brn=0, brn.ESS = brn.ESS)
+   result.GPI = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr,
+                           kappak = kappak, kappa.pr = kappa.pr, 
+                           tausqk = tausqk, tausq.pr = tausq.pr, 
+                           beta = beta, mcmc = target, brn=0, brn.ESS = brn.ESS)
    g.plot.GPI = tail(result.GPI$g_list, target) # choosing last `target` samples
    y.plot.GPI = glist_to_plotdf(g.plot.GPI, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
    
    # Coverage plot
-   
    
    cover.plot.GPI.list[[a]] <- ggplot(y.plot.GPI, aes(x = x)) +
       geom_line(aes(y=mean), colour="blue") + 
