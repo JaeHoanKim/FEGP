@@ -10,14 +10,15 @@ sample.exact.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
    n = length(Y)
    em = mcmc + brn # total number of sampling
    g_list = list()
-   log_prob_N_list = vector(length = length(Nk * kappak * tausqk))
+   N1 = length(Nk)
+   N2 = length(kappak)
+   N3 = length(tausqk)
+   log_prob_N_list = vector(length = N1 * N2 * N3)
    N_list = kappa_list = tausq_list = vector(length = em)
    var_grid = list()
    mean_grid = list()
    prec_grid = list()
-   N1 = length(Nk)
-   N2 = length(kappak)
-   N3 = length(tausqk)
+   
    for(k1 in 1:N1){
       for(k2 in 1:N2){
          for(k3 in 1:N3){
@@ -33,8 +34,8 @@ sample.exact.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
             mean_grid[[index]] = var_grid[[index]] %*% t(Phi) %*% Y / sigsq
             # computation of p(N | D)
             log_prob_N_list[index] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) - 
-               1/2 * log(det(diag((N+1)) + solve(Omega) %*% t(Phi) %*% Phi / sigsq)) +
-               1/2 * t(mean_grid[[index]]) %*% (Omega + t(Phi) %*% Phi / sigsq) %*% mean_grid[[index]] - t(Y) %*% Y/(2*sigsq)
+               1/2 * log(det(prec_grid)) + 1/2 * log(det(Omega)) +
+               1/2 * t(mean_grid[[index]]) %*% prec_grid %*% mean_grid[[index]] - t(Y) %*% Y/(2*sigsq)
          }
       }
    }
