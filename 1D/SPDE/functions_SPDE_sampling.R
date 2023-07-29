@@ -1,6 +1,6 @@
 ## Sample exact using the original GP
 
-sample.exact.seq = function(X, Y, kappa.pr = function(x){return(1)}, Nk, N.pr,
+sample.exact.seq = function(X, Y, kappa.pr = function(x){return(1)}, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
                         beta, mcmc, brn, sigsq = 0.01, kappa.init, seed = 1000){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
@@ -10,21 +10,32 @@ sample.exact.seq = function(X, Y, kappa.pr = function(x){return(1)}, Nk, N.pr,
    n = length(Y)
    em = mcmc + brn # total number of sampling
    g_list = list()
-   log_prob_N_list = vector(length = length(Nk))
+   log_prob_N_list = vector(length = length(Nk * kappak * tausqk))
    var_grid = list()
    mean_grid = list()
    prec_grid = list()
-   for(k in 1:length(Nk)){
-      N = Nk[k]
-      Omega = Q1D(N, kappa, beta)
-      Phi = Phi_1D(X, N)
-      # computation of the mean and the variance vector
-      prec_grid = Omega + t(Phi) %*% Phi / sigsq
-      var_grid[[k]] = solve(Omega + t(Phi) %*% Phi / sigsq)
-      mean_grid[[k]] = var_grid[[k]] %*% t(Phi) %*% Y / sigsq
-      # computation of p(N | D)
-      log_prob_N_list[k] = log(N.pr(Nk[k])) - 1/2 * log(det(diag((N+1)) + solve(Omega) %*% t(Phi) %*% Phi / sigsq)) +
-         1/2 * t(mean_grid[[k]]) %*% (Omega + t(Phi) %*% Phi / sigsq) %*% mean_grid[[k]] - t(Y) %*% Y/(2*sigsq)
+   N1 = length(Nk)
+   N2 = length(kappak)
+   N3 = length(tausqk)
+   for(k1 in 1:N1){
+      for(k2 in 1:N2){
+         for(k3 in 1:N3){
+            index = (k1 - 1) * N2 * N3 + (k2 - 1) * N3 + k3 # index from 1 to N1 * N2 * N3
+            N = Nk[k1]
+            kappa = kappak[k2]
+            tausq = tausqk[k3]
+            Omega = Q1D(N, kappa, beta, tausq)
+            Phi = Phi_1D(X, N)
+            # computation of the mean and the variance vector
+            prec_grid = Omega + t(Phi) %*% Phi / sigsq
+            var_grid[[index]] = solve(Omega + t(Phi) %*% Phi / sigsq)
+            mean_grid[[index]] = var_grid[[index]] %*% t(Phi) %*% Y / sigsq
+            # computation of p(N | D)
+            log_prob_N_list[index] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) - 
+               1/2 * log(det(diag((N+1)) + solve(Omega) %*% t(Phi) %*% Phi / sigsq)) +
+               1/2 * t(mean_grid[[index]]) %*% (Omega + t(Phi) %*% Phi / sigsq) %*% mean_grid[[index]] - t(Y) %*% Y/(2*sigsq)
+         }
+      }
    }
    # sample from p(N|D)
    set.seed(seed)
