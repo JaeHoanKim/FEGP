@@ -40,7 +40,7 @@ sample.exact.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
    }
    # sample from p(N|D)
    set.seed(seed)
-   param_index_list = sample(1:(N1 * N2 * N3), size = em, replace = TRUE, prob = exp(log_prob_N_list - log_prob_N_list[N1 * N2 * N3]))
+   param_index_list = sample(1:(N1 * N2 * N3), size = em, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
    for(param_index in 1:(N1 * N2 * N3)){
       index = which(param_index_list == param_index)
       if(length(index >= 1)){
