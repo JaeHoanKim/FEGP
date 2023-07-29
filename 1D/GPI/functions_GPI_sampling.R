@@ -207,7 +207,7 @@ sample.exact = function(X, Y, l.in = 0.5, nu.in = 0.75,
 
 
 sample.ESS.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr, 
-                          brn.ESS = 100, beta, mcmc, brn, sigsq, tausq = 1, seed = 1234){
+                          brn.ESS = 100, beta, mcmc, brn, sigsq, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
