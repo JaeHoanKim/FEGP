@@ -58,7 +58,7 @@ MK = function(x, y ,l, nu){
 
 # Covariance matrix
 covmat=function(knot,nu,l,tausq){
-   return(MK(rdist(knot), 0, l, nu, tausq))
+   return(MK(rdist(knot), 0, l, nu * tausq))
 }
 
 
