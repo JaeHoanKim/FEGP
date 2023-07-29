@@ -216,23 +216,37 @@ sample.ESS.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
    n = length(Y)
    em = mcmc + brn # total number of sampling
    g_list = list()
-   log_prob_N_list = vector(length = length(Nk))
+   N1 = length(Nk)
+   N2 = length(kappak)
+   N3 = length(tausqk)
+   log_prob_N_list = vector(length = N1 * N2 * N3)
+   N_list = kappa_list = tausq_list = vector(length = em)
+   var_grid = list()
+   mean_grid = list()
+   prec_grid = list()
+   for(k1 in 1:N1){
+      for(k2 in 1:N2){
+         for(k3 in 1:N3){
+            index = (k1 - 1) * N2 * N3 + (k2 - 1) * N3 + k3 # index from 1 to N1 * N2 * N3
+            N = Nk[k1]
+            kappa = kappak[k2]
+            tausq = tausqk[k3]
+            knot_N = c(0:N)/N
+            Phi = Phi_1D(X, N)
+            PhiTPhi = t(Phi) %*% Phi
+            Sigma_N = covmat(knot_N, nu = beta - 1/2, l = 1/kappa)
+            Q_N = solve(Sigma_N, tol = 1e-30)
+            Q_N_star = Q_N + PhiTPhi/sigsq
+            mu_star = solve(Q_N_star, t(Phi) %*% Y, tol = 1e-30) / sigsq
+            log_prob_N_list[index] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) +
+               1/2 * log(det(diag(N+1) + Sigma_N %*% PhiTPhi / sigsq)) +
+               1/2 * t(mu_star) %*% Q_N_star %*% mu_star - t(Y) %*% Y / 2 / sigsq}
+      }
+   }
    # starting with the initial N and g
    # setting up for iterative work
-   for(k in 1:length(Nk)){
-      N = Nk[k]
-      knot_N = c(0:N)/N
-      Phi = Phi_1D(X, N)
-      PhiTPhi = t(Phi) %*% Phi
-      Sigma_N = covmat(knot_N, nu.in, l.in)
-      Q_N = solve(Sigma_N, tol = 1e-30)
-      Q_N_star = Q_N + PhiTPhi/sigsq
-      mu_star = solve(Q_N_star, t(Phi) %*% Y, tol = 1e-30) / sigsq
-      log_prob_N_list[k] = log(N.pr(Nk[k])) + 1/2 * log(det(diag(N+1) + Sigma_N %*% PhiTPhi / sigsq)) +
-         1/2 * t(mu_star) %*% Q_N_star %*% mu_star - t(Y) %*% Y / 2 / sigsq
-   }
    set.seed(seed)
-   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_prob_N_list - log_prob_N_list[length(Nk)]))
+   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
    for(k in 1:length(Nk)){
       N = Nk[k]
       knot_N = c(0:N)/N
