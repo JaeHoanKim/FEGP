@@ -57,8 +57,8 @@ MK = function(x, y ,l, nu){
 
 
 # Covariance matrix
-covmat=function(knot,nu,l){
-   return(MK(rdist(knot), 0, l, nu))
+covmat=function(knot,nu,l,tausq){
+   return(MK(rdist(knot), 0, l, nu, tausq))
 }
 
 
@@ -174,15 +174,15 @@ loglik = function(y, x, g, sigsq){
 }
 
 
-loglik_v = function(v, g, nu, l){
+loglik_v = function(v, g, nu, l, tausq){
    if (length(v) + 1 != length(g)){
       stop("Error: the length of v should be equal to length(g) - 1")
    }
    N = length(v)
    knot_N = c(0:N)/N
    knot_2N = c(0:(2*N))/(2*N)
-   Sigma_N = covmat(knot_N, nu, l)[1:N, 1:N]
-   Sigma_2N = covmat(knot_2N, nu, l)
+   Sigma_N = covmat(knot_N, nu, l, tausq)[1:N, 1:N]
+   Sigma_2N = covmat(knot_2N, nu, l, tausq)
    S_N = inv_chol(Sigma_N)
    S_2N = inv_chol(Sigma_2N)
    gv = knit_vec(g, v)
@@ -232,18 +232,18 @@ ESS = function(g, nu_ess, y, x, sigsq, Temper = 1, seed = 1){
    return(gprime)       
 }
 
-v_g_ESS = function(v, g, nu_ess, nu, l){
+v_g_ESS = function(v, g, nu_ess, nu, l, tausq){
    thetamin = 0; 
    thetamax = 2*pi;
    u = runif(1)
-   logy = loglik_v(v, g, nu, l) + log(u); 
+   logy = loglik_v(v, g, nu, l, tausq) + log(u); 
    
    theta = runif(1,thetamin,thetamax); 
    thetamin = theta - 2*pi; 
    thetamax = theta;
    vprime = v*cos(theta) + nu_ess*sin(theta);
    
-   while(loglik_v(vprime, g, nu, l) <= logy){
+   while(loglik_v(vprime, g, nu, l, tausq) <= logy){
       if(theta < 0)
          thetamin = theta
       else

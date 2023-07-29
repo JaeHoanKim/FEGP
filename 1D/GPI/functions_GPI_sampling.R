@@ -65,7 +65,7 @@ sample.ESS.nest = function(X, Y, N.pr, l.in = 0.5, nu.in = 0.75, mcmc, brn, thin
          ### applying ESS for sampling v : when g is given, make v to be used for N doubling procedure
          nu_ESS_v = samp.WC(knot_N, nu.in, l.in, tausq)[1:N]
          v.in = samp.WC(knot_N, nu.in, l.in, tausq)[1:N] 
-         v.in = v_g_ESS(v.in, g.in, nu_ESS_v, nu.in, l.in)
+         v.in = v_g_ESS(v.in, g.in, nu_ESS_v, nu.in, l.in, tausq)
          ### procedure to decide whether to double N or stay
          g.cand.2 = knit_vec(g.in, v.in)
          log.test.prob = min(0, log(N.pr(2*N) / N.pr(N)) +  loglik(Y, X, g.cand.2, sigsq) - 
@@ -246,24 +246,33 @@ sample.ESS.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
    # starting with the initial N and g
    # setting up for iterative work
    set.seed(seed)
-   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
-   for(k in 1:length(Nk)){
-      N = Nk[k]
-      knot_N = c(0:N)/N
-      index = which(N_list == N)
-      if (length(index) >= 1){
-         set.seed(seed * k)
-         # sampling length(index) vectors for each fixed N using ESS
+   param_index_list = sample(1:(N1 * N2 * N3), size = em, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
+   
+   for(param_index in 1:(N1 * N2 * N3)){
+      index = which(param_index_list == param_index)
+      if(length(index >= 1)){
+         set.seed(seed * param_index)
+         N = Nk[(param_index - 1) %/% (N2 * N3) + 1]
+         kappa = kappak[((param_index - 1) %% (N2 * N3)) %/% N3 + 1]
+         tausq = tausqk[(param_index - 1) %% N3 + 1]
+         knot_N = c(0:N)/N
          g.out = rep(0, N+1)
          for(a in 1:(brn.ESS + length(index))){
-            g.ESS = samp.WC(knot_N, nu.in, l.in, tausq, seed = a * seed)
+            g.ESS = samp.WC(knot_N, nu = beta - 1/2, l = 1/kappa, tausq = tausq, seed = a * seed)
             g.out = ESS(g.out, g.ESS, Y, X, sigsq, Temper = 1, seed = a * seed)
             if(a > brn.ESS){
                g_list[[(index[a - brn.ESS])]] = g.out
             }
          }
+         for(j in 1:length(index)){
+            g_list[[(index[j])]] = g_samples[j, ]
+            N_list[index[j]] = N
+            kappa_list[index[j]] = kappa
+            tausq_list[index[j]] = tausq
+         }
       }
    }
-   return(list(g_list = g_list, N_list = N_list, log_prob_N_list = log_prob_N_list))
+   return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list,
+               tausq_list = tausq_list, log_prob_N_list = log_prob_N_list))
 }
 
