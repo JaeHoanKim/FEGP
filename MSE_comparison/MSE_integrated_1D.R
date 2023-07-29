@@ -1,12 +1,10 @@
 rm(list = ls())
 gc()
-library(tidyverse)
 library(fields)
 library(FastGP)
 library(Rcpp)
 library(ggplot2)
 library(Matrix)
-library(doParallel)
 library(foreach)
 library(rSPDE)
 library(doParallel)
@@ -128,6 +126,7 @@ save(MSE_list_1D, file = "MSE_list_generated_data_1D.RData")
 m = 1
 cover.plot.GPI.list = list(length = length(nlist))
 cover.plot.SPDE.list = list(length = length(nlist))
+cover.plot.SPDE.beta2.list = list(length = length(nlist))
 for(a in 1:length(nlist)){
    n = nlist[a] # the number of observed data; 200, 500, 1000
    df = df_1D[[a]]
@@ -141,6 +140,15 @@ for(a in 1:length(nlist)){
                              mcmc = target, brn=0, seed = 1234)
    g.plot.SPDE = tail(result.SPDE$g_list, target) # choosing last `target` samples
    y.plot.SPDE = glist_to_plotdf(g.plot.SPDE, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
+   
+   # result for SPDE with beta = 2
+   result.SPDE.beta2 = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr, beta = 2,
+                                  kappak = kappak, kappa.pr = kappa.pr,
+                                  tausqk = tausqk, tausq.pr = tausq.pr,
+                                  mcmc = target, brn=0, seed = 1234)
+   g.plot.SPDE.beta2 = tail(result.SPDE.beta2$g_list, target) # choosing last `target` samples
+   y.plot.SPDE.beta2 = glist_to_plotdf(g.plot.SPDE.beta2, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
+   
    
    # result for GPI
    result.GPI = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr,
@@ -171,13 +179,23 @@ for(a in 1:length(nlist)){
       labs(title = paste0("SPDE (n = ", n, ")"), x = "x", y = "y")+
       geom_point(data = obs, aes(X, Y), size = 0.3) +
       theme(plot.title = element_text(hjust = 0.5))
+   
+   cover.plot.SPDE.beta2.list[[a]] <- ggplot(y.plot.SPDE.beta2, aes(x = x)) +
+      geom_line(aes(y=mean), colour="blue") + 
+      geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
+      geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
+      # geom_point(data = obs, aes(X, Y), size = 0.3) +
+      labs(title = paste0("SPDE (n = ", n, ", beta = 2)"), x = "x", y = "y")+
+      geom_point(data = obs, aes(X, Y), size = 0.3) +
+      theme(plot.title = element_text(hjust = 0.5))
 }
 
 library(gridExtra)
 pdf(file = "Graphs/coverage_plot.pdf", width = 12, height = 8)
-grid.arrange(cover.plot.GPI.list[[1]], cover.plot.SPDE.list[[1]],
-             cover.plot.GPI.list[[2]], cover.plot.SPDE.list[[2]],
-             cover.plot.GPI.list[[3]], cover.plot.SPDE.list[[3]], nrow = 2, as.table = FALSE)
+grid.arrange(cover.plot.GPI.list[[1]], cover.plot.SPDE.beta2.list[[1]], cover.plot.SPDE.list[[1]],
+             cover.plot.GPI.list[[2]], cover.plot.SPDE.beta2.list[[2]], cover.plot.SPDE.list[[2]],
+             cover.plot.GPI.list[[3]], cover.plot.SPDE.beta2.list[[3]], cover.plot.SPDE.list[[3]], nrow = 3, as.table = FALSE)
 dev.off()
 
 
