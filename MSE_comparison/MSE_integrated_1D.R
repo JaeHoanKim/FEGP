@@ -34,12 +34,11 @@ target = 2500
 brn = 0
 brn.ESS = 1000
 # setting for the Matern parameters
-kappak = seq(0.5, 2.1, 0.2)
-tausqk = seq(0.1, 1, 0.1)
-Nk = c(4, 6, 10, 14, 18, 22)
+kappak = seq(2, 5, 0.3)
+tausqk = seq(1, 5, 0.5)
+Nk = c(6, 8, 10, 14, 18, 22, 26, 30)
 kappa.pr = tausq.pr = N.pr = const 
 beta = 4
-lk = 1/kappak
 
 const = function(x){
    return(1)
