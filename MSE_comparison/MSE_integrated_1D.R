@@ -34,8 +34,8 @@ target = 2500
 brn = 0
 brn.ESS = 1000
 # setting for the Matern parameters
-kappak = c(0.5, 1, 2, 3, 5)
-tausqk = c(0.2, 0.5, 1)
+kappak = seq(0.5, 2.1, 0.2)
+tausqk = seq(0.1, 1, 0.1)
 Nk = c(4, 6, 10, 14, 18, 22)
 kappa.pr = tausq.pr = N.pr = const 
 beta = 4
@@ -180,3 +180,5 @@ grid.arrange(cover.plot.GPI.list[[1]], cover.plot.SPDE.list[[1]],
              cover.plot.GPI.list[[2]], cover.plot.SPDE.list[[2]],
              cover.plot.GPI.list[[3]], cover.plot.SPDE.list[[3]], nrow = 2, as.table = FALSE)
 dev.off()
+
+
