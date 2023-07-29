@@ -1,7 +1,7 @@
 # fast multivariate sampling from the GMRF, conditioned on the data (Using ESS)
 # generating the Q matrix
 
-Q1D = function(N, kappa, beta){
+Q1D = function(N, kappa, beta, tausq){
    # generating C as a sparse matrix (N=1 by N+1 matrix)
    i1 = j1 = c(1:(N+1))
    x = 1 / (2*N) * c(1, rep(2, N-1), 1)
@@ -13,13 +13,15 @@ Q1D = function(N, kappa, beta){
    x2 = N*rep(c(-1, 2, -1), times = N-1)   
    G = sparseMatrix(i = i2, j = j2, x = x2, dims = c(N+1, N+1))
    A = kappa^2 * C + G
+   nu = beta - 1/2 # nu in 1D
+   tau0sq = gamma(nu)/gamma(nu+1/2)/sqrt(4*pi)/kappa^{2*nu}
    if (beta == 2){
       Q = t(A) %*% invC %*% A
-      return(Q)
+      return(Q * tau0sq / tausq)
    }
    else if (beta %% 2 == 0){
       Q = t(A) %*% invC %*% Q1D(N, kappa, beta - 2) %*% invC %*% A
-      return(Q)
+      return(Q) # constant is already multiplied when returned from Q1D function
    }
 }
 
