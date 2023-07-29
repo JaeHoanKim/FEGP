@@ -234,7 +234,7 @@ sample.ESS.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
             knot_N = c(0:N)/N
             Phi = Phi_1D(X, N)
             PhiTPhi = t(Phi) %*% Phi
-            Sigma_N = covmat(knot_N, nu = beta - 1/2, l = 1/kappa)
+            Sigma_N = covmat(knot_N, nu = beta - 1/2, l = 1/kappa, tausq)
             Q_N = solve(Sigma_N, tol = 1e-30)
             Q_N_star = Q_N + PhiTPhi/sigsq
             mu_star = solve(Q_N_star, t(Phi) %*% Y, tol = 1e-30) / sigsq
@@ -265,7 +265,6 @@ sample.ESS.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
             }
          }
          for(j in 1:length(index)){
-            g_list[[(index[j])]] = g_samples[j, ]
             N_list[index[j]] = N
             kappa_list[index[j]] = kappa
             tausq_list[index[j]] = tausq
