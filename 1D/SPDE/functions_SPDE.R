@@ -20,7 +20,7 @@ Q1D = function(N, kappa, beta, tausq){
       return(Q * tau0sq / tausq)
    }
    else if (beta %% 2 == 0){
-      Q = t(A) %*% invC %*% Q1D(N, kappa, beta - 2) %*% invC %*% A
+      Q = t(A) %*% invC %*% Q1D(N, kappa, beta - 2, tausq) %*% invC %*% A
       return(Q) # constant is already multiplied when returned from Q1D function
    }
 }
