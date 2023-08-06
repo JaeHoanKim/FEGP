@@ -21,7 +21,7 @@ sample.ESS.Nfixed2D = function(Z, X, l.in, nu.in, mcmc, brn, thin, sigsq, N.init
    g.in = matrix(0, N.init+1, N.init + 1)
    N = N.init
    # since N does not change, we can fix 'result'.
-   result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
+   result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in, tausq)
    for(i in 1:em){
       ### update knot_N for updated N
       ## sample new g given N, D_n!= 102
@@ -80,14 +80,14 @@ sample.ESS.nested2D = function(Z, X, N.pr, mcmc, brn, thin, Ndoubling, l.in = NU
       result_N_list[[N1]] = inv_BTTB(Sigma_N, N1 + 1)
    }
    # initial eigenvalue result
-   result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
+   result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in, tausq)
    for(i in 1:em){
       ### update knot_N for updated N
       ## sample new g given N, D_n
       uu = ((N[1] == 2) - 3) * runif(1)
       if (uu < -2){
          ## half N
-         result_half = eigvals_exact(ndim = N / 2, nu = nu.in, lambda_g = l.in)
+         result_half = eigvals_exact(ndim = N / 2, nu = nu.in, lambda_g = l.in, tausq)
          g.cand.half = g.in[2 * c(0:(N[1]/2)) + 1, 2 * c(0:(N[2]/2)) + 1]
          log.test.prob = min(0, loglik(Z, X, g.cand.half, sigsq) - loglik(Z, X, g.in, sigsq) +
             log(N.pr(N[1]/2)) - log(N.pr(N[1])))
@@ -103,7 +103,7 @@ sample.ESS.nested2D = function(Z, X, N.pr, mcmc, brn, thin, Ndoubling, l.in = NU
       } else if(uu < -1){
          ## double N
          ## 1. sample from posterior distribution of g, (2N+1) by (2N+1) matrix
-         result2 = eigvals_exact(ndim = 2 * N, nu = nu.in, lambda_g = l.in)
+         result2 = eigvals_exact(ndim = 2 * N, nu = nu.in, lambda_g = l.in, tausq)
          gdouble = matrix(samp_from_grid(2*N, mdim = result2$mvec, egs = result2$egvals, nu.in, lambda_g = l.in), 
                           nrow = 2 * N[1] + 1, byrow = TRUE)
          for(kk in 1:Ndoubling){
@@ -176,7 +176,7 @@ sample.PTESS2D = function(Z, X, Nk, Tk, N.pr, mcmc, brn, thin, l.in = NULL, nu.i
    ## generate ESS samples for the PT
    for(k in 1:length(Nk)){
       N = rep(Nk[k], 2)
-      result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
+      result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in, tausq)
       for(i in 2:em){
          nu.ess = matrix(samp_from_grid(N, mdim = result$mvec, egs = result$egvals, nu, lambda_g), 
                          nrow = N[1] + 1, ncol = N[2] + 1, byrow = TRUE) * sqrt(Tk[k])
@@ -237,7 +237,7 @@ sample.RJESS2D = function(Z, X, Nk, N.pr, mcmc, brn, thin, l.in = NULL, nu.in = 
    ## generate ESS samples for the PT
    for(k in 1:length(Nk)){
       N = rep(Nk[k], 2)
-      result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in)
+      result = eigvals_exact(ndim = N, nu = nu.in, lambda_g = l.in, tausq)
       for(i in 2:em){
          nu.ess = matrix(samp_from_grid(N, mdim = result$mvec, egs = result$egvals, nu, lambda_g), 
                          nrow = N[1] + 1, ncol = N[2] + 1, byrow = TRUE)
@@ -312,7 +312,7 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NU
    ## generate ESS samples for the PT
    for(k in 1:length(Nk)){
       N = Nk[k]
-      result = eigvals_exact(ndim = c(N, N), nu = nu.in, lambda_g = l.in)
+      result = eigvals_exact(ndim = c(N, N), nu = nu.in, lambda_g = l.in, tausq)
       index = which(N_list == N)
       if (length(index) >= 1){
          # sampling length(index) vectors for each fixed N using ESS
@@ -336,7 +336,7 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NU
 
 
 sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NULL, sigsq, 
-                              N.init, tausq, brn.ESS, seed = 1234){
+                              N.init, tausq, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
@@ -370,7 +370,7 @@ sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in 
    ## generate ESS samples for the PT
    for(k in 1:length(Nk)){
       N = Nk[k]
-      result_list[[k]] = eigvals_exact(ndim = c(N, N), nu = nu.in, lambda_g = l.in)
+      result_list[[k]] = eigvals_exact(ndim = c(N, N), nu = nu.in, lambda_g = l.in, tausq)
       index = which(N_list == N)
    }
    ## when pred is FALSE, Ypred would be the zero matrix
@@ -378,7 +378,7 @@ sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in 
 }
 
 # once one time calculation is done
-sample.RJESS2D.iter = function(Z, X, Nk, N.pr, result_list, N_list, sigsq, brn.ESS, seed = 1234){
+sample.RJESS2D.iter = function(Z, X, Nk, N.pr, result_list, N_list, sigsq, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)

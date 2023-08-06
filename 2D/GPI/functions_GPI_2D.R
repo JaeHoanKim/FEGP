@@ -49,7 +49,7 @@ y2 <- function(X,sigma2){ ## The observations based on the second objective func
 }
 #==================
 
-thekernel <- function(X,nu,lambda){
+thekernel <- function(X,nu,lambda, tausq){
    ## Matern kernel with parameters nu and lambda for range
    ## X could be either the matrix for point coordinates with each point in the rows or
    ## X could be a vector where it is considered as the difference at each coordinate. Thus, sqrt(sum(x^2)) is used as the input to Matern.
@@ -57,7 +57,7 @@ thekernel <- function(X,nu,lambda){
    if(!is.null(d)){
       X <- rdist(X)
    } else {X <- sqrt(sum(X^2))}
-   out <- Matern(X,nu=nu,range=lambda)
+   out <- Matern(X,nu=nu,range=lambda) * tausq
    return(out)
 }
 #==================
@@ -109,7 +109,7 @@ myfft2d <- function(h,inv=F){
 #==================
 
 # denominator of the grid: ndim!
-eigvals <- function(ndim,gvec,nu,lambda){
+eigvals <- function(ndim,gvec,nu,lambda, tausq){
    ## This function computes the eigenvalues of the augmented BCCB matrix based on the algorithm
    ## described in the Wood and Chan paper. The inputs are gvector where m[i]=2^gvec[i] for dimension i
    ## and ndim is a vector containing the number of grid points at each dimension.
@@ -129,7 +129,7 @@ eigvals <- function(ndim,gvec,nu,lambda){
    #tilde_h_n <- t(apply(aug_grid,1,filter_vec,mdim=mdim,ndim=ndim)) # the slower function that is not used anymore.
    
    tild_aux <- sqrt(rowSums(tilde_h_n^2))
-   small_c <- Matern(tild_aux,nu=nu,range=lambda) # The c(j) used in equation (3.12) for all j\in\I(m)
+   small_c <- Matern(tild_aux,nu=nu,range=lambda) * tausq # The c(j) used in equation (3.12) for all j\in\I(m)
    #small_c <- apply(tilde_h_n,1,thekernel,nu=nu,lambda=lambda) # Obselete part as it is very slow comparing to its equivalent above.
    
    cc <- array(small_c,dim=mdim) # This is the d-dimensional matrix which we take the d-dimensional Fourier transform. There are mdim[l] points at dimension 'l'.
@@ -139,7 +139,7 @@ eigvals <- function(ndim,gvec,nu,lambda){
 }
 #==================
 
-eigvals_exact <- function(ndim,nu,lambda_g){
+eigvals_exact <- function(ndim,nu,lambda_g, tausq){
    ## This function finds the optimized value for the gvector such that m[i] = 2^g[i], in the Wood and Chen paper, for
    ## obtaining the exact value of a positive definite covariance matrix.
    ## Note that our covariance structure is even in all dimesions so m[i] is a power of 2.
@@ -159,7 +159,7 @@ eigvals_exact <- function(ndim,nu,lambda_g){
    gout <- matrix(0,N,N)
    while (i + j <= 2 * N){
       while (j <= j0 + i - i0){
-         gout[i,j] <- all(eigvals(ndim,c(i,j),nu,lambda_g)>0)
+         gout[i,j] <- all(eigvals(ndim,c(i,j),nu,lambda_g, tausq)>0)
          if (gout[i, j] == TRUE){break}
          j <- j+1
       }
@@ -179,7 +179,7 @@ eigvals_exact <- function(ndim,nu,lambda_g){
       rr <- ind%%N
       cc <- ind%/%N + (rr>0)
       gvecout <- c(rr,cc)
-      eg <- eigvals(ndim,gvecout,nu,lambda_g)
+      eg <- eigvals(ndim,gvecout,nu,lambda_g, tausq)
       mvec <- 2^gvecout
       return(list(egvals=eg,mvec=mvec))
    }
@@ -368,7 +368,7 @@ loglik = function(z, x, g, sigsq){
 # gdouble : 2N + 1 by 2N + 1 matrix
 # g : N + 1 by N + 1 matrix
 # calculate the log likelihood to check if doubling should be preferred
-loglik_double = function(gdouble, g, nu, l, result_N = NULL, result_2N = NULL){
+loglik_double = function(gdouble, g, nu, l, tausq, result_N = NULL, result_2N = NULL){
    if (all.equal(dim(gdouble), 2 * dim(g) - 1) != TRUE){
       stop("the dimension of g double should be 2 * dim(g) - 1 !")
    }
@@ -384,8 +384,8 @@ loglik_double = function(gdouble, g, nu, l, result_N = NULL, result_2N = NULL){
                rep(c(0:N2)/N2, each = N1 + 1)) # (N1+1)*(N2+1) by 2 matrix
    X_2N = cbind(rep(c(0:(2*N1))/(2*N1), 2*N2 + 1), 
                 rep(c(0:(2*N2))/(2*N2), each = 2*N1 + 1))
-   Sigma_N = thekernel(X_N, nu, lambda = l)
-   Sigma_2N = thekernel(X_2N, nu, lambda = l)
+   Sigma_N = thekernel(X_N, nu, lambda = l, tausq)
+   Sigma_2N = thekernel(X_2N, nu, lambda = l, tausq)
    ###################################
    ## 1. apply the BTTB inversion algorithm
    if (is.null(result_N) == TRUE){
