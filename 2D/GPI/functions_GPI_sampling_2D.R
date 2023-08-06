@@ -336,7 +336,7 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NU
 
 
 sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in = NULL, sigsq, 
-                              N.init, tausq, brn.ESS = 500, seed = 1234){
+                              N.init, tausq, brn.ESS, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
@@ -357,7 +357,7 @@ sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in 
       PhiTPhi = t(Phi) %*% Phi
       gridmat = cbind(rep(c(0:N)/N, each = N + 1), 
                       rep(c(0:N)/N, N + 1))
-      Sigma_N = thekernel(gridmat, nu.in, lambda = l.in)
+      Sigma_N = thekernel(gridmat, nu.in, lambda = l.in) * tausq
       Q_N = solve(Sigma_N)
       Q_N_star = Q_N + PhiTPhi/sigsq
       mu_star = solve(Q_N_star, t(Phi) %*% Z) / sigsq
@@ -378,7 +378,7 @@ sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in 
 }
 
 # once one time calculation is done
-sample.RJESS2D.iter = function(Z, X, Nk, N.pr, result_list, N_list, sigsq, brn.ESS = 500, seed = 1234){
+sample.RJESS2D.iter = function(Z, X, Nk, N.pr, result_list, N_list, sigsq, brn.ESS, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
