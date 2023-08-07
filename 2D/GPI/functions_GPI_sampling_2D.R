@@ -346,7 +346,6 @@ sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in 
    em = mcmc + brn # total number of sampling
    ## compatibility check when predicting
    N_list = c()
-   g_list = list()
    log_prob_N_list = vector(length = length(Nk))
    result_list = list()
    ## g matrices for multiple N - before mixing
@@ -357,7 +356,7 @@ sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in 
       PhiTPhi = t(Phi) %*% Phi
       gridmat = cbind(rep(c(0:N)/N, each = N + 1), 
                       rep(c(0:N)/N, N + 1))
-      Sigma_N = thekernel(gridmat, nu.in, lambda = l.in) * tausq
+      Sigma_N = thekernel(gridmat, nu.in, lambda = l.in, tausq)
       Q_N = solve(Sigma_N)
       Q_N_star = Q_N + PhiTPhi/sigsq
       mu_star = solve(Q_N_star, t(Phi) %*% Z) / sigsq
@@ -378,11 +377,12 @@ sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, mcmc, brn, l.in = NULL, nu.in 
 }
 
 # once one time calculation is done
-sample.RJESS2D.iter = function(Z, X, Nk, N.pr, result_list, N_list, sigsq, seed = 1234){
+sample.RJESS2D.iter = function(Z, X, Nk, N.pr, result_list, N_list, sigsq, brn.ESS, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
    ## generate ESS samples for the PT
+   g_list = list()
    for(k in 1:length(Nk)){
       N = Nk[k]
       result = result_list[[k]]
