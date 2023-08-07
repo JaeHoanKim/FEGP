@@ -128,3 +128,33 @@ library(gridExtra)
 pdf(file = "Graphs/Time_plot.pdf", width = 12, height = 4)
 grid.arrange(time.plot.1, time.plot.2, ncol = 2)
 dev.off()
+
+################## Splitting the one time / iterative calculation ############################
+
+
+## GPI
+
+onetime_GPI = microbenchmark(
+   result.onetime.1 = sample.RJESS2D.onetime(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
+                                             mcmc = target, brn = 0, nu.in = 1, tausq = 1 ,l.in = 1/kappa),
+   result.onetime.2 = sample.RJESS2D.onetime(Z = Zlist[[2]], X = Xlist[[2]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
+                                             mcmc = target, brn = 0, nu.in = 1, tausq = 1 ,l.in = 1/kappa), 
+   result.onetime.3 = sample.RJESS2D.onetime(Z = Zlist[[3]], X = Xlist[[3]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
+                                             mcmc = target, brn = 0, nu.in = 1, tausq = 1 ,l.in = 1/kappa),
+   times = 10
+   
+)
+
+iter_GPI = microbenchmark(
+   result.iter.1 = sample.RJESS2D.iter(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, 
+                                       result_list = result.onetime.1$result_list, N_list = result.onetime.1$N_list, sigsq = 0.1^2, brn.ESS = brn.ESS),
+   result.iter.2 = sample.RJESS2D.iter(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, 
+                                       result_list = result.onetime.2$result_list, N_list = result.onetime.2$N_list, sigsq = 0.1^2, brn.ESS = brn.ESS),
+   result.iter.3 = sample.RJESS2D.iter(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, 
+                                       result_list = result.onetime.3$result_list, N_list = result.onetime.3$N_list, sigsq = 0.1^2, brn.ESS = brn.ESS),
+   times = 10
+)
+
+## SPDE
+
+
