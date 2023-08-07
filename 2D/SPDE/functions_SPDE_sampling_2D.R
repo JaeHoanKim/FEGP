@@ -268,7 +268,7 @@ sample.RJexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
 }
 
 sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
-                          beta = 2, mcmc, brn, sigsq = 0.01, kappa.init = 2, seed = 1234){
+                          beta = 2, mcmc, brn, sigsq = 0.01, kappa.init = 2, tausq = 1, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## kappa init should be 2 to match with GPI method
@@ -285,14 +285,17 @@ sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
    log_jump_prob_N = vector(length = length(Nk))
    mean_grid = list()
    var_grid = list()
+   nu = beta - 1
+   tausq0 = gamma(nu) / gamma(nu + 1) / (4*pi) / kappa^(2*nu)
    # 1. Sample from N | D
    for(k in 1:length(Nk)){
       N = Nk[k]
       kappa = kappa.init
       gridmat = cbind(rep(c(0:N)/N, each = N+1),
                       rep(c(0:N)/N, N+1))
+      
       # sparse matrix Omega and Phi
-      Omega = Q2D(N, kappa, beta = 2)
+      Omega = Q2D(N, kappa, beta = 2) * tausq0 / tausq
       Phi = Phi_2D(X, N)
       # computation of the mean and the variance vector
       var_grid[[k]] = solve(Omega + t(Phi) %*% Phi / sigsq)
