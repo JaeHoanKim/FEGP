@@ -284,6 +284,66 @@ sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
    kappa = kappa.init
    log_jump_prob_N = vector(length = length(Nk))
    mean_grid = list()
+   prec_grid = list()
+   chol_prec_grid = list()
+   nu = beta - 1
+   tausq0 = gamma(nu) / gamma(nu + 1) / (4*pi) / kappa^(2*nu)
+   # 1. Sample from N | D
+   for(k in 1:length(Nk)){
+      N = Nk[k]
+      kappa = kappa.init
+      gridmat = cbind(rep(c(0:N)/N, each = N+1),
+                      rep(c(0:N)/N, N+1))
+      
+      # sparse matrix Omega and Phi
+      Omega = Q2D(N, kappa, beta = 2) * tausq0 / tausq
+      Phi = Phi_2D(X, N)
+      # computation of the mean and the variance vector
+      prec_grid[[k]] = Omega + t(Phi) %*% Phi / sigsq
+      chol_prec_grid[[k]] = chol(prec_grid[[k]])
+      mean_grid[[k]] = solve(prec_grid[[k]], t(Phi) %*% Z / sigsq)
+      log_jump_prob_N[k] = log(N.pr(Nk[k])) - 1/2 * log(det(diag((N+1)^2) + solve(Omega) %*% t(Phi) %*% Phi / sigsq)) +
+         1/2 * t(mean_grid[[k]]) %*% (Omega + t(Phi) %*% Phi / sigsq) %*% mean_grid[[k]] - t(Z) %*% Z/(2*sigsq)
+   }
+   set.seed(seed)
+   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_jump_prob_N - log_jump_prob_N[length(Nk)]))
+   # 2. Sample from w | D, N
+   for(k in 1:length(Nk)){
+      N = Nk[k]
+      index = which(N_list == N)
+      if (length(index) >= 1){
+         set.seed(seed * k)
+         stdnorms = matrix(rnorm(length(index) * nrow(prec_grid[[k]])), ncol = nrow(prec_grid[[k]]))
+         g_samples = as.matrix(t(chol(prec_grid[[k]]) %*% t(stdnorms))) + 
+            matrix(mean_grid[[k]], nrow = length(index), ncol = nrow(prec_grid[[k]]), byrow = TRUE)
+         ## g_samples = mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[k]], sigma = var_grid[[k]],
+         ##                             checkSymmetry = FALSE)
+         for(j in 1:length(index)){
+            g_list[[(index[j])]] = g_samples[j, ]
+         }
+      }
+   }
+      ## when pred is FALSE, Ypred would be the zero matrix
+   return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list, log_jump_prob_N = log_jump_prob_N))
+}
+
+sample.exact.onetime = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
+                                beta = 2, mcmc, brn, sigsq = 0.01, kappa.init = 2, tausq = 1, seed = 1234){
+   ## X, Y: given data
+   ## N.pr: prior distribution of N (function)
+   ## kappa init should be 2 to match with GPI method
+   ## kappa.pr: prior distribution of kappa (function); by default, noninformative prior
+   if(dim(X)[1]!=length(Z))
+      stop("X and Z should be of same length!")
+   n = length(Z)
+   em = mcmc + brn # total number of sampling
+   N_list = c()
+   prob_list = c()
+   g_list = vector("list", em)
+   kappa_list = list()
+   kappa = kappa.init
+   log_jump_prob_N = vector(length = length(Nk))
+   mean_grid = list()
    var_grid = list()
    nu = beta - 1
    tausq0 = gamma(nu) / gamma(nu + 1) / (4*pi) / kappa^(2*nu)
@@ -305,19 +365,5 @@ sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
    }
    set.seed(seed)
    N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_jump_prob_N - log_jump_prob_N[length(Nk)]))
-   # 2. Sample from w | D, N
-   for(k in 1:length(Nk)){
-      N = Nk[k]
-      index = which(N_list == N)
-      if (length(index) >= 1){
-         set.seed(seed * k)
-         g_samples = mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[k]], sigma = var_grid[[k]],
-                                      checkSymmetry = FALSE)
-         for(j in 1:length(index)){
-            g_list[[(index[j])]] = g_samples[j, ]
-         }
-      }
-   }
-      ## when pred is FALSE, Ypred would be the zero matrix
-   return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list, log_jump_prob_N = log_jump_prob_N))
+   return(list(mean_grid = mean_grid, prec_grid = prec_grid, N_list = N_list))
 }
