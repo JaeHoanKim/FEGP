@@ -16,31 +16,28 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 
 ### 1. true function setting & data generation
 
-alpha = 0.5
-
-# f0_1D = function(x){return (x^2 + sin(x))}s
-f0_1D = function(x, trun = 200){
-   value = 0
-   for(j in 1:trun){
-      value = value + cos(pi * (j - 1/2) * x) * sin(j) * j^(- alpha - 1)
-   }
-   return(value * sqrt(2))
-}
-
+# alpha = 0.5
 
 f0_2D = function(x, y){return(x^2 + sqrt(abs(y-0.5)) + sin(8*x))}
-# next try if it still preserves the pattern: abs(y-0.5)
-
 
 M = 50
 nlist = c(200, 500, 1000)
-target = 2500
-brn = 0
-brn.ESS = 100
-# setting for the Matern parameters
+df_2D = list(length = length(nlist))
+
+for(i in 1:length(nlist)){
+   set.seed(i)
+   n = nlist[i]
+   # 2D data generation
+   X = matrix(runif(2*n*M), n*M)
+   Z = f0_2D(X[, 1], X[, 2]) + rnorm(n*M) * 0.1
+   df_2D[[i]] = data.frame(X, Z)
+}
+
+# setting for the Matern parameters and sampling
+
 kappa = 2
 beta = 4
-d = 1
+d = 2
 nu = beta - d/2
 l.in = 1/kappa
 
@@ -48,35 +45,12 @@ const = function(x){
    return(1)
 }
 Nk = c(4, 6, 8, 10, 12)
-grid.plot = c(0:1000)/1000
-df_1D = list(length = length(nlist))
-df_2D = list(length = length(nlist))
-
-for(i in 1:length(nlist)){
-   set.seed(i)
-   n = nlist[i]
-   # 1D data generation
-   X = runif(n*M)
-   Z = f0_1D(X) + rnorm(n*M) * 0.1
-   df_1D[[i]] = data.frame(X, Z)
-   # 2D data generation
-   X = matrix(runif(2*n*M), n*M)
-   Z = f0_2D(X[, 1], X[, 2]) + rnorm(n*M) * 0.1
-   df_2D[[i]] = data.frame(X, Z)
-}
-
-### 3. MSE calculation - 2D
 
 target = 2500
 brn = 0
 brn.ESS = 1000
 
-# setting for the Matern parameters
-kappa = 2
-beta = 2 # For the SPDE, only beta = 2 is proven theoretically.
-d = 2
-nu = beta - d/2
-l.in = 1/kappa
+### 3. MSE calculation - 2D
 
 gridsize = 40
 # gridmat is a (gridsize^2) by 2 matrix!
