@@ -130,7 +130,7 @@ grid.arrange(time.plot.1, time.plot.2, ncol = 2)
 dev.off()
 
 ################## Splitting the one time / iterative calculation ############################
-
+########## for the fair comparison, fix the parameter throughout the calculation #############
 
 ## GPI
 
