@@ -13,7 +13,7 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 
 ### 1. true function setting & data generation
 
-alpha = 0.4
+alpha = 1.4
 
 f0_1D = function(x, trun = 500){
    value = 0
@@ -28,6 +28,20 @@ const = function(x){return(1)}
 
 M = 50
 nlist = c(200, 500, 1000)
+df_1D = list(length = length(nlist))
+
+for(i in 1:length(nlist)){
+   set.seed(i)
+   n = nlist[i]
+   # 1D data generation
+   X = runif(n*M)
+   Z = f0_1D(X) + rnorm(n*M) * 0.1
+   df_1D[[i]] = data.frame(X, Z)
+   # 2D data generation
+   X = matrix(runif(2*n*M), n*M)
+}
+
+
 target = 2500
 brn = 0
 brn.ESS = 1000
@@ -43,18 +57,6 @@ const = function(x){
 }
 
 grid.plot = c(0:1000)/1000
-df_1D = list(length = length(nlist))
-
-for(i in 1:length(nlist)){
-   set.seed(i)
-   n = nlist[i]
-   # 1D data generation
-   X = runif(n*M)
-   Z = f0_1D(X) + rnorm(n*M) * 0.1
-   df_1D[[i]] = data.frame(X, Z)
-   # 2D data generation
-   X = matrix(runif(2*n*M), n*M)
-}
 
 ### 2. MSE calculation - 1D
 
