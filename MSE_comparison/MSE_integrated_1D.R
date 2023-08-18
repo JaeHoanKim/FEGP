@@ -218,7 +218,7 @@ library(gridExtra)
 pdf(file = "Graphs/coverage_plot.pdf", width = 12, height = 12)
 grid.arrange(cover.plot.GPI.beta2.list[[1]], cover.plot.GPI.list[[1]], cover.plot.SPDE.beta2.list[[1]], cover.plot.SPDE.list[[1]],
              cover.plot.GPI.beta2.list[[2]], cover.plot.GPI.list[[2]], cover.plot.SPDE.beta2.list[[2]], cover.plot.SPDE.list[[2]],
-             cover.plot.GPI.beta2.list[[3]], cover.plot.GPI.list[[3]], cover.plot.SPDE.beta2.list[[3]], cover.plot.SPDE.list[[3]], nrow = 3, as.table = FALSE)
+             cover.plot.GPI.beta2.list[[3]], cover.plot.GPI.list[[3]], cover.plot.SPDE.beta2.list[[3]], cover.plot.SPDE.list[[3]], nrow = 4, as.table = FALSE)
 dev.off()
 
 
