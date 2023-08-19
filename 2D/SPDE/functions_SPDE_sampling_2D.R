@@ -310,41 +310,24 @@ sample.exact2D.seq = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
          }
       }
    }
-   for(k in 1:length(Nk)){
-      N = Nk[k]
-      kappa = kappa.init
-      gridmat = cbind(rep(c(0:N)/N, each = N+1),
-                      rep(c(0:N)/N, N+1))
-      
-      # sparse matrix Omega and Phi
-      Omega = Q2D(N, kappa, tausq, beta = 2)
-      Phi = Phi_2D(X, N)
-      # computation of the mean and the variance vector
-      prec_grid[[k]] = Omega + t(Phi) %*% Phi / sigsq
-      chol_prec_grid[[k]] = chol(prec_grid[[k]])
-      mean_grid[[k]] = solve(prec_grid[[k]], t(Phi) %*% Z / sigsq)
-      log_jump_prob_N[k] = log(N.pr(Nk[k])) - 1/2 * log(det(diag((N+1)^2) + solve(Omega) %*% t(Phi) %*% Phi / sigsq)) +
-         1/2 * t(mean_grid[[k]]) %*% (Omega + t(Phi) %*% Phi / sigsq) %*% mean_grid[[k]] - t(Z) %*% Z/(2*sigsq)
-   }
+   
+   # sample from p(N|D)
    set.seed(seed)
-   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_jump_prob_N - log_jump_prob_N[length(Nk)]))
-   # 2. Sample from w | D, N
-   for(k in 1:length(Nk)){
-      N = Nk[k]
-      index = which(N_list == N)
-      if (length(index) >= 1){
-         set.seed(seed * k)
-         stdnorms = matrix(rnorm(length(index) * nrow(prec_grid[[k]])), ncol = nrow(prec_grid[[k]]))
-         g_samples = as.matrix(t(chol(prec_grid[[k]]) %*% t(stdnorms))) + 
-            matrix(mean_grid[[k]], nrow = length(index), ncol = nrow(prec_grid[[k]]), byrow = TRUE)
-         ## g_samples = mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[k]], sigma = var_grid[[k]],
-         ##                             checkSymmetry = FALSE)
+   param_index_list = sample(1:(N1 * N2 * N3), size = em, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
+   for(param_index in 1:(N1 * N2 * N3)){
+      index = which(param_index_list == param_index)
+      if(length(index >= 1)){
+         set.seed(seed * param_index)
+         g_samples <- mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[param_index]], sigma = solve(prec_grid[[param_index]]),
+                                       checkSymmetry = FALSE)
          for(j in 1:length(index)){
             g_list[[(index[j])]] = g_samples[j, ]
+            N_list[index[j]] = Nk[(param_index - 1) %/% (N2 * N3) + 1]
+            kappa_list[index[j]] = kappak[((param_index - 1) %% (N2 * N3)) %/% N3 + 1]
+            tausq_list[index[j]] = tausqk[(param_index - 1) %% N3 + 1]
          }
       }
    }
-      ## when pred is FALSE, Ypred would be the zero matrix
    return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list, log_jump_prob_N = log_jump_prob_N))
 }
 
