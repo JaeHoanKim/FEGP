@@ -15,9 +15,9 @@ sample.exact.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
    N3 = length(tausqk)
    log_prob_N_list = vector(length = N1 * N2 * N3)
    N_list = kappa_list = tausq_list = vector(length = em)
-   var_grid = list()
    mean_grid = list()
    prec_grid = list()
+   chol_prec_grid = list()
    for(k1 in 1:N1){
       for(k2 in 1:N2){
          for(k3 in 1:N3){
@@ -28,12 +28,13 @@ sample.exact.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
             Omega = Q1D(N, kappa, beta, tausq)
             Phi = Phi_1D(X, N)
             # computation of the mean and the variance vector
-            prec_grid = Omega + t(Phi) %*% Phi / sigsq
-            mean_grid[[index]] = solve(prec_grid, t(Phi) %*% Y / sigsq)
+            prec_grid[[index]] = Omega + t(Phi) %*% Phi / sigsq
+            chol_prec_grid[[index]] = chol(prec_grid[[index]])
+            mean_grid[[index]] = solve(prec_grid[[index]], t(Phi) %*% Y / sigsq)
             # computation of p(N | D)
             log_prob_N_list[index] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) - 
-               1/2 * log(det(prec_grid)) + 1/2 * log(det(Omega)) +
-               1/2 * t(mean_grid[[index]]) %*% prec_grid %*% mean_grid[[index]] - t(Y) %*% Y/(2*sigsq)
+               1/2 * log(det(prec_grid[[index]])) + 1/2 * log(det(Omega)) +
+               1/2 * t(mean_grid[[index]]) %*% prec_grid[[index]] %*% mean_grid[[index]] - t(Y) %*% Y/(2*sigsq)
          }
       }
    }
@@ -44,7 +45,7 @@ sample.exact.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
       index = which(param_index_list == param_index)
       if(length(index >= 1)){
          set.seed(seed * param_index)
-         g_samples <- mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[param_index]], sigma = var_grid[[param_index]],
+         g_samples <- mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[param_index]], sigma = solve(prec_grid[[param_index]]),
                                        checkSymmetry = FALSE)
          for(j in 1:length(index)){
             g_list[[(index[j])]] = g_samples[j, ]
