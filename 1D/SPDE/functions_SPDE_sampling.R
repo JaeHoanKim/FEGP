@@ -29,8 +29,7 @@ sample.exact.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
             Phi = Phi_1D(X, N)
             # computation of the mean and the variance vector
             prec_grid = Omega + t(Phi) %*% Phi / sigsq
-            var_grid[[index]] = solve(Omega + t(Phi) %*% Phi / sigsq)
-            mean_grid[[index]] = var_grid[[index]] %*% t(Phi) %*% Y / sigsq
+            mean_grid[[index]] = solve(prec_grid, t(Phi) %*% Y / sigsq)
             # computation of p(N | D)
             log_prob_N_list[index] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) - 
                1/2 * log(det(prec_grid)) + 1/2 * log(det(Omega)) +
