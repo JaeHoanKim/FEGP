@@ -301,10 +301,10 @@ sample.exact2D.seq = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
             Omega = Q2D(N, kappa, tausq, beta = 2)
             Phi = Phi_2D(X, N)
             # computation of the mean and the variance vector
-            prec_grid[[k]] = Omega + t(Phi) %*% Phi / sigsq
-            chol_prec_grid[[k]] = chol(prec_grid[[k]])
-            mean_grid[[k]] = solve(prec_grid[[k]], t(Phi) %*% Z / sigsq)
-            log_prob_N_list[k] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) - 
+            prec_grid[[index]] = Omega + t(Phi) %*% Phi / sigsq
+            chol_prec_grid[[index]] = chol(prec_grid[[index]])
+            mean_grid[[index]] = solve(prec_grid[[index]], t(Phi) %*% Z / sigsq)
+            log_prob_N_list[index] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) - 
                1/2 * log(det(prec_grid[[index]])) + 1/2 * log(det(Omega)) +
                1/2 * t(mean_grid[[index]]) %*% prec_grid[[index]] %*% mean_grid[[index]] - t(Z) %*% Z/(2*sigsq)
          }
@@ -328,7 +328,7 @@ sample.exact2D.seq = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
          }
       }
    }
-   return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list, log_jump_prob_N = log_jump_prob_N))
+   return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list, log_prob_N_list = log_prob_N_list))
 }
 
 sample.exact.onetime = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
