@@ -45,6 +45,9 @@ const = function(x){
    return(1)
 }
 Nk = c(4, 6, 8, 10, 12)
+N.pr = kappa.pr = tausq.pr = const
+kappak = seq(2, 5, 1)
+tausqk = seq(2, 5, 1)
 
 target = 2500
 brn = 0
@@ -137,9 +140,11 @@ for(a in 1:length(nlist)){
    output <- foreach (m = 1:M, .packages = c("Matrix", "rSPDE")) %dopar% {
       X = df[((m-1)*n+1):(m*n), c(1, 2)]
       Z = df$Z[((m-1)*n+1):(m*n)]
-      result = sample.exact2D.seq(X, Z, sigsq = 0.1^2, # N.pr = function(x){return(1)},
-                                  N.pr = const, beta = 2,
-                                  Nk = Nk, kappa.init = kappa, mcmc = target, brn = brn, seed = 1234)
+      result = sample.exact2D.seq(X, Z, sigsq = 0.1^2,
+                                  Nk = Nk, N.pr = N.pr, 
+                                  kappak = kappak, kappa.pr = kappa.pr,
+                                  tausqk = tausqk, tausq.pr = tausq.pr,
+                                  beta = 2, mcmc = target, brn = brn, seed = 1234)
       g_list = result$g_list
       y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)
       print(m)
