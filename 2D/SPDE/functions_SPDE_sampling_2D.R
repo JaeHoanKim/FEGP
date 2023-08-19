@@ -267,8 +267,8 @@ sample.RJexact = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
    return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list, log_jump_prob_N = log_jump_prob_N))
 }
 
-sample.exact2D.seq = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
-                          beta = 2, mcmc, brn, sigsq = 0.01, kappa.init = 2, tausq = 1, seed = 1234){
+sample.exact2D.seq = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
+                          beta = 2, mcmc, brn, sigsq = 0.01, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## kappa init should be 2 to match with GPI method
