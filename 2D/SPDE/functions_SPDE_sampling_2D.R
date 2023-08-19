@@ -280,15 +280,36 @@ sample.exact2D.seq = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
    N_list = c()
    prob_list = c()
    g_list = vector("list", em)
-   kappa_list = list()
-   kappa = kappa.init
-   log_jump_prob_N = vector(length = length(Nk))
+   N1 = length(Nk)
+   N2 = length(kappak)
+   N3 = length(tausqk)
+   log_prob_N_list = vector(length = N1 * N2 * N3)
+   N_list = kappa_list = tausq_list = vector(length = em)
    mean_grid = list()
    prec_grid = list()
    chol_prec_grid = list()
    nu = beta - 1
    tausq0 = gamma(nu) / gamma(nu + 1) / (4*pi) / kappa^(2*nu)
    # 1. Sample from N | D
+   for(k1 in 1:N1){
+      for (k2 in 1:N2){
+         for(k3 in 1:N3){
+            index = (k1 - 1) * N2 * N3 + (k2 - 1) * N3 + k3
+            N = Nk[k1]
+            kappa = kappak[k2]
+            tausq = tausqk[k3]
+            Omega = Q2D(N, kappa, tausq, beta = 2)
+            Phi = Phi_2D(X, N)
+            # computation of the mean and the variance vector
+            prec_grid[[k]] = Omega + t(Phi) %*% Phi / sigsq
+            chol_prec_grid[[k]] = chol(prec_grid[[k]])
+            mean_grid[[k]] = solve(prec_grid[[k]], t(Phi) %*% Z / sigsq)
+            log_prob_N_list[k] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) - 
+               1/2 * log(det(prec_grid[[index]])) + 1/2 * log(det(Omega)) +
+               1/2 * t(mean_grid[[index]]) %*% prec_grid[[index]] %*% mean_grid[[index]] - t(Z) %*% Z/(2*sigsq)
+         }
+      }
+   }
    for(k in 1:length(Nk)){
       N = Nk[k]
       kappa = kappa.init
@@ -296,7 +317,7 @@ sample.exact2D.seq = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
                       rep(c(0:N)/N, N+1))
       
       # sparse matrix Omega and Phi
-      Omega = Q2D(N, kappa, beta = 2) * tausq0 / tausq
+      Omega = Q2D(N, kappa, tausq, beta = 2)
       Phi = Phi_2D(X, N)
       # computation of the mean and the variance vector
       prec_grid[[k]] = Omega + t(Phi) %*% Phi / sigsq
