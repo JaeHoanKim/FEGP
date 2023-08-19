@@ -64,8 +64,8 @@ Sampling_N_new1D = function(N, kappa, beta = 2){
 
 
 # when the vector w is sampled from N(0, Q), calculate its log likelihood in 2D, input should be (N+1)^2 long vector
-loglik_w2D = function(N, kappa, w){
-   Q = Q2D(N, kappa)
+loglik_w2D = function(N, kappa, tausq, w){
+   Q = Q2D(N, kappa, tausq)
    L = chol(Q)
    x = L %*% w
    return(sum(log(diag(L))) - (N+1)^2/2*log(2*pi) - 1/2* sum(x^2))
@@ -73,8 +73,8 @@ loglik_w2D = function(N, kappa, w){
 
 
 # sampling from N(0, Q^{-1}) using the fast Cholesky decomposition in 2D - returns (N+1)^2 vector
-Sampling_N_new2D = function(N, kappa, beta = 2){
-   Q = Q2D(N, kappa)
+Sampling_N_new2D = function(N, kappa, tausq, beta = 2){
+   Q = Q2D(N, kappa, tausq)
    L = chol(Q)
    x = rnorm((N+1)^2)
    vec = solve(L, x)
