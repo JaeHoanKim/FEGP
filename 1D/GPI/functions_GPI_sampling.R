@@ -221,9 +221,6 @@ sample.ESS.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
    N3 = length(tausqk)
    log_prob_N_list = vector(length = N1 * N2 * N3)
    N_list = kappa_list = tausq_list = vector(length = em)
-   var_grid = list()
-   mean_grid = list()
-   prec_grid = list()
    for(k1 in 1:N1){
       for(k2 in 1:N2){
          for(k3 in 1:N3){
@@ -247,7 +244,6 @@ sample.ESS.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
    # setting up for iterative work
    set.seed(seed)
    param_index_list = sample(1:(N1 * N2 * N3), size = em, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
-   
    for(param_index in 1:(N1 * N2 * N3)){
       index = which(param_index_list == param_index)
       if(length(index >= 1)){
