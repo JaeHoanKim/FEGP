@@ -317,8 +317,9 @@ sample.exact2D.seq = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
       index = which(param_index_list == param_index)
       if(length(index >= 1)){
          set.seed(seed * param_index)
-         g_samples <- mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[param_index]], sigma = solve(prec_grid[[param_index]]),
-                                       checkSymmetry = FALSE)
+         stdnorms = matrix(rnorm(length(index) * length(mean_grid[[param_index]])), nrow = length(mean_grid[[param_index]]))
+         g_samples = Matrix::solve(t(chol_prec_grid[[param_index]]), stdnorms) + mean_grid[[param_index]]
+         g_samples = t(g_samples)
          for(j in 1:length(index)){
             g_list[[(index[j])]] = g_samples[j, ]
             N_list[index[j]] = Nk[(param_index - 1) %/% (N2 * N3) + 1]
@@ -377,21 +378,4 @@ sample.exact.onetime = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.
    set.seed(seed)
    param_index_list = sample(1:(N1 * N2 * N3), size = em, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
    return(param_index_list = param_index_list, mean_grid = mean_grid, chol_prec_grid = chol_prec_grid)
-}
-   
-   for(param_index in 1:(N1 * N2 * N3)){
-      index = which(param_index_list == param_index)
-      if(length(index >= 1)){
-         set.seed(seed * param_index)
-         g_samples <- mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[param_index]], sigma = solve(prec_grid[[param_index]]),
-                                       checkSymmetry = FALSE)
-         for(j in 1:length(index)){
-            g_list[[(index[j])]] = g_samples[j, ]
-            N_list[index[j]] = Nk[(param_index - 1) %/% (N2 * N3) + 1]
-            kappa_list[index[j]] = kappak[((param_index - 1) %% (N2 * N3)) %/% N3 + 1]
-            tausq_list[index[j]] = tausqk[(param_index - 1) %% N3 + 1]
-         }
-      }
-   }
-   return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list, log_prob_N_list = log_prob_N_list))
 }
