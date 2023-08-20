@@ -289,7 +289,6 @@ sample.exact2D.seq = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
    prec_grid = list()
    chol_prec_grid = list()
    nu = beta - 1
-   tausq0 = gamma(nu) / gamma(nu + 1) / (4*pi) / kappa^(2*nu)
    # 1. Sample from N | D
    for(k1 in 1:N1){
       for (k2 in 1:N2){
