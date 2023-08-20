@@ -44,7 +44,8 @@ l.in = 1/kappa
 const = function(x){
    return(1)
 }
-Nk = c(4, 6, 8, 10, 12)
+Nk = c(4, 6)
+# Nk = c(4, 6, 8, 10, 12)
 N.pr = kappa.pr = tausq.pr = const
 kappak = seq(2, 5, 1)
 tausqk = seq(2, 5, 1)
