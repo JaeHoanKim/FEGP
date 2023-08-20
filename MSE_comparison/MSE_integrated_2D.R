@@ -112,8 +112,10 @@ for(a in 1:length(nlist)){
    output <- foreach (m = 1:M, .packages = c("Matrix", "fields", "FastGP")) %dopar% {
       X = df[((m-1)*n+1):(m*n), c(1, 2)]
       Z = df$Z[((m-1)*n+1):(m*n)]
-      result = sample.RJESS2D.seq(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                                  mcmc = target, brn = 0, nu.in = nu, l.in = 1/kappa, brn.ESS = brn.ESS)
+      result = sample.RJESS2D.seq(Z = Z, X = X, Nk = Nk, N.pr = N.pr, 
+                                  kappak = kappak, kappa.pr = kappa.pr, 
+                                  tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
+                                  mcmc = target, brn = 0, brn.ESS = brn.ESS)
       g_list = result$g_list
       y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)
       print(m)
