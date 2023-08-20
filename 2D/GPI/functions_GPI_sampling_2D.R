@@ -331,7 +331,7 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
          for(a in 1:(brn.ESS + length(index))){
             nu.ess = matrix(samp_from_grid(ndim = c(N, N), mdim = result$mvec, egs = result$egvals, nu = beta-1, lambda_g = 1/kappa, seed = seed * a * k), 
                             nrow = N + 1, ncol = N + 1, byrow = TRUE)
-            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * (k+100))
+            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * (a + 100))
             if(a > brn.ESS){
                g_list[[(index[a - brn.ESS])]] = t(g.out)
             }
@@ -420,7 +420,7 @@ sample.RJESS2D.iter = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.p
          for(a in 1:(brn.ESS + length(index))){
             nu.ess = matrix(samp_from_grid(ndim = c(N, N), mdim = result$mvec, egs = result$egvals, nu = beta-1, lambda_g = 1/kappa, seed = seed * a * k), 
                             nrow = N + 1, ncol = N + 1, byrow = TRUE)
-            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * (k+100))
+            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * (a + 100))
             if(a > brn.ESS){
                g_list[[(index[a - brn.ESS])]] = t(g.out)
             }
