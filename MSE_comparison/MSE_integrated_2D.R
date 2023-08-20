@@ -50,9 +50,9 @@ N.pr = kappa.pr = tausq.pr = const
 kappak = seq(2, 5, 1)
 tausqk = seq(2, 5, 1)
 
-target = 250
+target = 2500
 brn = 0
-brn.ESS = 100
+brn.ESS = 1000
 
 ### 3. MSE calculation - 2D
 
