@@ -310,7 +310,6 @@ sample.exact2D.seq = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
          }
       }
    }
-   
    # sample from p(N|D)
    set.seed(seed)
    param_index_list = sample(1:(N1 * N2 * N3), size = em, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
@@ -331,8 +330,8 @@ sample.exact2D.seq = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
    return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list, log_prob_N_list = log_prob_N_list))
 }
 
-sample.exact.onetime = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.pr,
-                                beta = 2, mcmc, brn, sigsq = 0.01, kappa.init = 2, tausq = 1, seed = 1234){
+sample.exact.onetime = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
+                                beta = 2, mcmc, brn, sigsq = 0.01, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## kappa init should be 2 to match with GPI method
@@ -344,30 +343,55 @@ sample.exact.onetime = function(X, Z, kappa.pr = function(x){return(1)}, Nk, N.p
    N_list = c()
    prob_list = c()
    g_list = vector("list", em)
-   kappa_list = list()
-   kappa = kappa.init
-   log_jump_prob_N = vector(length = length(Nk))
+   N1 = length(Nk)
+   N2 = length(kappak)
+   N3 = length(tausqk)
+   log_prob_N_list = vector(length = N1 * N2 * N3)
+   N_list = kappa_list = tausq_list = vector(length = em)
    mean_grid = list()
-   var_grid = list()
+   prec_grid = list()
+   chol_prec_grid = list()
    nu = beta - 1
    tausq0 = gamma(nu) / gamma(nu + 1) / (4*pi) / kappa^(2*nu)
    # 1. Sample from N | D
-   for(k in 1:length(Nk)){
-      N = Nk[k]
-      kappa = kappa.init
-      gridmat = cbind(rep(c(0:N)/N, each = N+1),
-                      rep(c(0:N)/N, N+1))
-      
-      # sparse matrix Omega and Phi
-      Omega = Q2D(N, kappa, beta = 2) * tausq0 / tausq
-      Phi = Phi_2D(X, N)
-      # computation of the mean and the variance vector
-      var_grid[[k]] = solve(Omega + t(Phi) %*% Phi / sigsq)
-      mean_grid[[k]] = var_grid[[k]] %*% t(Phi) %*% Z / sigsq
-      log_jump_prob_N[k] = log(N.pr(Nk[k])) - 1/2 * log(det(diag((N+1)^2) + solve(Omega) %*% t(Phi) %*% Phi / sigsq)) +
-         1/2 * t(mean_grid[[k]]) %*% (Omega + t(Phi) %*% Phi / sigsq) %*% mean_grid[[k]] - t(Z) %*% Z/(2*sigsq)
+   for(k1 in 1:N1){
+      for (k2 in 1:N2){
+         for(k3 in 1:N3){
+            index = (k1 - 1) * N2 * N3 + (k2 - 1) * N3 + k3
+            N = Nk[k1]
+            kappa = kappak[k2]
+            tausq = tausqk[k3]
+            Omega = Q2D(N, kappa, tausq, beta = 2)
+            Phi = Phi_2D(X, N)
+            # computation of the mean and the variance vector
+            prec_grid[[index]] = Omega + t(Phi) %*% Phi / sigsq
+            chol_prec_grid[[index]] = chol(prec_grid[[index]])
+            mean_grid[[index]] = solve(prec_grid[[index]], t(Phi) %*% Z / sigsq)
+            log_prob_N_list[index] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) - 
+               1/2 * log(det(prec_grid[[index]])) + 1/2 * log(det(Omega)) +
+               1/2 * t(mean_grid[[index]]) %*% prec_grid[[index]] %*% mean_grid[[index]] - t(Z) %*% Z/(2*sigsq)
+         }
+      }
    }
+   # sample from p(N|D)
    set.seed(seed)
-   N_list = sample(Nk, size = em, replace = TRUE, prob = exp(log_jump_prob_N - log_jump_prob_N[length(Nk)]))
-   return(list(mean_grid = mean_grid, prec_grid = prec_grid, N_list = N_list))
+   param_index_list = sample(1:(N1 * N2 * N3), size = em, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
+   return(param_index_list = param_index_list, mean_grid = mean_grid, chol_prec_grid = chol_prec_grid)
+}
+   
+   for(param_index in 1:(N1 * N2 * N3)){
+      index = which(param_index_list == param_index)
+      if(length(index >= 1)){
+         set.seed(seed * param_index)
+         g_samples <- mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[param_index]], sigma = solve(prec_grid[[param_index]]),
+                                       checkSymmetry = FALSE)
+         for(j in 1:length(index)){
+            g_list[[(index[j])]] = g_samples[j, ]
+            N_list[index[j]] = Nk[(param_index - 1) %/% (N2 * N3) + 1]
+            kappa_list[index[j]] = kappak[((param_index - 1) %% (N2 * N3)) %/% N3 + 1]
+            tausq_list[index[j]] = tausqk[(param_index - 1) %% N3 + 1]
+         }
+      }
+   }
+   return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list, log_prob_N_list = log_prob_N_list))
 }
