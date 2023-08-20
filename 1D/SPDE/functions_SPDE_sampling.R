@@ -29,7 +29,6 @@ sample.exact.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
             Phi = Phi_1D(X, N)
             # computation of the mean and the variance vector
             prec_grid[[index]] = Omega + t(Phi) %*% Phi / sigsq
-            chol_prec_grid[[index]] = chol(prec_grid[[index]])
             mean_grid[[index]] = solve(prec_grid[[index]], t(Phi) %*% Y / sigsq)
             # computation of p(N | D)
             log_prob_N_list[index] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) - 
@@ -43,13 +42,12 @@ sample.exact.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
    param_index_list = sample(1:(N1 * N2 * N3), size = em, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
    for(param_index in 1:(N1 * N2 * N3)){
       index = which(param_index_list == param_index)
-      if(length(index >= 1)){
+      if(length(index) >= 1){
+         chol_prec_grid[[param_index]] = chol(prec_grid[[param_index]])
          set.seed(seed * param_index)
-         stdnorms = matrix(rnorm(length(index) * length(mean_grid[[param_index]])), ncol = length(mean_grid[[param_index]]))
-         g_samples = matrix(NA, nrow = length(index), ncol = length(mean_grid))
-         for(j in 1:length(index)){
-            g_samples[j, ] = t(solve(t(chol_prec_grid[[param_index]]), t(stdnorms[j, ])))
-         }
+         stdnorms = matrix(rnorm(length(index) * length(mean_grid[[param_index]])), nrow = length(mean_grid[[param_index]]))
+         g_samples = Matrix::solve(t(chol_prec_grid[[param_index]]), stdnorms) + mean_grid[[param_index]]
+         g_samples = t(g_samples)
          for(j in 1:length(index)){
             g_list[[(index[j])]] = g_samples[j, ]
             N_list[index[j]] = Nk[(param_index - 1) %/% (N2 * N3) + 1]
