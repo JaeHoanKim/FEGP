@@ -9,25 +9,30 @@ library(fields)
 library(FastGP)
 library(ggpubr)
 source("Result_Manuscript/GraphAesthetics.R")
-m = 1
+
+## data generation
 nlist = c(200, 500, 1000)
 Xlist = list(length = length(nlist))
 Zlist = list(length = length(nlist))
+f0_2D = function(x, y){return(x^2 + sqrt(abs(y-0.5)) + sin(8*x))}
+Xlist = Zlist = list(length = length(nlist))
 for(a in 1:length(nlist)){
+   set.seed(a)
    n = nlist[a]
-   filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
-   load(filename)
-   Xlist[[a]] = df[((m-1)*n+1):(m*n), c(1, 2)]
-   Zlist[[a]] = df$Z[((m-1)*n+1):(m*n)]
+   # 2D data generation
+   Xlist[[a]] = matrix(runif(2*n), n)
+   Zlist[[a]] = f0_2D(Xlist[[a]][, 1], Xlist[[a]][, 2]) + rnorm(n) * 0.1
 }
-target = 500
+
+## setting for the sampling
+target = 500; brn = 0
 brnin = 0
 Nk = c(4, 6, 8, 10, 12)
 const = function(x){return(1)}
-kappa = 2
-f0 = function(x, y){
-   return(sin(5*x + 2*y) + 2*y^2)
-}
+# singleton vector for kappak and tausqk
+kappak = 3
+tausqk = 3
+N.pr = kappa.pr = tausq.pr = const
 
 gridsize = 40
 gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
@@ -37,18 +42,24 @@ gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
 source("2D/SPDE/functions_SPDE_sampling_2D.R")
 source("2D/SPDE/functions_SPDE_2D.R")
 time_comparison_SPDE = microbenchmark(
-   result1 = {result = sample.exact2D.seq(X = Xlist[[1]], Z = Zlist[[1]], sigsq = 0.1^2, # N.pr = function(x){return(1)},
-                                N.pr = const,
-                                Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, seed = 1234); g_list = result$g_list;
-                                y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)},
-   result2 = {result = sample.exact2D.seq(X = Xlist[[2]], Z = Zlist[[2]], sigsq = 0.1^2, # N.pr = function(x){return(1)},
-                                N.pr = const,
-                                Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, seed = 1234); g_list = result$g_list;
-                                y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)},
-   result3 = {result = sample.exact2D.seq(X = Xlist[[3]], Z = Zlist[[3]], sigsq = 0.1^2, # N.pr = function(x){return(1)},
-                                N.pr = const,
-                                Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, seed = 1234); g_list = result$g_list;
-                                y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)},
+   result1 = {result = sample.exact2D.seq(X = Xlist[[1]], Z = Zlist[[1]], sigsq = 0.1^2,
+                                          Nk = Nk, N.pr = N.pr, 
+                                          kappak = kappak, kappa.pr = kappa.pr,
+                                          tausqk = tausqk, tausq.pr = tausq.pr,
+                                          beta = 2, mcmc = target, brn = brn, seed = 1234); g_list = result$g_list;
+                                y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)},
+   result2 = {result = sample.exact2D.seq(X = Xlist[[2]], Z = Zlist[[2]], sigsq = 0.1^2,
+                                          Nk = Nk, N.pr = N.pr, 
+                                          kappak = kappak, kappa.pr = kappa.pr,
+                                          tausqk = tausqk, tausq.pr = tausq.pr,
+                                          beta = 2, mcmc = target, brn = brn, seed = 1234); g_list = result$g_list;
+                                          y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)},
+   result3 = {result = sample.exact2D.seq(X = Xlist[[3]], Z = Zlist[[3]], sigsq = 0.1^2,
+                                          Nk = Nk, N.pr = N.pr, 
+                                          kappak = kappak, kappa.pr = kappa.pr,
+                                          tausqk = tausqk, tausq.pr = tausq.pr,
+                                          beta = 2, mcmc = target, brn = brn, seed = 1234); g_list = result$g_list;
+                                          y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)},
    times = 10
 )
 
@@ -58,15 +69,21 @@ source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
 brn.ESS = 100
 time_comparison_GPI = microbenchmark(
-   result1 = {result = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                                mcmc = target, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS); g_list = result$g_list;
-                                y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)},
-   result2 = {result = sample.RJESS2D.seq(Z = Zlist[[2]], X = Xlist[[2]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                                mcmc = target, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS); g_list = result$g_list;
-                                y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)},
-   result3 = {result = sample.RJESS2D.seq(Z = Zlist[[3]], X = Xlist[[3]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                                mcmc = target, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS); g_list = result$g_list;
-                                y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)},
+   result1 = {result = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], Nk = Nk, N.pr = N.pr, 
+                                          kappak = kappak, kappa.pr = kappa.pr, 
+                                          tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
+                                          mcmc = target, brn = 0, brn.ESS = brn.ESS); g_list = result$g_list;
+                                y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)},
+   result2 = {result = sample.RJESS2D.seq(Z = Zlist[[2]], X = Xlist[[2]], Nk = Nk, N.pr = N.pr, 
+                                          kappak = kappak, kappa.pr = kappa.pr, 
+                                          tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
+                                          mcmc = target, brn = 0, brn.ESS = brn.ESS); g_list = result$g_list;
+                                          y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)},
+   result3 = {result = sample.RJESS2D.seq(Z = Zlist[[3]], X = Xlist[[3]], Nk = Nk, N.pr = N.pr, 
+                                          kappak = kappak, kappa.pr = kappa.pr, 
+                                          tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
+                                          mcmc = target, brn = 0, brn.ESS = brn.ESS); g_list = result$g_list;
+                                          y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)},
    times = 10
 )
 
@@ -134,27 +151,136 @@ dev.off()
 
 ## GPI
 
-onetime_GPI = microbenchmark(
-   result.onetime.1 = sample.RJESS2D.onetime(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                                             mcmc = target, brn = 0, nu.in = 1, tausq = 1 ,l.in = 1/kappa),
-   result.onetime.2 = sample.RJESS2D.onetime(Z = Zlist[[2]], X = Xlist[[2]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                                             mcmc = target, brn = 0, nu.in = 1, tausq = 1 ,l.in = 1/kappa), 
-   result.onetime.3 = sample.RJESS2D.onetime(Z = Zlist[[3]], X = Xlist[[3]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                                             mcmc = target, brn = 0, nu.in = 1, tausq = 1 ,l.in = 1/kappa),
+onetime.GPI = microbenchmark(
+   result.onetime.1 = sample.RJESS2D.onetime(Z = Zlist[[1]], X = Xlist[[1]], Nk = Nk, N.pr = N.pr, 
+                                          kappak = kappak, kappa.pr = kappa.pr, 
+                                          tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
+                                          mcmc = target, brn = 0, brn.ESS = brn.ESS),
+   result.onetime.2 = sample.RJESS2D.onetime(Z = Zlist[[2]], X = Xlist[[2]], Nk = Nk, N.pr = N.pr, 
+                                             kappak = kappak, kappa.pr = kappa.pr, 
+                                             tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
+                                             mcmc = target, brn = 0, brn.ESS = brn.ESS),
+   result.onetime.3 = sample.RJESS2D.onetime(Z = Zlist[[3]], X = Xlist[[3]], Nk = Nk, N.pr = N.pr, 
+                                             kappak = kappak, kappa.pr = kappa.pr, 
+                                             tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
+                                             mcmc = target, brn = 0, brn.ESS = brn.ESS),
    times = 10
-   
 )
 
-iter_GPI = microbenchmark(
+# save variables to perform time comparison in the iterative step 
+result.onetime.GPI.1 = sample.RJESS2D.onetime(Z = Zlist[[1]], X = Xlist[[1]], Nk = Nk, N.pr = N.pr, 
+                                          kappak = kappak, kappa.pr = kappa.pr, 
+                                          tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
+                                          mcmc = target, brn = 0, brn.ESS = brn.ESS)
+result.onetime.GPI.2 = sample.RJESS2D.onetime(Z = Zlist[[2]], X = Xlist[[2]], Nk = Nk, N.pr = N.pr, 
+                                          kappak = kappak, kappa.pr = kappa.pr, 
+                                          tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
+                                          mcmc = target, brn = 0, brn.ESS = brn.ESS)
+result.onetime.GPI.3 = sample.RJESS2D.onetime(Z = Zlist[[3]], X = Xlist[[3]], Nk = Nk, N.pr = N.pr, 
+                                          kappak = kappak, kappa.pr = kappa.pr, 
+                                          tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
+                                          mcmc = target, brn = 0, brn.ESS = brn.ESS)
+
+iter.GPI = microbenchmark(
    result.iter.1 = sample.RJESS2D.iter(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, 
-                                       result_list = result.onetime.1$result_list, N_list = result.onetime.1$N_list, sigsq = 0.1^2, brn.ESS = brn.ESS),
-   result.iter.2 = sample.RJESS2D.iter(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, 
-                                       result_list = result.onetime.2$result_list, N_list = result.onetime.2$N_list, sigsq = 0.1^2, brn.ESS = brn.ESS),
-   result.iter.3 = sample.RJESS2D.iter(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, 
-                                       result_list = result.onetime.3$result_list, N_list = result.onetime.3$N_list, sigsq = 0.1^2, brn.ESS = brn.ESS),
+                                       result_list = result.onetime.GPI.1$result_list, 
+                                       param_index_list = result.onetime.GPI.1$param_index_list, brn.ESS = brn.ESS),
+   result.iter.2 = sample.RJESS2D.iter(Z = Zlist[[2]], X = Xlist[[2]], N.pr = function(x){return(1)}, Nk = Nk, 
+                                       result_list = result.onetime.GPI.2$result_list, 
+                                       param_index_list = result.onetime.GPI.2$param_index_list, brn.ESS = brn.ESS),
+   result.iter.3 = sample.RJESS2D.iter(Z = Zlist[[3]], X = Xlist[[3]], N.pr = function(x){return(1)}, Nk = Nk, 
+                                       result_list = result.onetime.GPI.3$result_list, 
+                                       param_index_list = result.onetime.GPI.3$param_index_list, brn.ESS = brn.ESS),
    times = 10
 )
 
-## SPDE
+############################### SPDE #####################################
+onetime.SPDE = microbenchmark(
+   result.onetime.1 = sample.exact2D.seq(X = Xlist[[1]], Z = Zlist[[1]], sigsq = 0.1^2,
+                               Nk = Nk, N.pr = N.pr, 
+                               kappak = kappak, kappa.pr = kappa.pr,
+                               tausqk = tausqk, tausq.pr = tausq.pr,
+                               beta = 2, mcmc = target, brn = brn, seed = 1234),
+   result.onetime.2 = sample.exact2D.seq(X = Xlist[[2]], Z = Zlist[[2]], sigsq = 0.1^2,
+                                         Nk = Nk, N.pr = N.pr, 
+                                         kappak = kappak, kappa.pr = kappa.pr,
+                                         tausqk = tausqk, tausq.pr = tausq.pr,
+                                         beta = 2, mcmc = target, brn = brn, seed = 1234),
+   result.onetime.3 = sample.exact2D.seq(X = Xlist[[3]], Z = Zlist[[3]], sigsq = 0.1^2,
+                                         Nk = Nk, N.pr = N.pr, 
+                                         kappak = kappak, kappa.pr = kappa.pr,
+                                         tausqk = tausqk, tausq.pr = tausq.pr,
+                                         beta = 2, mcmc = target, brn = brn, seed = 1234),
+   times = 10
+)
+
+result.onetime.SPDE.1 = sample.exact.onetime(X = Xlist[[1]], Z = Zlist[[1]], sigsq = 0.1^2,
+                                      Nk = Nk, N.pr = N.pr, 
+                                      kappak = kappak, kappa.pr = kappa.pr,
+                                      tausqk = tausqk, tausq.pr = tausq.pr,
+                                      beta = 2, mcmc = target, brn = brn, seed = 1234)
+result.onetime.SPDE.2 = sample.exact.onetime(X = Xlist[[2]], Z = Zlist[[2]], sigsq = 0.1^2,
+                                      Nk = Nk, N.pr = N.pr, 
+                                      kappak = kappak, kappa.pr = kappa.pr,
+                                      tausqk = tausqk, tausq.pr = tausq.pr,
+                                      beta = 2, mcmc = target, brn = brn, seed = 1234)
+result.onetime.SPDE.3 = sample.exact.onetime(X = Xlist[[3]], Z = Zlist[[3]], sigsq = 0.1^2,
+                                      Nk = Nk, N.pr = N.pr, 
+                                      kappak = kappak, kappa.pr = kappa.pr,
+                                      tausqk = tausqk, tausq.pr = tausq.pr,
+                                      beta = 2, mcmc = target, brn = brn, seed = 1234)
+
+iter.SPDE = microbenchmark(
+   result.iter.1 = sample.exact.iter(Nk = Nk, N.pr = N.pr, 
+                                     kappak = kappak, kappa.pr = kappa.pr,
+                                     tausqk = tausqk, tausq.pr = tausq.pr,
+                                     beta = 2, mcmc, brn, sigsq = 0.01, 
+                                     param_index_list = result.onetime.SPDE.1$param_index_list, 
+                                     chol_prec_grid = result.onetime.SPDE.1$chol_prec_grid, 
+                                     mean_grid = result.onetime.SPDE.1$mean_grid, seed = 1234),
+   result.iter.2 = sample.exact.iter(Nk = Nk, N.pr = N.pr, 
+                                     kappak = kappak, kappa.pr = kappa.pr,
+                                     tausqk = tausqk, tausq.pr = tausq.pr,
+                                     beta = 2, mcmc, brn, sigsq = 0.01, 
+                                     param_index_list = result.onetime.SPDE.2$param_index_list, 
+                                     chol_prec_grid = result.onetime.SPDE.2$chol_prec_grid, 
+                                     mean_grid = result.onetime.SPDE.2$mean_grid, seed = 1234),
+   result.iter.3 = sample.exact.iter(Nk = Nk, N.pr = N.pr, 
+                                     kappak = kappak, kappa.pr = kappa.pr,
+                                     tausqk = tausqk, tausq.pr = tausq.pr,
+                                     beta = 2, mcmc, brn, sigsq = 0.01, 
+                                     param_index_list = result.onetime.SPDE.3$param_index_list, 
+                                     chol_prec_grid = result.onetime.SPDE.3$chol_prec_grid, 
+                                     mean_grid = result.onetime.SPDE.3$mean_grid, seed = 1234),
+   times = 10
+)
+
+########### save time for one time ###########
+
+time_comparison_onetime_unify = rbind(onetime.SPDE, onetime.GPI)
+time_comparison_onetime_unify <- time_comparison_onetime_unify %>%
+   mutate(n = factor(expr)) %>%
+   mutate(log_time = log(time)) %>%
+   mutate(method = c(rep("SPDE", nrow(onetime.SPDE)), rep("GPI", nrow(onetime.GPI)))) %>%
+   mutate(method = factor(method))
+levels(time_comparison_unify$n) <- nlist
+time_comparison_unify <- time_comparison_unify %>% mutate(n = as.numeric(as.character(n)))
 
 
+filename = paste0("Result_Manuscript/Time_dataframe/time_2D_onetime_", target, ".RData")
+save(time_comparison_onetime_unify, file = filename)
+
+########### save time for iteration ###########
+
+time_comparison_iter_unify = rbind(iter.SPDE, iter.GPI)
+time_comparison_iter_unify <- time_comparison_iter_unify %>%
+   mutate(n = factor(expr)) %>%
+   mutate(log_time = log(time)) %>%
+   mutate(method = c(rep("SPDE", nrow(iter.SPDE)), rep("GPI", nrow(iter.GPI)))) %>%
+   mutate(method = factor(method))
+levels(time_comparison_unify$n) <- nlist
+time_comparison_unify <- time_comparison_unify %>% mutate(n = as.numeric(as.character(n)))
+
+
+filename = paste0("Result_Manuscript/Time_dataframe/time_2D_iter_", target, ".RData")
+save(time_comparison_iter_unify, file = filename)
