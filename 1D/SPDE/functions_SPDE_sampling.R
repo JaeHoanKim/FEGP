@@ -45,8 +45,11 @@ sample.exact.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
       index = which(param_index_list == param_index)
       if(length(index >= 1)){
          set.seed(seed * param_index)
-         g_samples <- mvtnorm::rmvnorm(n = length(index), mean = mean_grid[[param_index]], sigma = solve(prec_grid[[param_index]]),
-                                       checkSymmetry = FALSE)
+         stdnorms = matrix(rnorm(length(index) * length(mean_grid[[param_index]])), ncol = length(mean_grid[[param_index]]))
+         g_samples = matrix(NA, nrow = length(index), ncol = length(mean_grid))
+         for(j in 1:length(index)){
+            g_samples[j, ] = t(solve(t(chol_prec_grid[[param_index]]), t(stdnorms[j, ])))
+         }
          for(j in 1:length(index)){
             g_list[[(index[j])]] = g_samples[j, ]
             N_list[index[j]] = Nk[(param_index - 1) %/% (N2 * N3) + 1]
