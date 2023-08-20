@@ -329,9 +329,9 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
          ##### procedure for the GPI sampling #####
          result = eigvals_exact(ndim = c(N, N), nu = beta - 1, lambda_g = 1/kappa, tausq = tausq)
          for(a in 1:(brn.ESS + length(index))){
-            nu.ess = matrix(samp_from_grid(ndim = c(N, N), mdim = result$mvec, egs = result$egvals, nu = beta-1, lambda_g = 1/kappa, seed = seed * a * k), 
+            nu.ess = matrix(samp_from_grid(ndim = c(N, N), mdim = result$mvec, egs = result$egvals, nu = beta-1, lambda_g = 1/kappa, seed = seed * a * param_index), 
                             nrow = N + 1, ncol = N + 1, byrow = TRUE)
-            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * (a + 100))
+            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * (param_index + 100))
             if(a > brn.ESS){
                g_list[[(index[a - brn.ESS])]] = t(g.out)
             }
@@ -418,9 +418,9 @@ sample.RJESS2D.iter = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.p
          result = result_list[[param_index]]
          g.out = matrix(0, N+1, N+1)
          for(a in 1:(brn.ESS + length(index))){
-            nu.ess = matrix(samp_from_grid(ndim = c(N, N), mdim = result$mvec, egs = result$egvals, nu = beta-1, lambda_g = 1/kappa, seed = seed * a * k), 
+            nu.ess = matrix(samp_from_grid(ndim = c(N, N), mdim = result$mvec, egs = result$egvals, nu = beta-1, lambda_g = 1/kappa, seed = seed * a * param_index), 
                             nrow = N + 1, ncol = N + 1, byrow = TRUE)
-            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * (a + 100))
+            g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * (param_index + 100))
             if(a > brn.ESS){
                g_list[[(index[a - brn.ESS])]] = t(g.out)
             }
