@@ -28,7 +28,7 @@ for(a in 1:length(nlist)){
 ## setting for the sampling
 target = 500; brn = 0
 brn.ESS = 100
-Nk = 8
+Nk = 10
 const = function(x){return(1)}
 # singleton vector for kappak and tausqk
 kappak = 3
