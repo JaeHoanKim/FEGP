@@ -406,11 +406,18 @@ sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, taus
 }
 
 # once one time calculation is done
-sample.RJESS2D.iter = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr, result_list, param_index_list, brn.ESS, seed = 1234){
+sample.RJESS2D.iter = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr, result_list, param_index_list, brn.ESS, sigsq, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
    ## generate ESS samples for the PT
+   em = length(param_index_list)
+   g_list = list()
+   N1 = length(Nk)
+   N2 = length(kappak)
+   N3 = length(tausqk)
+   log_prob_N_list = vector(length = N1 * N2 * N3)
+   N_list = kappa_list = tausq_list = vector(length = em)
    for(param_index in 1:(N1 * N2 * N3)){
       index = which(param_index_list == param_index)
       if(length(index >= 1)){
