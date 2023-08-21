@@ -39,7 +39,6 @@ for(i in 1:length(nlist)){
 beta = 4
 d = 2
 nu = beta - d/2
-l.in = 1/kappa
 
 const = function(x){
    return(1)
