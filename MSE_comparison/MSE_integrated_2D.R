@@ -12,6 +12,7 @@ library(rSPDE)
 library(doParallel)
 library(tidyverse)
 library(spNNGP)
+library(invgamma)
 sourceCpp("1D/GPI/inv_chol.cpp")
 
 ### 1. true function setting & data generation
@@ -45,6 +46,8 @@ const = function(x){
 }
 Nk = c(4, 6, 8, 10, 12)
 N.pr = kappa.pr = tausq.pr = const
+tausq.pr = function(x){return(invgamma::dinvgamma(x, 1, 1))}
+kappa.pr = function(x){return(1/x^2)}
 kappak = seq(2, 5, 1)
 tausqk = seq(2, 5, 1)
 
