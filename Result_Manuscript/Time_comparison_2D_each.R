@@ -194,7 +194,7 @@ iter.NNGP = microbenchmark(
    result3 = {Z = Zlist[[3]]; X = as.matrix(Xlist[[3]]); m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
                                                                        tuning=tuning, priors=priors, cov.model=cov.model,
                                                                        n.samples=target, n.omp.threads=1, n.report=n.report); p.r <- predict(m.r, X.0 = gridmat, coords.0 = gridmat, n.omp.threads=1);p.r$p.y.0},
-   times = 2
+   times = 10
 )
 
 ########### save time for one time ###########
