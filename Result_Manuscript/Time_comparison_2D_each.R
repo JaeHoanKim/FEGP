@@ -197,7 +197,6 @@ iter.NNGP = microbenchmark(
    times = 10
 )
 
-iter.NNGP <- iter.NNGP$time / target
 ########### save time for one time ###########
 
 time_comparison_onetime_unify = rbind(onetime.SPDE, onetime.GPI)
