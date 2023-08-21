@@ -382,6 +382,7 @@ sample.exact.onetime = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.
 sample.exact.iter = function(Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
                              beta = 2, mcmc, brn, sigsq = 0.01, param_index_list, 
                              chol_prec_grid, mean_grid, seed = 1234){
+   em = length(param_index_list)
    g_list = vector("list", em)
    N1 = length(Nk)
    N2 = length(kappak)
