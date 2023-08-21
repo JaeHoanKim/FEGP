@@ -194,7 +194,7 @@ iter.NNGP = microbenchmark(
    result3 = {Z = Zlist[[3]]; X = as.matrix(Xlist[[3]]); m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
                                                                        tuning=tuning, priors=priors, cov.model=cov.model,
                                                                        n.samples=target, n.omp.threads=1, n.report=n.report); p.r <- predict(m.r, X.0 = gridmat, coords.0 = gridmat, n.omp.threads=1);p.r$p.y.0},
-   times = 10
+   times = 2
 )
 
 ########### save time for one time ###########
@@ -205,8 +205,8 @@ time_comparison_onetime_unify <- time_comparison_onetime_unify %>%
    mutate(log_time = log(time)) %>%
    mutate(method = c(rep("SPDE", nrow(onetime.SPDE)), rep("GPI", nrow(onetime.GPI)))) %>%
    mutate(method = factor(method))
-levels(time_comparison_unify$n) <- nlist
-time_comparison_unify <- time_comparison_unify %>% mutate(n = as.numeric(as.character(n)))
+levels(time_comparison_onetime_unify$n) <- nlist
+time_comparison_onetime_unify <- time_comparison_onetime_unify %>% mutate(n = as.numeric(as.character(n)))
 
 
 filename = paste0("Result_Manuscript/Time_dataframe/time_2D_onetime_", target, ".RData")
@@ -220,8 +220,8 @@ time_comparison_iter_unify <- time_comparison_iter_unify %>%
    mutate(log_time = log(time)) %>%
    mutate(method = c(rep("SPDE", nrow(iter.SPDE)), rep("GPI", nrow(iter.GPI)), rep("NNGP", nrow(iter.NNGP)))) %>%
    mutate(method = factor(method))
-levels(time_comparison_unify$n) <- nlist
-time_comparison_unify <- time_comparison_unify %>% mutate(n = as.numeric(as.character(n)))
+levels(time_comparison_iter_unify$n) <- nlist
+time_comparison_iter_unify <- time_comparison_iter_unify %>% mutate(n = as.numeric(as.character(n)))
 
 
 filename = paste0("Result_Manuscript/Time_dataframe/time_2D_iter_", target, ".RData")
