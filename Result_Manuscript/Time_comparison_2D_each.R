@@ -185,13 +185,13 @@ priors <- list("phi.Unif"=c(3/1, 3/0.01), "sigma.sq.IG"=c(2, 5), "tau.sq.IG"=c(2
 cov.model <- "matern"
 n.report <- 10 #any small integer
 iter.NNGP = microbenchmark(
-   result1 = {Z = Zlist[[1]]; X = as.matrix(Xlist[[1]]); m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
+   result.iter.1 = {Z = Zlist[[1]]; X = as.matrix(Xlist[[1]]); m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
                                                                        tuning=tuning, priors=priors, cov.model=cov.model,
                                                                        n.samples=target, n.omp.threads=1, n.report=n.report); p.r <- predict(m.r, X.0 = gridmat, coords.0 = gridmat, n.omp.threads=1); p.r$p.y.0},
-   result2 = {Z = Zlist[[2]]; X = as.matrix(Xlist[[2]]); m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
+   result.iter.2 = {Z = Zlist[[2]]; X = as.matrix(Xlist[[2]]); m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
                                                                        tuning=tuning, priors=priors, cov.model=cov.model,
                                                                        n.samples=target, n.omp.threads=1, n.report=n.report); p.r <- predict(m.r, X.0 = gridmat, coords.0 = gridmat, n.omp.threads=1); p.r$p.y.0},
-   result3 = {Z = Zlist[[3]]; X = as.matrix(Xlist[[3]]); m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
+   result.iter.3 = {Z = Zlist[[3]]; X = as.matrix(Xlist[[3]]); m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
                                                                        tuning=tuning, priors=priors, cov.model=cov.model,
                                                                        n.samples=target, n.omp.threads=1, n.report=n.report); p.r <- predict(m.r, X.0 = gridmat, coords.0 = gridmat, n.omp.threads=1);p.r$p.y.0},
    times = 10
