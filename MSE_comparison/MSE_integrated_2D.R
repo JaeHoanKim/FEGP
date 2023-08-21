@@ -35,7 +35,6 @@ for(i in 1:length(nlist)){
 
 # setting for the Matern parameters and sampling
 
-kappa = 2
 beta = 4
 d = 2
 nu = beta - d/2
@@ -44,8 +43,7 @@ l.in = 1/kappa
 const = function(x){
    return(1)
 }
-Nk = c(4, 6)
-# Nk = c(4, 6, 8, 10, 12)
+Nk = c(4, 6, 8, 10, 12)
 N.pr = kappa.pr = tausq.pr = const
 kappak = seq(2, 5, 1)
 tausqk = seq(2, 5, 1)
@@ -63,9 +61,10 @@ gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
 
 ###################################################################
 
-starting <- list("phi" = 1/kappa, "sigma.sq" = 1, "tau.sq" = 0.01, "nu" = nu)
-tuning <- list("phi"= 0, "sigma.sq"= 0, "tau.sq"= 0, "nu" = 0)
-priors <- list("phi.Unif"=c(3/1, 3/0.01), "sigma.sq.IG"=c(2, 5), "tau.sq.IG"=c(2, 1), "nu.unif" = c(1, 1.001))
+starting <- list("phi" = 1/kappak[1], "sigma.sq" =  tausqk[1], "tau.sq" = 0.01, "nu" = beta - 1)
+tuning <- list("phi"= 0.1, "sigma.sq"= 0.1, "tau.sq"= 0, "nu" = 0)
+# shape and scale parameter
+priors <- list("phi.Unif"=c(1/kappak[length(kappak)], 1/kappak[1]), "sigma.sq.IG"=c(1, 1), "tau.sq.IG"=c(0.1, 0.1), "nu.unif" = c(beta - 1, beta - 1 + 1e-3))
 cov.model <- "matern"
 n.report <- 10 
 
