@@ -351,7 +351,8 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
 ############### function splitting for one time & iterative time comparison ###################
 
 
-sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr, mcmc, brn, seed = 1234){
+sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr, 
+                                  brn.ESS = 100, beta, mcmc, brn, sigsq, seed = 1234){
    ## X, Y: given data
    ## N.pr: prior distribution of N (function)
    ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
