@@ -375,7 +375,7 @@ sample.exact.onetime = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.
    # sample from p(N|D)
    set.seed(seed)
    param_index_list = sample(1:(N1 * N2 * N3), size = em, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
-   return(param_index_list = param_index_list, mean_grid = mean_grid, chol_prec_grid = chol_prec_grid)
+   return(list(param_index_list = param_index_list, mean_grid = mean_grid, chol_prec_grid = chol_prec_grid))
 }
 
 
