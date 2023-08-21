@@ -131,13 +131,13 @@ save(time_comparison_unify, file = filename)
 ############## code for plots ################
 library(ggplot2)
 target = 2
-load("Result_Manuscript/Time_dataframe/time_2D_2.Rdata")
+load("Result_Manuscript/Time_dataframe/time_2D_2.RData")
 time.plot.1 <- ggplot(time_comparison_unify) +
    geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
    labs(title = paste0(target, " samples"), x = "n", y = "log(time)") + theme1
 
 target = 500
-load("Result_Manuscript/Time_dataframe/time_2D_500.Rdata")
+load("Result_Manuscript/Time_dataframe/time_2D_500.RData")
 time.plot.2 <- ggplot(time_comparison_unify) +
    geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
    labs(title = paste0(target, " samples"), x = "n", y = "log(time)") + theme1
