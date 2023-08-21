@@ -366,7 +366,7 @@ sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, taus
    N3 = length(tausqk)
    log_prob_N_list = vector(length = N1 * N2 * N3)
    N_list = kappa_list = tausq_list = vector(length = em)
-   result_list = vector(length = em)
+   result_list = vector("list", em)
    for(k1 in 1:N1){
       for(k2 in 1:N2){
          for(k3 in 1:N3){
@@ -398,7 +398,8 @@ sample.RJESS2D.onetime = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, taus
          N = Nk[(param_index - 1) %/% (N2 * N3) + 1]
          kappa = kappak[((param_index - 1) %% (N2 * N3)) %/% N3 + 1]
          tausq = tausqk[(param_index - 1) %% N3 + 1]
-         result_list[[param_index]] = eigvals_exact(ndim = c(N, N), nu = beta - 1, lambda_g = 1/kappa, tausq = tausq)
+         result = eigvals_exact(ndim = c(N, N), nu = beta - 1, lambda_g = 1/kappa, tausq = tausq)
+         result_list[[param_index]] = result
       }
    }
    return(list(result_list = result_list, param_index_list = param_index_list))
