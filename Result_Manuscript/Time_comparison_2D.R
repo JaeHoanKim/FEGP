@@ -32,6 +32,7 @@ const = function(x){return(1)}
 # singleton vector for kappak and tausqk
 kappak = 3
 tausqk = 3
+beta = 2
 N.pr = kappa.pr = tausq.pr = const
 
 gridsize = 40
@@ -92,7 +93,7 @@ gridsize = 40
 gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                 rep(c(0:gridsize)/gridsize, gridsize+ 1))
 
-starting <- list("phi" = 1/kappa, "sigma.sq" = 1, "tau.sq"=0.01, "nu" = 1)
+starting <- list("phi" = 1/kappak[1], "sigma.sq" = tausqk[1], "tau.sq"=0.01, "nu" = 1)
 tuning <- list("phi"= 0, "sigma.sq"= 0, "tau.sq"= 0, "nu" = 0)
 priors <- list("phi.Unif"=c(3/1, 3/0.01), "sigma.sq.IG"=c(2, 5), "tau.sq.IG"=c(2, 1), "nu.unif" = c(1, 1.001))
 cov.model <- "matern"
@@ -255,6 +256,25 @@ iter.SPDE = microbenchmark(
    times = 10
 )
 
+starting <- list("phi" = 1/kappak[1], "sigma.sq" = tausqk[1], "tau.sq"=0.01, "nu" = 1)
+tuning <- list("phi"= 0, "sigma.sq"= 0, "tau.sq"= 0, "nu" = 0)
+priors <- list("phi.Unif"=c(3/1, 3/0.01), "sigma.sq.IG"=c(2, 5), "tau.sq.IG"=c(2, 1), "nu.unif" = c(1, 1.001))
+cov.model <- "matern"
+n.report <- 10 #any small integer
+iter.NNGP = microbenchmark(
+   result1 = {Z = Zlist[[1]]; X = as.matrix(Xlist[[1]]); m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
+                                                                       tuning=tuning, priors=priors, cov.model=cov.model,
+                                                                       n.samples=target, n.omp.threads=1, n.report=n.report); p.r <- predict(m.r, X.0 = gridmat, coords.0 = gridmat, n.omp.threads=1); p.r$p.y.0},
+   result2 = {Z = Zlist[[2]]; X = as.matrix(Xlist[[2]]); m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
+                                                                       tuning=tuning, priors=priors, cov.model=cov.model,
+                                                                       n.samples=target, n.omp.threads=1, n.report=n.report); p.r <- predict(m.r, X.0 = gridmat, coords.0 = gridmat, n.omp.threads=1); p.r$p.y.0},
+   result3 = {Z = Zlist[[3]]; X = as.matrix(Xlist[[3]]); m.r <- spNNGP(Z ~ X-1, coords=X, starting=starting, method="response", n.neighbors=10,
+                                                                       tuning=tuning, priors=priors, cov.model=cov.model,
+                                                                       n.samples=target, n.omp.threads=1, n.report=n.report); p.r <- predict(m.r, X.0 = gridmat, coords.0 = gridmat, n.omp.threads=1);p.r$p.y.0},
+   times = 10
+)
+
+iter.NNGP <- iter.NNGP$time / targets
 ########### save time for one time ###########
 
 time_comparison_onetime_unify = rbind(onetime.SPDE, onetime.GPI)
@@ -272,11 +292,11 @@ save(time_comparison_onetime_unify, file = filename)
 
 ########### save time for iteration ###########
 
-time_comparison_iter_unify = rbind(iter.SPDE, iter.GPI)
+time_comparison_iter_unify = rbind(iter.SPDE, iter.GPI, iter.NNGP)
 time_comparison_iter_unify <- time_comparison_iter_unify %>%
    mutate(n = factor(expr)) %>%
    mutate(log_time = log(time)) %>%
-   mutate(method = c(rep("SPDE", nrow(iter.SPDE)), rep("GPI", nrow(iter.GPI)))) %>%
+   mutate(method = c(rep("SPDE", nrow(iter.SPDE)), rep("GPI", nrow(iter.GPI)), rep("NNGP", nrow(iter.NNGP)))) %>%
    mutate(method = factor(method))
 levels(time_comparison_unify$n) <- nlist
 time_comparison_unify <- time_comparison_unify %>% mutate(n = as.numeric(as.character(n)))
