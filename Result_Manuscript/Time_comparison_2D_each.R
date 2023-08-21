@@ -27,8 +27,8 @@ for(a in 1:length(nlist)){
 
 ## setting for the sampling
 target = 500; brn = 0
-brnin = 0
-Nk = c(4, 6, 8, 10, 12)
+brn.ESS = 100
+Nk = 12
 const = function(x){return(1)}
 # singleton vector for kappak and tausqk
 kappak = 3
@@ -97,15 +97,24 @@ result.onetime.GPI.3 = sample.RJESS2D.onetime(Z = Zlist[[3]], X = Xlist[[3]], Nk
                                           mcmc = target, brn = 0, brn.ESS = brn.ESS)
 
 iter.GPI = microbenchmark(
-   result.iter.1 = sample.RJESS2D.iter(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, 
+   result.iter.1 = sample.RJESS2D.iter(Z = Zlist[[1]], X = Xlist[[1]],
+                                       Nk = Nk, N.pr = N.pr, 
+                                       kappak = kappak, kappa.pr = kappa.pr, 
+                                       tausqk = tausqk, tausq.pr = tausq.pr,
                                        result_list = result.onetime.GPI.1$result_list, 
-                                       param_index_list = result.onetime.GPI.1$param_index_list, brn.ESS = brn.ESS),
-   result.iter.2 = sample.RJESS2D.iter(Z = Zlist[[2]], X = Xlist[[2]], N.pr = function(x){return(1)}, Nk = Nk, 
+                                       param_index_list = result.onetime.GPI.1$param_index_list, brn.ESS = brn.ESS, sigsq = 0.1^2),
+   result.iter.2 = sample.RJESS2D.iter(Z = Zlist[[2]], X = Xlist[[2]],
+                                       Nk = Nk, N.pr = N.pr, 
+                                       kappak = kappak, kappa.pr = kappa.pr, 
+                                       tausqk = tausqk, tausq.pr = tausq.pr,
                                        result_list = result.onetime.GPI.2$result_list, 
-                                       param_index_list = result.onetime.GPI.2$param_index_list, brn.ESS = brn.ESS),
-   result.iter.3 = sample.RJESS2D.iter(Z = Zlist[[3]], X = Xlist[[3]], N.pr = function(x){return(1)}, Nk = Nk, 
+                                       param_index_list = result.onetime.GPI.2$param_index_list, brn.ESS = brn.ESS, sigsq = 0.1^2),
+   result.iter.3 = sample.RJESS2D.iter(Z = Zlist[[3]], X = Xlist[[3]],
+                                       Nk = Nk, N.pr = N.pr, 
+                                       kappak = kappak, kappa.pr = kappa.pr, 
+                                       tausqk = tausqk, tausq.pr = tausq.pr,
                                        result_list = result.onetime.GPI.3$result_list, 
-                                       param_index_list = result.onetime.GPI.3$param_index_list, brn.ESS = brn.ESS),
+                                       param_index_list = result.onetime.GPI.3$param_index_list, brn.ESS = brn.ESS, sigsq = 0.1^2),
    times = 10
 )
 
