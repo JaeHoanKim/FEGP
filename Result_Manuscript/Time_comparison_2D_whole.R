@@ -143,6 +143,6 @@ save(time_comparison_unify, file = filename)
 #    labs(title = paste0(target, " samples"), x = "n", y = "log(time)") + theme1
 # 
 # library(gridExtra)
-# pdf(file = "Graphs/Time_plot.pdf", width = 12, height = 4)
+# pdf(file = "Graphs/Time_whole_plot.pdf", width = 12, height = 4)
 # grid.arrange(time.plot.1, time.plot.2, ncol = 2)
 # dev.off()
