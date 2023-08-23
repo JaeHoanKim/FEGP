@@ -254,5 +254,3 @@ grid.arrange(cover.plot.SPDE.list[[1]], cover.plot.SPDE.kappa.list[[1]],
              cover.plot.SPDE.list[[2]], cover.plot.SPDE.kappa.list[[2]], 
              cover.plot.SPDE.list[[3]], cover.plot.SPDE.kappa.list[[3]], nrow = 2, as.table = FALSE)
 dev.off()
-
-plot.
