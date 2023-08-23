@@ -123,7 +123,7 @@ for(a in 1:length(nlist)){
 stopCluster(cl)
 
 MSE_list_1D = rbind(MSE_list_GPI1D, MSE_list_SPDE1D)
-save(MSE_list_1D, file = "MSE_list_generated_data_1D.RData")
+save(MSE_list_1D, file = "MSE_list_generated_data_1D_2.RData")
 ###################################################
 ######## Coverage plot for a specific data ########
 ###################################################
