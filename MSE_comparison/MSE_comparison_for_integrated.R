@@ -3,7 +3,7 @@ library(ggplot2)
 library(tidyverse)
 source("Result_Manuscript/GraphAesthetics.R")
 filename = "MSE_comparison/comparison_trueftn/MSE_list_generated_data"
-load(paste0(filename, "_1D.RData"))
+load(paste0(filename, "_1D_1.RData"))
 MSE_list_1D = data.frame(MSE_list_1D)
 M = 50
 n_list = c(200, 500, 1000)
