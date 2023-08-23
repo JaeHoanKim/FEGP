@@ -19,8 +19,8 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 
 # alpha = 0.5
 
-f0_2D = function(x, y){return(x^2 + sqrt(abs(y-0.5)) + sin(8*x))}
-
+# f0_2D = function(x, y){return(x^2 + sqrt(abs(y-0.5)) + sin(8*x))}
+f0_2D = function(x, y){return(sin(5*x + 2*y) + 2*y^2)}
 M = 50
 nlist = c(200, 500, 1000)
 df_2D = list(length = length(nlist))
@@ -159,4 +159,4 @@ for(a in 1:length(nlist)){
 stopCluster(cl)
 
 MSE_list_2D = rbind(MSE_list_GPI2D, MSE_list_SPDE2D, MSE_list_NNGP2D)
-save(MSE_list_2D, file = "MSE_list_generated_data_2D.RData")
+save(MSE_list_2D, file = "MSE_list_generated_data_2D_2.RData")
