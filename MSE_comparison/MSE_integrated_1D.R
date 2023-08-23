@@ -170,27 +170,27 @@ for(a in 1:length(nlist)){
    # Coverage plot
    
    cover.plot.SPDE.list[[a]] <- ggplot(y.plot.SPDE, aes(x = x)) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
       geom_line(aes(y=mean), colour="blue") + 
       geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
       geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
-      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
       # geom_point(data = obs, aes(X, Y), size = 0.3) +
       labs(title = paste0("SPDE (n = ", n, ")"), x = "x", y = "y")+
       theme(plot.title = element_text(hjust = 0.5))
    
    cover.plot.SPDE.kappa.list[[a]] <- ggplot(y.plot.SPDE.kappa, aes(x = x)) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
       geom_line(aes(y=mean), colour="blue") + 
       geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
       geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
-      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
       labs(title = paste0("SPDE (n = ", n, ", kappa = 3.2)"), x = "x", y = "y")+
       theme(plot.title = element_text(hjust = 0.5))
    
    cover.plot.SPDE.beta2.list[[a]] <- ggplot(y.plot.SPDE.beta2, aes(x = x)) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
       geom_line(aes(y=mean), colour="blue") + 
       geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
       geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
-      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
       labs(title = paste0("SPDE (n = ", n, ", beta = 2)"), x = "x", y = "y")+
       theme(plot.title = element_text(hjust = 0.5))
 }
@@ -224,18 +224,18 @@ for(a in 1:length(nlist)){
    # Coverage plot
    
    cover.plot.GPI.list[[a]] <- ggplot(y.plot.GPI, aes(x = x)) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
       geom_line(aes(y=mean), colour="blue") + 
       geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
       geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
-      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
       labs(title = paste0("GPI (n = ", n, ")"), x = "x", y = "y")+
       theme(plot.title = element_text(hjust = 0.5))
    
    cover.plot.GPI.beta2.list[[a]] <- ggplot(y.plot.GPI.beta2, aes(x = x)) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
       geom_line(aes(y=mean), colour="blue") + 
       geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
       geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
-      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
       labs(title = paste0("GPI (n = ", n, ", beta = 2)"), x = "x", y = "y")+
       theme(plot.title = element_text(hjust = 0.5))
 }
