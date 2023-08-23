@@ -15,13 +15,14 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 
 alpha = 1.4
 
-f0_1D = function(x, trun = 500){
-   value = 0
-   for(j in 1:trun){
-      value = value + sin(j) * cos(pi * (j - 1/2) * x) * j^(- alpha - 1)
-   }
-   return(value * sqrt(2))
-}
+# f0_1D = function(x, trun = 500){
+#    value = 0
+#    for(j in 1:trun){
+#       value = value + sin(j) * cos(pi * (j - 1/2) * x) * j^(- alpha - 1)
+#    }
+#    return(value * sqrt(2))
+# }
+f0_1D = function(x){return(x^2 + sin(x))}
 
 const = function(x){return(1)}
 
