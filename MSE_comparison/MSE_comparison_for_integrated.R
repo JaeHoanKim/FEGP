@@ -18,6 +18,7 @@ MSE_plot_1D <- ggplot(MSE_list_1D) +
    theme1 + ylim(c(0, max(MSE_list_1D$MSE)))
 
 MSE_plot_1D
+
 ### plot for 2D
 
 load(paste0(filename, "_2D.RData"))
