@@ -48,11 +48,7 @@ gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                 rep(c(0:gridsize)/gridsize, gridsize+ 1))
 
 ############################################################
-a = 1
 n = nlist[1]
-m = 1
-X = df[((m-1)*n+1):(m*n), c(1, 2)]
-Z = df$Z[((m-1)*n+1):(m*n)]
 result = sample.exact2D.seq(X, Z, sigsq = 0.1^2,
                             Nk = Nk, N.pr = N.pr, 
                             kappak = kappak, kappa.pr = kappa.pr,
@@ -101,10 +97,10 @@ pdf(file = paste0(fileloc, "heatmap_SPDE_2D.pdf"))
 print(final_plot)
 dev.off()
 
-
-N_list = tail(result$N_list, target)
-par(mfrow = c(1, 2))
-plot(N_list, xlab = "Index", ylab = "N")
-lines(N_list)
-N_list <- factor(N_list)
-barplot(table(N_list))
+# 
+# N_list = tail(result$N_list, target)
+# par(mfrow = c(1, 2))
+# plot(N_list, xlab = "Index", ylab = "N")
+# lines(N_list)
+# N_list <- factor(N_list)
+# barplot(table(N_list))
