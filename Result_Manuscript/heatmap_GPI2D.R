@@ -18,7 +18,7 @@ M = 1
 const = function(x){
    return(1)
 }
-f0 = function(x, y){
+f0_2D = function(x, y){
    return(sin(5*x + 2*y) + 2*y^2)
 }
 
