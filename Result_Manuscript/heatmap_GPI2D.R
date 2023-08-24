@@ -11,35 +11,39 @@ source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
 source("Result_Manuscript/GraphAesthetics.R")
 
-kappa = 2
-brn.ESS = 100
+brn.ESS = 1000
 target = 2500
-nlist = c(200, 500, 1000)
-M = 500
+nlist = 1000000
+M = 1
 const = function(x){
    return(1)
 }
-dpoi5 = function(x){
-   return(dpois(x, lambda = 5))
-}
-Nk = c(4, 6, 8, 10)
 f0 = function(x, y){
    return(sin(5*x + 2*y) + 2*y^2)
 }
+
+Nk = c(4, 6, 8, 10, 12)
+N.pr = kappa.pr = tausq.pr = const
+tausq.pr = function(x){return(invgamma::dinvgamma(x, 1, 1))}
+kappa.pr = function(x){return(1/x^2)}
+kappak = seq(2, 5, 1)
+tausqk = seq(2, 5, 1)
+
 gridsize = 40
 gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                 rep(c(0:gridsize)/gridsize, gridsize+ 1))
 
 ############################################################
 ## specify n
-a =  2
-n = nlist[a]
-filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
-load(filename)
-## specify dataset
-m = 1
-X = df[((m-1)*n+1):(m*n), c(1, 2)]
-Z = df$Z[((m-1)*n+1):(m*n)]
+for(i in 1:length(nlist)){
+   set.seed(i)
+   n = nlist[i]
+   # 2D data generation
+   X = matrix(runif(2*n*M), n*M)
+   Z = f0_2D(X[, 1], X[, 2]) + rnorm(n*M) * 0.1
+   df_2D[[i]] = data.frame(X, Z)
+}
+
 result = sample.RJESS2D.seq(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
                             mcmc = target, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS)
 g_list = result$g_list
@@ -93,34 +97,3 @@ plot(N_list, xlab = "Index", ylab = "N")
 lines(N_list)
 N_list <- factor(N_list)
 barplot(table(N_list))
-
-
-####  time comparison according to n
-library(microbenchmark)
-m = 1
-nlist = c(200, 500, 1000)
-Xlist = list(length = length(nlist))
-Zlist = list(length = length(nlist))
-for(a in 1:length(nlist)){
-   n = nlist[a]
-   filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
-   load(filename)
-   Xlist[[a]] = df[((m-1)*n+1):(m*n), c(1, 2)]
-   Zlist[[a]] = df$Z[((m-1)*n+1):(m*n)]
-}
-
-Nk = c(4, 6, 8, 10, 12)
-brn.ESS = 100
-
-# time comparison according to s
-# microbenchmark(
-#    result1 = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-#                                 mcmc = 100, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS),
-#    result2 = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-#                                 mcmc = 500, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS),
-#    result3 = sample.RJESS2D.seq(Z = Zlist[[1]], X = Xlist[[1]], N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-#                                 mcmc = 1000, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS),
-#    times = 10
-# )
-
-
