@@ -314,6 +314,7 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
          }
       }
    }
+   log_prob_N_list[is.na(log_prob_N_list)] = -Inf
    # sampling from p(N|D) - with fixed seed
    set.seed(seed)
    param_index_list = sample(1:(N1 * N2 * N3), size = em, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
