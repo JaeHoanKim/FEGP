@@ -44,8 +44,15 @@ for(i in 1:length(nlist)){
    df_2D[[i]] = data.frame(X, Z)
 }
 
-result = sample.RJESS2D.seq(Z = Z, X = X, N.pr = function(x){return(1)}, Nk = Nk, sigsq = 0.1^2,
-                            mcmc = target, brn = 0, nu.in = 1, l.in = 1/kappa, brn.ESS = brn.ESS)
+sample.RJESS2D.seq(Z = Z, X = X, Nk = Nk, N.pr = N.pr, 
+                   kappak = kappak, kappa.pr = kappa.pr, 
+                   tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
+                   mcmc = target, brn = 0, brn.ESS = brn.ESS)
+
+result = sample.RJESS2D.seq(Z = Z, X = X, Nk = Nk, N.pr = N.pr, 
+                            kappak = kappak, kappa.pr = kappa.pr, 
+                            tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
+                            mcmc = target, brn = 0, brn.ESS = brn.ESS)
 g_list = result$g_list
 ################## plot ###################
 library(ggpubr)
