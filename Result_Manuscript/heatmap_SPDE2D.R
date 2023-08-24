@@ -92,7 +92,7 @@ final_plot = ggarrange(plotlist = list(plot_true, plot_mean,
                                        plot_low2, plot_upp2), nrow = 2, ncol = 2)
 
 fileloc = "Result_Manuscript/heatmap/"
-pdf(file = paste0(fileloc, "heatmap_SPDE_2D.pdf"))
+pdf(file = paste0(fileloc, "heatmap_SPDE_2D_", n, ".pdf"))
 print(final_plot)
 dev.off()
 
