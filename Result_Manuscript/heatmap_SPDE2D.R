@@ -40,7 +40,6 @@ for(i in 1:length(nlist)){
    # 2D data generation
    X = matrix(runif(2*n*M), n*M)
    Z = f0_2D(X[, 1], X[, 2]) + rnorm(n*M) * 0.1
-   df_2D[[i]] = data.frame(X, Z)
 }
 
 # gridmat is a (gridsize^2) by 2 matrix!

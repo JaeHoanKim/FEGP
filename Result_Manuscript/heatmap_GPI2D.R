@@ -41,13 +41,7 @@ for(i in 1:length(nlist)){
    # 2D data generation
    X = matrix(runif(2*n*M), n*M)
    Z = f0_2D(X[, 1], X[, 2]) + rnorm(n*M) * 0.1
-   df_2D[[i]] = data.frame(X, Z)
 }
-
-sample.RJESS2D.seq(Z = Z, X = X, Nk = Nk, N.pr = N.pr, 
-                   kappak = kappak, kappa.pr = kappa.pr, 
-                   tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = beta,
-                   mcmc = target, brn = 0, brn.ESS = brn.ESS)
 
 result = sample.RJESS2D.seq(Z = Z, X = X, Nk = Nk, N.pr = N.pr, 
                             kappak = kappak, kappa.pr = kappa.pr, 
