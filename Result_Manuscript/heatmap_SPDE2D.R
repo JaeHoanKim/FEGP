@@ -25,7 +25,7 @@ N.pr = kappa.pr = tausq.pr = const
 tausq.pr = function(x){return(invgamma::dinvgamma(x, 1, 1))}
 kappa.pr = function(x){return(1/x^2)}
 kappak = seq(2, 5, 1)
-tausqk = seq(2, 5, 1)
+tausqk = 1
 
 target = 2500
 brn = 0
@@ -55,7 +55,7 @@ result = sample.exact2D.seq(X, Z, sigsq = 0.1^2,
                             beta = 2, mcmc = target, brn = brn, seed = 1234)
 
 g_list = result$g_list
-y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)
+y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)
 
 ################## plot ###################
 grandmin <- round(min(y.plot$truefun) - 0.5, 2)
