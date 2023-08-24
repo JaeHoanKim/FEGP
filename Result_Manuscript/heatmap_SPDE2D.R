@@ -15,31 +15,50 @@ target = 2500
 const = function(x){
    return(1)
 }
-dpoi5 = function(x){
-   return(dpois(x, lambda = 5))
-}
+
 f0 = function(x, y){
    return(sin(5*x + 2*y) + 2*y^2)
 }
-Nk = c(3, 5, 8, 10, 15)
+
+Nk = c(4, 6, 8, 10, 12)
+N.pr = kappa.pr = tausq.pr = const
+tausq.pr = function(x){return(invgamma::dinvgamma(x, 1, 1))}
+kappa.pr = function(x){return(1/x^2)}
+kappak = seq(2, 5, 1)
+tausqk = seq(2, 5, 1)
+
+target = 2500
+brn = 0
+brn.ESS = 1000
 gridsize = 40
-M = 50
-nlist = c(200, 500, 1000)
+M = 1
+# nlist = c(200, 500, 1000)
+nlist = 100000
+for(i in 1:length(nlist)){
+   set.seed(i)
+   n = nlist[i]
+   # 2D data generation
+   X = matrix(runif(2*n*M), n*M)
+   Z = f0_2D(X[, 1], X[, 2]) + rnorm(n*M) * 0.1
+   df_2D[[i]] = data.frame(X, Z)
+}
+
 # gridmat is a (gridsize^2) by 2 matrix!
 gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                 rep(c(0:gridsize)/gridsize, gridsize+ 1))
 
 ############################################################
-a = 2
-n = nlist[a]
-filename = paste0("Result_Manuscript/obs_n2D", n, ".RData")
-load(filename)
+a = 1
+n = nlist[1]
 m = 1
 X = df[((m-1)*n+1):(m*n), c(1, 2)]
 Z = df$Z[((m-1)*n+1):(m*n)]
-result = sample.exact2D.seq(X, Z, sigsq = 0.1^2, # N.pr = function(x){return(1)},
-                            N.pr = dpoi5,
-                            Nk = Nk, kappa.init = kappa, mcmc = target, brn = brnin, seed = 1234)
+result = sample.exact2D.seq(X, Z, sigsq = 0.1^2,
+                            Nk = Nk, N.pr = N.pr, 
+                            kappak = kappak, kappa.pr = kappa.pr,
+                            tausqk = tausqk, tausq.pr = tausq.pr,
+                            beta = 2, mcmc = target, brn = brn, seed = 1234)
+
 g_list = result$g_list
 y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0, alpha1 = 0.9, alpha2 = 0.95)
 
