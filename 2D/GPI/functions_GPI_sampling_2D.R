@@ -309,8 +309,9 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
             Q_N_star = Q_N + PhiTPhi/sigsq
             mu_star = solve(Q_N_star, t(Phi) %*% Z) / sigsq
             log_prob_N_list[index] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) +
-               # 1/2 * log(det(diag((N+1)^2) + Sigma_N %*% PhiTPhi / sigsq)) +
-               1/2 * log(det(Q_N)) - 1/2*log(det(Q_N_star)) +
+               1/2 * log(det(diag((N+1)^2) * sigsq + Sigma_N %*% PhiTPhi)) - (N+1)^2 * log(sigsq) / 2 +
+               # a) 1/2 * log(det(diag((N+1)^2) + Sigma_N %*% PhiTPhi / sigsq)) +
+               # b) 1/2 * (determinant(Q_N, logarithm = TRUE) - determinant(Q_N_star, logarithm = TRUE)) +
                1/2 * t(mu_star) %*% Q_N_star %*% mu_star - t(Z) %*% Z / 2 / sigsq
          }
       }
