@@ -15,14 +15,14 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 
 alpha = 1.4
 
-# f0_1D = function(x, trun = 500){
-#    value = 0
-#    for(j in 1:trun){
-#       value = value + sin(j) * cos(pi * (j - 1/2) * x) * j^(- alpha - 1)
-#    }
-#    return(value * sqrt(2))
-# }
-f0_1D = function(x){return(x^2 + sin(x))}
+f0_1D = function(x, trun = 500){
+   value = 0
+   for(j in 1:trun){
+      value = value + sin(j) * cos(pi * (j - 1/2) * x) * j^(- alpha - 1)
+   }
+   return(value * sqrt(2))
+}
+# f0_1D = function(x){return(x^2 + sin(x))}
 
 const = function(x){return(1)}
 
@@ -123,7 +123,7 @@ for(a in 1:length(nlist)){
 stopCluster(cl)
 
 MSE_list_1D = rbind(MSE_list_GPI1D, MSE_list_SPDE1D)
-save(MSE_list_1D, file = "MSE_list_generated_data_1D_2.RData")
+save(MSE_list_1D, file = "MSE_list_generated_data_1D_1.RData")
 ###################################################
 ######## Coverage plot for a specific data ########
 ###################################################
