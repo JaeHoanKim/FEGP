@@ -15,14 +15,14 @@ sourceCpp("1D/GPI/inv_chol.cpp")
 
 alpha = 1.4
 
-# f0_1D = function(x, trun = 500){
-#    value = 0
-#    for(j in 1:trun){
-#       value = value + sin(j) * cos(pi * (j - 1/2) * x) * j^(- alpha - 1)
-#    }
-#    return(value * sqrt(2))
-# }
-f0_1D = function(x){return(x^2 + sin(x))}
+f0_1D = function(x, trun = 500){
+   value = 0
+   for(j in 1:trun){
+      value = value + sin(j) * cos(pi * (j - 1/2) * x) * j^(- alpha - 1)
+   }
+   return(value * sqrt(2))
+}
+# f0_1D = function(x){return(x^2 + sin(x))}
 
 const = function(x){return(1)}
 
@@ -47,9 +47,9 @@ target = 2500
 brn = 0
 brn.ESS = 1000
 # setting for the Matern parameters
-kappak = seq(2, 5, 0.3)
-tausqk = seq(1, 5, 0.5)
-Nk = c(6, 8, 10, 14, 18, 22, 26, 30)
+kappak = seq(1, 5, 0.5)
+tausqk = 1
+Nk = c(4, 6, 8, 10, 14, 18)
 kappa.pr = tausq.pr = N.pr = const 
 beta = 4
 
@@ -123,7 +123,7 @@ for(a in 1:length(nlist)){
 stopCluster(cl)
 
 MSE_list_1D = rbind(MSE_list_GPI1D, MSE_list_SPDE1D)
-save(MSE_list_1D, file = "MSE_list_generated_data_1D_2.RData")
+save(MSE_list_1D, file = "MSE_list_generated_data_1D_1.RData")
 ###################################################
 ######## Coverage plot for a specific data ########
 ###################################################
