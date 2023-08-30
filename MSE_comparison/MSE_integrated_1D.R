@@ -45,7 +45,7 @@ for(i in 1:length(nlist)){
 
 target = 2500
 brn = 0
-brn.ESS = 1000
+brn.ESS = 100
 # setting for the Matern parameters
 kappak = seq(1, 5, 0.5)
 tausqk = 1
