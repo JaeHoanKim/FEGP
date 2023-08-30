@@ -49,7 +49,7 @@ brn.ESS = 1000
 # setting for the Matern parameters
 kappak = seq(1, 5, 0.5)
 tausqk = 1
-Nk = c(4, 6, 8, 10, 14, 18)
+Nk = c(4, 6, 8, 10, 12)
 kappa.pr = tausq.pr = N.pr = const 
 beta = 4
 
