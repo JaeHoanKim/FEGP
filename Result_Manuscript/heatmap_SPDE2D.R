@@ -8,10 +8,6 @@ source("2D/SPDE/functions_SPDE_sampling_2D.R")
 source("2D/SPDE/functions_SPDE_2D.R")
 source("Result_Manuscript/GraphAesthetics.R")
 
-kappa = 2
-brnin = 0
-target = 2500
-
 const = function(x){
    return(1)
 }
