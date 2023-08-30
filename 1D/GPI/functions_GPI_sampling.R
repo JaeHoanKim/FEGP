@@ -235,7 +235,7 @@ sample.ESS.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
             Q_N = solve(Sigma_N, tol = 1e-30)
             Q_N_star = Q_N + PhiTPhi/sigsq
             mu_star = solve(Q_N_star, t(Phi) %*% Y, tol = 1e-30) / sigsq
-            log_prob_N_list[index] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) +
+            log_prob_N_list[index] = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) -
                1/2 * log(det(diag(N+1) + Sigma_N %*% PhiTPhi / sigsq)) +
                1/2 * t(mu_star) %*% Q_N_star %*% mu_star - t(Y) %*% Y / 2 / sigsq}
       }
