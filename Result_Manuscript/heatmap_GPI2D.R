@@ -11,7 +11,7 @@ source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
 source("Result_Manuscript/GraphAesthetics.R")
 
-brn.ESS = 1000
+brn.ESS = 100
 target = 2500
 nlist = 100000
 M = 1
