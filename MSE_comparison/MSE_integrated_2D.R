@@ -43,16 +43,16 @@ nu = beta - d/2
 const = function(x){
    return(1)
 }
-Nk = c(4, 6, 8, 10, 12)
+Nk = c(6, 8, 10, 14, 18, 22, 26, 30)
 N.pr = kappa.pr = tausq.pr = const
 tausq.pr = function(x){return(invgamma::dinvgamma(x, 1, 1))}
 kappa.pr = function(x){return(1/x^2)}
-kappak = seq(2, 5, 1)
-tausqk = seq(2, 5, 1)
+kappak = seq(1, 6, 0.5)
+tausqk = 1
 
 target = 2500
 brn = 0
-brn.ESS = 1000
+brn.ESS = 100
 
 ### 3. MSE calculation - 2D
 
