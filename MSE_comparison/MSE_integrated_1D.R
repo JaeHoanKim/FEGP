@@ -177,7 +177,7 @@ for(a in 1:length(nlist)){
       geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) +
       geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
       # geom_point(data = obs, aes(X, Y), size = 0.3) +
-      labs(title = paste0("SPDE (n = ", n, ")"), x = "x", y = "y")+
+      labs(title = paste0("SPDE (n = ", n, ", beta = ", beta, ")"), x = "x", y = "y")+
       theme(plot.title = element_text(hjust = 0.5))
 
    cover.plot.SPDE.kappa.list[[a]] <- ggplot(y.plot.SPDE.kappa, aes(x = x)) +
@@ -230,7 +230,7 @@ for(a in 1:length(nlist)){
       geom_line(aes(y=mean), colour="blue") +
       geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) +
       geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
-      labs(title = paste0("GPI (n = ", n, ")"), x = "x", y = "y")+
+      labs(title = paste0("GPI (n = ", n, ", beta = ", beta, ")"), x = "x", y = "y")+
       theme(plot.title = element_text(hjust = 0.5))
 
    cover.plot.GPI.beta2.list[[a]] <- ggplot(y.plot.GPI.beta2, aes(x = x)) +
