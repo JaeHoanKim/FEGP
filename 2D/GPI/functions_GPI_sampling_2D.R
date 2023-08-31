@@ -294,16 +294,16 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
    log_prob_N_list = vector(length = N1 * N2 * N3)
    N_list = kappa_list = tausq_list = vector(length = em)
    for(k1 in 1:N1){
+      N = Nk[k1]
+      Phi = Phi_2D(X, N)
+      PhiTPhi = t(Phi) %*% Phi
+      gridmat = cbind(rep(c(0:N)/N, each = N + 1), 
+                      rep(c(0:N)/N, N + 1))
       for(k2 in 1:N2){
          for(k3 in 1:N3){
             index = (k1 - 1) * N2 * N3 + (k2 - 1) * N3 + k3 # index from 1 to N1 * N2 * N3
-            N = Nk[k1]
             kappa = kappak[k2]
             tausq = tausqk[k3]
-            Phi = Phi_2D(X, N)
-            PhiTPhi = t(Phi) %*% Phi
-            gridmat = cbind(rep(c(0:N)/N, each = N + 1), 
-                            rep(c(0:N)/N, N + 1))
             Sigma_N = thekernel(gridmat, nu = beta - 1, lambda = 1/kappa, tausq = tausq)
             Q_N = solve(Sigma_N, tol = 1e-30)
             Q_N_star = Q_N + PhiTPhi/sigsq
