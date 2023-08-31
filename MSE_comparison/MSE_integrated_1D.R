@@ -124,134 +124,135 @@ stopCluster(cl)
 
 MSE_list_1D = rbind(MSE_list_GPI1D, MSE_list_SPDE1D)
 save(MSE_list_1D, file = "MSE_list_generated_data_1D_1.RData")
-###################################################
-######## Coverage plot for a specific data ########
-###################################################
-# 
-# m = 1
-# cover.plot.GPI.list = list(length = length(nlist))
-# cover.plot.GPI.beta2.list = list(length = length(nlist))
-# cover.plot.SPDE.list = list(length = length(nlist))
-# cover.plot.SPDE.beta2.list = list(length = length(nlist))
-# cover.plot.SPDE.kappa.list = list(length = length(nlist)) # cover plot list for fixed kappa
-# 
-# ## Save plots regarding SPDE
-# 
-# for(a in 1:length(nlist)){
-#    n = nlist[a] # the number of observed data; 200, 500, 1000
-#    df = df_1D[[a]]
-#    X = df$X[((m-1)*n+1):(m*n)]
-#    Y = df$Z[((m-1)*n+1):(m*n)]
-#    obs = data.frame(X, Y)
-#    # result for SPDE
-#    result.SPDE = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr, beta = beta,
-#                                   kappak = kappak, kappa.pr = kappa.pr,
-#                                   tausqk = tausqk, tausq.pr = tausq.pr,
-#                                   mcmc = target, brn=0, seed = 1234)
-#    g.plot.SPDE = tail(result.SPDE$g_list, target) # choosing last `target` samples
-#    y.plot.SPDE = glist_to_plotdf(g.plot.SPDE, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
-#    
-#    # result for SPDE with beta = 2
-#    result.SPDE.beta2 = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr, beta = 2,
-#                                         kappak = kappak, kappa.pr = kappa.pr,
-#                                         tausqk = tausqk, tausq.pr = tausq.pr,
-#                                         mcmc = target, brn=0, seed = 1234)
-#    g.plot.SPDE.beta2 = tail(result.SPDE.beta2$g_list, target) # choosing last `target` samples
-#    y.plot.SPDE.beta2 = glist_to_plotdf(g.plot.SPDE.beta2, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
-#    
-#    # result for SPDE with fixed kappa with beta = 4
-#    
-#    result.SPDE.kappa = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr, beta = beta,
-#                                         kappak = 3.2, kappa.pr = kappa.pr,
-#                                         tausqk = tausqk, tausq.pr = tausq.pr,
-#                                         mcmc = target, brn=0, seed = 1234)
-#    g.plot.SPDE.kappa = tail(result.SPDE.kappa$g_list, target) # choosing last `target` samples
-#    y.plot.SPDE.kappa = glist_to_plotdf(g.plot.SPDE.kappa, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
-#    
-#    # Coverage plot
-#    
-#    cover.plot.SPDE.list[[a]] <- ggplot(y.plot.SPDE, aes(x = x)) +
-#       geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
-#       geom_line(aes(y=mean), colour="blue") + 
-#       geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
-#       geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
-#       # geom_point(data = obs, aes(X, Y), size = 0.3) +
-#       labs(title = paste0("SPDE (n = ", n, ")"), x = "x", y = "y")+
-#       theme(plot.title = element_text(hjust = 0.5))
-#    
-#    cover.plot.SPDE.kappa.list[[a]] <- ggplot(y.plot.SPDE.kappa, aes(x = x)) +
-#       geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
-#       geom_line(aes(y=mean), colour="blue") + 
-#       geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
-#       geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
-#       labs(title = paste0("SPDE (n = ", n, ", kappa = 3.2)"), x = "x", y = "y")+
-#       theme(plot.title = element_text(hjust = 0.5))
-#    
-#    cover.plot.SPDE.beta2.list[[a]] <- ggplot(y.plot.SPDE.beta2, aes(x = x)) +
-#       geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
-#       geom_line(aes(y=mean), colour="blue") + 
-#       geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
-#       geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
-#       labs(title = paste0("SPDE (n = ", n, ", beta = 2)"), x = "x", y = "y")+
-#       theme(plot.title = element_text(hjust = 0.5))
-# }
-# 
-# 
-# 
-# 
-# ## Save plots regarding GPI
-# for(a in 1:length(nlist)){
-#    n = nlist[a] # the number of observed data; 200, 500, 1000
-#    df = df_1D[[a]]
-#    X = df$X[((m-1)*n+1):(m*n)]
-#    Y = df$Z[((m-1)*n+1):(m*n)]
-#    obs = data.frame(X, Y)
-#    # result for GPI
-#    result.GPI = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr,
-#                            kappak = kappak, kappa.pr = kappa.pr, 
-#                            tausqk = tausqk, tausq.pr = tausq.pr, 
-#                            beta = beta, mcmc = target, brn=0, brn.ESS = brn.ESS)
-#    g.plot.GPI = tail(result.GPI$g_list, target) # choosing last `target` samples
-#    y.plot.GPI = glist_to_plotdf(g.plot.GPI, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
-#    
-#    # result for GPI with beta = 2
-#    result.GPI.beta2 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr,
-#                                kappak = kappak, kappa.pr = kappa.pr, 
-#                                tausqk = tausqk, tausq.pr = tausq.pr, 
-#                                beta = beta, mcmc = target, brn=0, brn.ESS = brn.ESS)
-#    g.plot.GPI.beta2 = tail(result.GPI.beta2$g_list, target) # choosing last `target` samples
-#    y.plot.GPI.beta2 = glist_to_plotdf(g.plot.GPI.beta2, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
-#    
-#    # Coverage plot
-#    
-#    cover.plot.GPI.list[[a]] <- ggplot(y.plot.GPI, aes(x = x)) +
-#       geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
-#       geom_line(aes(y=mean), colour="blue") + 
-#       geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
-#       geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
-#       labs(title = paste0("GPI (n = ", n, ")"), x = "x", y = "y")+
-#       theme(plot.title = element_text(hjust = 0.5))
-#    
-#    cover.plot.GPI.beta2.list[[a]] <- ggplot(y.plot.GPI.beta2, aes(x = x)) +
-#       geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
-#       geom_line(aes(y=mean), colour="blue") + 
-#       geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) + 
-#       geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
-#       labs(title = paste0("GPI (n = ", n, ", beta = 2)"), x = "x", y = "y")+
-#       theme(plot.title = element_text(hjust = 0.5))
-# }
-# 
-# 
-# ## Pair the graphs
-# library(gridExtra)
-# pdf(file = "Graphs/coverage_plot_1.pdf", width = 12, height = 12)
-# grid.arrange(cover.plot.GPI.beta2.list[[1]], cover.plot.GPI.list[[1]], cover.plot.SPDE.beta2.list[[1]], cover.plot.SPDE.list[[1]],
-#              cover.plot.GPI.beta2.list[[2]], cover.plot.GPI.list[[2]], cover.plot.SPDE.beta2.list[[2]], cover.plot.SPDE.list[[2]],
-#              cover.plot.GPI.beta2.list[[3]], cover.plot.GPI.list[[3]], cover.plot.SPDE.beta2.list[[3]], cover.plot.SPDE.list[[3]], nrow = 4, as.table = FALSE)
-# dev.off()
-# 
-# pdf(file = "Graphs/coverage_plot_2.pdf", width = 12, height = 6)
-# grid.arrange(cover.plot.SPDE.list[[1]], cover.plot.SPDE.kappa.list[[1]], 
-#              cover.plot.SPDE.list[[2]], cover.plot.SPDE.kappa.list[[2]], 
-#              cover.plot.SPDE.list[[3]], cover.plot.SPDE.kappa.list[[3]], nrow = 2, as.table = FALSE)
-# dev.off()
+
+##################################################
+####### Coverage plot for a specific data ########
+##################################################
+
+m = 1
+cover.plot.GPI.list = list(length = length(nlist))
+cover.plot.GPI.beta2.list = list(length = length(nlist))
+cover.plot.SPDE.list = list(length = length(nlist))
+cover.plot.SPDE.beta2.list = list(length = length(nlist))
+cover.plot.SPDE.kappa.list = list(length = length(nlist)) # cover plot list for fixed kappa
+
+## Save plots regarding SPDE
+
+for(a in 1:length(nlist)){
+   n = nlist[a] # the number of observed data; 200, 500, 1000
+   df = df_1D[[a]]
+   X = df$X[((m-1)*n+1):(m*n)]
+   Y = df$Z[((m-1)*n+1):(m*n)]
+   obs = data.frame(X, Y)
+   # result for SPDE
+   result.SPDE = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr, beta = beta,
+                                  kappak = kappak, kappa.pr = kappa.pr,
+                                  tausqk = tausqk, tausq.pr = tausq.pr,
+                                  mcmc = target, brn=0, seed = 1234)
+   g.plot.SPDE = tail(result.SPDE$g_list, target) # choosing last `target` samples
+   y.plot.SPDE = glist_to_plotdf(g.plot.SPDE, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
+
+   # result for SPDE with beta = 2
+   result.SPDE.beta2 = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr, beta = 2,
+                                        kappak = kappak, kappa.pr = kappa.pr,
+                                        tausqk = tausqk, tausq.pr = tausq.pr,
+                                        mcmc = target, brn=0, seed = 1234)
+   g.plot.SPDE.beta2 = tail(result.SPDE.beta2$g_list, target) # choosing last `target` samples
+   y.plot.SPDE.beta2 = glist_to_plotdf(g.plot.SPDE.beta2, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
+
+   # result for SPDE with fixed kappa with beta = 4
+
+   result.SPDE.kappa = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr, beta = beta,
+                                        kappak = 3.2, kappa.pr = kappa.pr,
+                                        tausqk = tausqk, tausq.pr = tausq.pr,
+                                        mcmc = target, brn=0, seed = 1234)
+   g.plot.SPDE.kappa = tail(result.SPDE.kappa$g_list, target) # choosing last `target` samples
+   y.plot.SPDE.kappa = glist_to_plotdf(g.plot.SPDE.kappa, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
+
+   # Coverage plot
+
+   cover.plot.SPDE.list[[a]] <- ggplot(y.plot.SPDE, aes(x = x)) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
+      geom_line(aes(y=mean), colour="blue") +
+      geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) +
+      geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
+      # geom_point(data = obs, aes(X, Y), size = 0.3) +
+      labs(title = paste0("SPDE (n = ", n, ")"), x = "x", y = "y")+
+      theme(plot.title = element_text(hjust = 0.5))
+
+   cover.plot.SPDE.kappa.list[[a]] <- ggplot(y.plot.SPDE.kappa, aes(x = x)) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
+      geom_line(aes(y=mean), colour="blue") +
+      geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) +
+      geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
+      labs(title = paste0("SPDE (n = ", n, ", kappa = 3.2)"), x = "x", y = "y")+
+      theme(plot.title = element_text(hjust = 0.5))
+
+   cover.plot.SPDE.beta2.list[[a]] <- ggplot(y.plot.SPDE.beta2, aes(x = x)) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
+      geom_line(aes(y=mean), colour="blue") +
+      geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) +
+      geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
+      labs(title = paste0("SPDE (n = ", n, ", beta = 2)"), x = "x", y = "y")+
+      theme(plot.title = element_text(hjust = 0.5))
+}
+
+
+
+
+## Save plots regarding GPI
+for(a in 1:length(nlist)){
+   n = nlist[a] # the number of observed data; 200, 500, 1000
+   df = df_1D[[a]]
+   X = df$X[((m-1)*n+1):(m*n)]
+   Y = df$Z[((m-1)*n+1):(m*n)]
+   obs = data.frame(X, Y)
+   # result for GPI
+   result.GPI = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr,
+                           kappak = kappak, kappa.pr = kappa.pr,
+                           tausqk = tausqk, tausq.pr = tausq.pr,
+                           beta = beta, mcmc = target, brn=0, brn.ESS = brn.ESS)
+   g.plot.GPI = tail(result.GPI$g_list, target) # choosing last `target` samples
+   y.plot.GPI = glist_to_plotdf(g.plot.GPI, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
+
+   # result for GPI with beta = 2
+   result.GPI.beta2 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr,
+                               kappak = kappak, kappa.pr = kappa.pr,
+                               tausqk = tausqk, tausq.pr = tausq.pr,
+                               beta = beta, mcmc = target, brn=0, brn.ESS = brn.ESS)
+   g.plot.GPI.beta2 = tail(result.GPI.beta2$g_list, target) # choosing last `target` samples
+   y.plot.GPI.beta2 = glist_to_plotdf(g.plot.GPI.beta2, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
+
+   # Coverage plot
+
+   cover.plot.GPI.list[[a]] <- ggplot(y.plot.GPI, aes(x = x)) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
+      geom_line(aes(y=mean), colour="blue") +
+      geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) +
+      geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
+      labs(title = paste0("GPI (n = ", n, ")"), x = "x", y = "y")+
+      theme(plot.title = element_text(hjust = 0.5))
+
+   cover.plot.GPI.beta2.list[[a]] <- ggplot(y.plot.GPI.beta2, aes(x = x)) +
+      geom_point(aes(x = x, y = true), col = 'red', size = 0.5) +
+      geom_line(aes(y=mean), colour="blue") +
+      geom_ribbon(aes(ymin=low1, ymax=upp1),  alpha=0.4, show.legend=TRUE) +
+      geom_ribbon(aes(ymin=lowsup, ymax=uppsup),  alpha=0.2, show.legend=TRUE) +
+      labs(title = paste0("GPI (n = ", n, ", beta = 2)"), x = "x", y = "y")+
+      theme(plot.title = element_text(hjust = 0.5))
+}
+
+
+## Pair the graphs
+library(gridExtra)
+pdf(file = "Graphs/coverage_plot_1.pdf", width = 12, height = 12)
+grid.arrange(cover.plot.GPI.beta2.list[[1]], cover.plot.GPI.list[[1]], cover.plot.SPDE.beta2.list[[1]], cover.plot.SPDE.list[[1]],
+             cover.plot.GPI.beta2.list[[2]], cover.plot.GPI.list[[2]], cover.plot.SPDE.beta2.list[[2]], cover.plot.SPDE.list[[2]],
+             cover.plot.GPI.beta2.list[[3]], cover.plot.GPI.list[[3]], cover.plot.SPDE.beta2.list[[3]], cover.plot.SPDE.list[[3]], nrow = 4, as.table = FALSE)
+dev.off()
+
+pdf(file = "Graphs/coverage_plot_2.pdf", width = 12, height = 6)
+grid.arrange(cover.plot.SPDE.list[[1]], cover.plot.SPDE.kappa.list[[1]],
+             cover.plot.SPDE.list[[2]], cover.plot.SPDE.kappa.list[[2]],
+             cover.plot.SPDE.list[[3]], cover.plot.SPDE.kappa.list[[3]], nrow = 2, as.table = FALSE)
+dev.off()
