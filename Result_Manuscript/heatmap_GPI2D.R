@@ -13,8 +13,8 @@ source("Result_Manuscript/GraphAesthetics.R")
 
 brn.ESS = 100
 target = 2500
-nlist = 100000
-# nlist = 200
+# nlist = 100000
+nlist = 200
 M = 1
 const = function(x){
    return(1)
