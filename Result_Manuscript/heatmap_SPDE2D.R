@@ -27,8 +27,8 @@ target = 2500
 brn = 0
 gridsize = 40
 M = 1
-# nlist = c(200, 500, 1000)
-nlist = 100000
+nlist = 200
+# nlist = 100000
 for(i in 1:length(nlist)){
    set.seed(i)
    n = nlist[i]
