@@ -45,7 +45,7 @@ target = 0
 brn = 0
 brn.ESS = 0
 # setting for the Matern parameters
-kappak = seq(1, 5, 0.5)
+kappak = seq(0.5, 5, 0.5)
 tausqk = 1
 Nk = c(2, 4, 6, 8, 10, 14, 18)
 const = function(x){
