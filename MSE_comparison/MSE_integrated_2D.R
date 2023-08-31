@@ -64,7 +64,7 @@ gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
 ###################################################################
 
 starting <- list("phi" = 1/kappak[1], "sigma.sq" =  tausqk[1], "tau.sq" = 0.01, "nu" = beta - 1)
-tuning <- list("phi"= 0.1, "sigma.sq"= 0.1, "tau.sq"= 0, "nu" = 0)
+tuning <- list("phi"= 0.1, "sigma.sq"= 0, "tau.sq"= 0, "nu" = 0)
 # shape and scale parameter
 priors <- list("phi.Unif"=c(1/kappak[length(kappak)], 1/kappak[1]), "sigma.sq.IG"=c(1, 1), "tau.sq.IG"=c(0.1, 0.1), "nu.unif" = c(beta - 1, beta - 1 + 1e-3))
 cov.model <- "matern"
