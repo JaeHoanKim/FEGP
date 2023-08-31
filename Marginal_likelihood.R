@@ -47,13 +47,13 @@ brn.ESS = 0
 # setting for the Matern parameters
 kappak = seq(1, 5, 0.5)
 tausqk = 1
-Nk = c(4, 6, 8, 10, 14, 18)
+Nk = c(2, 4, 6, 8, 10, 14, 18)
 const = function(x){
    return(1)
 }
 
 kappa.pr = tausq.pr = N.pr = const 
-beta = 4
+beta = 2
 
 
 
@@ -154,6 +154,7 @@ dev.off()
 ####################################
 
 f0_2D = function(x, y){return(sin(5*x + 2*y) + 2*y^2)}
+# f0_2D = function(x, y){return(x^2 + sqrt(abs(y-0.5)) + sin(8*x))}
 M = 50
 nlist = c(200, 500, 1000)
 df_2D = list(length = length(nlist))
@@ -169,7 +170,7 @@ for(i in 1:length(nlist)){
 
 # setting for the Matern parameters and sampling
 
-beta = 4
+beta = 2
 d = 2
 nu = beta - d/2
 
