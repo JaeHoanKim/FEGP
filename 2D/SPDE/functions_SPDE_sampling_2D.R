@@ -291,14 +291,14 @@ sample.exact2D.seq = function(X, Z, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
    nu = beta - 1
    # 1. Sample from N | D
    for(k1 in 1:N1){
+      N = Nk[k1]
+      Phi = Phi_2D(X, N)
       for (k2 in 1:N2){
          for(k3 in 1:N3){
             index = (k1 - 1) * N2 * N3 + (k2 - 1) * N3 + k3
-            N = Nk[k1]
             kappa = kappak[k2]
             tausq = tausqk[k3]
             Omega = Q2D(N, kappa, tausq, beta = 2)
-            Phi = Phi_2D(X, N)
             # computation of the mean and the variance vector
             prec_grid[[index]] = Omega + t(Phi) %*% Phi / sigsq
             chol_prec_grid[[index]] = chol(prec_grid[[index]])
