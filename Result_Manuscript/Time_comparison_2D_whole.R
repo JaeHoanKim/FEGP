@@ -11,7 +11,7 @@ library(ggpubr)
 source("Result_Manuscript/GraphAesthetics.R")
 
 ## data generation
-nlist = 100000
+nlist = c(200, 500, 1000)
 Xlist = list(length = length(nlist))
 Zlist = list(length = length(nlist))
 f0_2D = function(x, y){return(x^2 + sqrt(abs(y-0.5)) + sin(8*x))}
