@@ -27,7 +27,7 @@ for(a in 1:length(nlist)){
 ## setting for the sampling
 target = 2; brn = 0
 brnin = 0
-Nk = 10 # fix Nk to be a singleton vector
+Nk = 6 # fix Nk to be a singleton vector
 const = function(x){return(1)}
 # singleton vector for kappak and tausqk
 kappak = 3
