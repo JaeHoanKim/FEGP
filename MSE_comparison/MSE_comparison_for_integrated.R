@@ -46,6 +46,10 @@ pdf(file = "Graphs/MSE_plot_1D.pdf", width = 12, height = 4)
 grid.arrange(MSE_plot_1D[[1]], MSE_plot_1D[[2]], ncol = 2)
 dev.off()
 
+pdf(file = "Graphs/MSE_plot_2D.pdf", width = 12, height = 4)
+grid.arrange(MSE_plot_2D[[1]], MSE_plot_2D[[2]], ncol = 2)
+dev.off()
+
 ### MSE as the number of burnin differs
 filename = "MSE_comparison/comparison_burnin/brn1000/MSE_list_generated_data"
 
