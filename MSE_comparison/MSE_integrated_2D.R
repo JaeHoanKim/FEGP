@@ -52,7 +52,7 @@ tausqk = 1
 
 target = 2500
 brn = 0
-brn.ESS = 1000
+brn.ESS = 100
 
 ### 3. MSE calculation - 2D
 
