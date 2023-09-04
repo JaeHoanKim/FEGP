@@ -36,7 +36,7 @@ for(i in 1:length(nlist)){
 
 # setting for the Matern parameters and sampling
 
-beta = 4
+beta = 2
 d = 2
 nu = beta - d/2
 
