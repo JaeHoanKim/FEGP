@@ -70,6 +70,6 @@ MSE_plot_2D_1000 <- ggplot(MSE_list_2D) +
    theme1
 
 
-# pdf(file = "Graphs/MSE_plot_burnin.pdf", width = 12, height = 4)
-# grid.arrange(MSE_plot_2D, MSE_plot_2D_1000, ncol = 2)
-# dev.off()
+pdf(file = "Graphs/MSE_plot_burnin.pdf", width = 12, height = 4)
+grid.arrange(MSE_plot_2D[[1]], MSE_plot_2D_1000, ncol = 2)
+dev.off()
