@@ -25,7 +25,7 @@ for(a in 1:length(nlist)){
 }
 
 ## setting for the sampling
-target = 2; brn = 0
+target = 500; brn = 0
 brnin = 0
 Nk = 6 # fix Nk to be a singleton vector
 const = function(x){return(1)}
@@ -96,38 +96,38 @@ levels(time_comparison_unify$n) <- nlist
 time_comparison_unify <- time_comparison_unify %>% mutate(n = as.numeric(as.character(n)))
 
 
-filename = paste0("Result_Manuscript/Time_dataframe/time_2D_", target, ".RData")
+filename = paste0("Result_Manuscript/Time_dataframe/time_large_2D_", target, ".RData")
 save(time_comparison_unify, file = filename)
 
 
-############## code for plots ################
-library(ggplot2)
-target = 2
-nlist = 100000
-fileloc = "Result_Manuscript/Time_dataframe/time_2D_2_"
-load(paste0(fileloc, n, ".RData"))
-time_comparison_large_n = time_comparison_unify
-
-time.plot.1 <- ggplot(time_comparison_large_n) +
-   geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
-   labs(title = paste0(target, " samples"), x = "n", y = "log(time)") + theme1
-
-# pdf(file = "Graphs/Time_whole_large_n_plot.pdf", width = 5, height = 4)
-# print(time.plot.1)
+# ############## code for plots ################
+# library(ggplot2)
+# target = 2
+# nlist = 100000
+# fileloc = "Result_Manuscript/Time_dataframe/time_2D_2_"
+# load(paste0(fileloc, n, ".RData"))
+# time_comparison_large_n = time_comparison_unify
+# 
+# time.plot.1 <- ggplot(time_comparison_large_n) +
+#    geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
+#    labs(title = paste0(target, " samples"), x = "n", y = "log(time)") + theme1
+# 
+# # pdf(file = "Graphs/Time_whole_large_n_plot.pdf", width = 5, height = 4)
+# # print(time.plot.1)
+# # dev.off()
+# 
+# ## For future unification
+# load("Result_Manuscript/Time_dataframe/time_2D_2.RData")
+# time_comparison_unify = rbind(time_comparison_large_n, time_comparison_unify)
+# time.plot.2 <- ggplot(time_comparison_unify) +
+#    geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
+#    labs(title = paste0(target, " samples"), x = "n", y = "log(time)") + theme1
+# pdf(file = "Graphs/Time_whole_plot_2.pdf", width = 6, height = 4)
+# print(time.plot.2)
 # dev.off()
-
-## For future unification
-load("Result_Manuscript/Time_dataframe/time_2D_2.RData")
-time_comparison_unify = rbind(time_comparison_large_n, time_comparison_unify)
-time.plot.2 <- ggplot(time_comparison_unify) +
-   geom_boxplot(aes(x = factor(n), y = log_time, color = method)) +
-   labs(title = paste0(target, " samples"), x = "n", y = "log(time)") + theme1
-pdf(file = "Graphs/Time_whole_plot_2.pdf", width = 6, height = 4)
-print(time.plot.2)
-dev.off()
-
-
-library(gridExtra)
-# pdf(file = "Graphs/Time_whole_plot.pdf", width = 12, height = 4)
-# grid.arrange(time.plot.1, time.plot.2, ncol = 2)
-# dev.off()
+# 
+# 
+# library(gridExtra)
+# # pdf(file = "Graphs/Time_whole_plot.pdf", width = 12, height = 4)
+# # grid.arrange(time.plot.1, time.plot.2, ncol = 2)
+# # dev.off()
