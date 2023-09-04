@@ -9,6 +9,8 @@ True function
    }
    return(value * sqrt(2))
 }
+2: f0_1D = function(x){return(x^2 + sin(x))}
+
 2D
 
 1: f0_2D = function(x, y){return(x^2 + sqrt(abs(y-0.5)) + sin(8*x))}
