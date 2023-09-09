@@ -115,7 +115,7 @@ for(a in 1:length(nlist)){
    result = sample.exact.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr, beta = beta,
                              kappak = kappak, kappa.pr = kappa.pr,
                              tausqk = tausqk, tausq.pr = tausq.pr,
-                             mcmc = target, brn=0, seed = 1234)
+                             mcmc = 2000, brn=0, seed = 1234)
    log_prob_list_SPDE[[a]] = result$log_prob_N_list
    # calculate the marginal likelihood of N
    log_prob_mat = matrix(log_prob_list_SPDE[[a]], nrow = length(kappak))
