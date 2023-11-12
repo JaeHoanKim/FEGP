@@ -69,7 +69,7 @@ breaklabel <- function(x){
 }
 
 plot_true <- ggplot(y.plot, aes(x1, x2)) +
-   geom_contour_filled(aes(z = truefun), breaks = mybreaks, 
+   geom_contour_filled(aes(z = truefun), breaks = mybreaks,
                        show.legend = TRUE) +  themegg
 
 plot_mean <- ggplot(y.plot, aes(x1, x2)) +
