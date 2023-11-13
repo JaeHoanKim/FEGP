@@ -9,7 +9,7 @@ library(foreach)
 library(rSPDE)
 library(doParallel)
 library(tidyverse)
-sourceCpp("1D/GPI/inv_chol.cpp")
+# sourceCpp("1D/GPI/inv_chol.cpp")
 
 ### 1. true function setting & data generation
 
@@ -45,7 +45,7 @@ for(i in 1:length(nlist)){
 
 target = 2500
 brn = 0
-brn.ESS = 100
+brn.ESS = 1000
 # setting for the Matern parameters
 kappak = seq(1, 5, 0.5)
 tausqk = 1
@@ -256,3 +256,11 @@ grid.arrange(cover.plot.SPDE.list[[1]], cover.plot.SPDE.kappa.list[[1]],
              cover.plot.SPDE.list[[2]], cover.plot.SPDE.kappa.list[[2]],
              cover.plot.SPDE.list[[3]], cover.plot.SPDE.kappa.list[[3]], nrow = 2, as.table = FALSE)
 dev.off()
+
+
+## Coverage plot for presentation slides
+pdf(file = "Graphs/coverage_plot_simple_1000.pdf", width = 10, height = 4)
+grid.arrange(cover.plot.GPI.beta2.list[[3]], cover.plot.SPDE.list[[3]], nrow = 1)
+dev.off()
+
+
