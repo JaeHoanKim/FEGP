@@ -1,7 +1,7 @@
 rm(list = ls())
 library(ggplot2)
 library(tidyverse)
-source("Result_Manuscript/GraphAesthetics.R")
+source("GraphAesthetics.R")
 kappa_cand = seq(5, 10, length.out = 8)
 for (i in 1:length(kappa_cand)){
    kappa_cand[i] = round(kappa_cand[i], 2)
