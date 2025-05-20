@@ -45,7 +45,8 @@ tausqk = 1
 kappa.pr = function(x){return(dgamma(x, 3, 1/3))}
 kappa.sampler = function(){rgamma(1, 3, 1/3)}
 tausq.pr = function(x){return(dgamma(x, 1, 1))}
-tausq.sampler = function(){rgamma(1, 1, 1)}
+tausq.sampler = function(){return (1)}
+tausq = tausq.sampler()
 
 MSE_list_FullGP2D = matrix(nrow = M, ncol = length(nlist))
 
