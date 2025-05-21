@@ -22,7 +22,7 @@ f0_2D = function(x, y){return(sin(5*x + 2*y) + 2*y^2)}
 M = 50
 nlist = c(200, 500, 1000, 2000)
 df_2D = list(length = length(nlist))
-sigma = 0.5
+sigma = 0.1
 for(i in 1:length(nlist)){
    set.seed(i)
    n = nlist[i]
