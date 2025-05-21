@@ -22,7 +22,7 @@ f0_2D = function(x, y){return(sin(5*x + 2*y) + 2*y^2)}
 M = 50
 nlist = c(200, 500, 1000, 2000)
 df_2D = list(length = length(nlist))
-sigma = 0.1
+sigma = 0.5
 for(i in 1:length(nlist)){
    set.seed(i)
    n = nlist[i]
@@ -81,7 +81,6 @@ for(a in 1:length(nlist)){
    MSE_list_FullGP2D[, a] = purrr::simplify(output)
 }
 
-
 stopCluster(cl)
 
 ############## GPI 2D ###############
@@ -90,6 +89,21 @@ MSE_list_GPI2D = matrix(nrow = M, ncol = length(nlist))
 
 source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
+
+## Param check ##
+N_supp = c(6, 8, 14, 18, 22, 30)
+kappa_supp = seq(10, 30, 5)
+tausq_supp = 1
+param_check_list = vector("list", length = length(nlist))
+for(a in 1:length(nlist)){
+   n = nlist[a]
+   df = df_2D[[a]]
+   X = df[1:n, c(1, 2)]
+   Z = df$Z[1:n]
+   param_check_list[[a]] = param_check(X, Z, beta, N_supp, kappa_supp, tausq_supp,  N.pr, kappa.pr, tausq.pr, sigsq = sigma^2)
+   param_check_list[[a]]$kappa_list
+   
+}
 
 ### Parallel computing ###
 nworkers <- detectCores()/2 + 2 # Initialize the cluster

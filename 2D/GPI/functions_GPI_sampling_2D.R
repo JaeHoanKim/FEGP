@@ -337,6 +337,7 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
             g.out = ESS(g.out, nu.ess, z = Z, x = X, sigsq, Temper = 1, seed = seed * (param_index + 100))
             if(a > brn.ESS){
                g_list[[(index[a - brn.ESS])]] = t(g.out)
+               print(a - brn.ESS)
             }
          }
          for(j in 1:length(index)){
@@ -350,6 +351,104 @@ sample.RJESS2D.seq = function(Z, X, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr
                tausq_list = tausq_list, log_prob_N_list = log_prob_N_list))
 }
 
+# Sampling from continuous kappa incorporated 
+# No more discretization
+sample.GPI2D = function(Z, X, Nk, N.pr, kappa.pr, kappa.sampler, tausq.pr, tausq.sampler, 
+                              brn.ESS = 100, beta, mcmc, brn, sigsq, seed = 1234){
+   ## X, Y: given data
+   ## N.pr: prior distribution of N (function)
+   ## l.in, nu.in: initial value of l and nu (does not change throughout the simulation)
+   if(length(Z) != dim(X)[1])
+      stop("Z and X should have the same length!")
+   n = nrow(X)
+   em = mcmc + brn # total number of sampling
+   g_list = list()
+   N_list = kappa_list = tausq_list = vector(length = em)
+   # Sample initial N, kappa, tau
+   N = sample(Nk, 1, prob = N.pr(Nk) / sum(N.pr(Nk)))
+   kappa = kappa.sampler()
+   tausq = tausq.sampler()
+   param_now = param_post_2D(X, Z, beta = beta, N = N, kappa = kappa, tausq = tausq, 
+                                 N.pr = N.pr, kappa.pr = kappa.pr, tausq.pr = tausq.pr, sigsq = sigsq)
+   g.out = matrix(0, N+1, N+1)
+   # result = eigvals_exact(ndim = c(N, N), nu = beta - 1, lambda_g = 1/kappa, tausq = tausq)
+   for (i in 1:(mcmc+brn)){
+      N.cand = sample(Nk, 1, prob = N.pr(Nk) / sum(N.pr(Nk)))
+      kappa.cand = kappa.sampler()
+      tausq.cand = tausq.sampler()
+      
+      param_cand = param_post_2D(X, Z, beta = beta, N = N.cand, kappa = kappa.cand, tausq = tausq.cand, 
+                                     N.pr = N.pr, kappa.pr = kappa.pr, tausq.pr = tausq.pr, sigsq = sigsq)
+      u = runif(1)
+      if (u < exp(param_cand$log_prob[1] - param_now$log_prob[1])){
+         N = N.cand
+         kappa = kappa.cand
+         tausq = tausq.cand
+         param_now = param_cand
+      }
+      g.out = param_now$mu_star + backsolve(param_now$chol_Q_N_star, rnorm(length(param_now$mu_star)))
+      g_list[[i]] = t(g.out)
+      N_list[i] = N
+      kappa_list[i] = kappa
+      tausq_list[i] = tausq
+      print(i)
+   }
+   
+   return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list,
+               tausq_list = tausq_list))
+}
+
+## log_prob_param function defined which is required for sample.GPI2D
+param_post_2D = function(X, Z, beta, N, kappa, tausq, N.pr, kappa.pr, tausq.pr, sigsq){
+   Phi = Phi_2D(X, N)
+   PhiTPhi = t(Phi) %*% Phi
+   gridmat = cbind(rep(c(0:N)/N, each = N + 1), 
+                   rep(c(0:N)/N, N + 1))
+   Sigma_N = thekernel(gridmat, nu = beta - 1, lambda = 1/kappa, tausq = tausq)
+   Q_N = solve(Sigma_N, tol = 1e-30)
+   Q_N_star = Q_N + PhiTPhi/sigsq
+   chol_Q_N = chol(Q_N)
+   chol_Q_N_star = chol(Q_N_star)
+   logdet_diff = sum(2 * log(diag(chol_Q_N))) -  sum(2 * log(diag(chol_Q_N_star)))
+   mu_star = solve(Q_N_star, t(Phi) %*% Z) / sigsq
+   log_prob = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) -
+      1/2 * logdet_diff +
+      1/2 * t(mu_star) %*% Q_N_star %*% mu_star # - t(Z) %*% Z / 2 / sigsq
+   return(list(log_prob = log_prob, mu_star = mu_star, chol_Q_N_star = chol_Q_N_star))
+}
+
+param_check_2D = function(X, Z, beta, N_supp, kappa_supp, tausq_supp,  N.pr, kappa.pr, tausq.pr, sigsq, M = 10000){
+   N1 = length(N_supp)
+   N2 = length(kappa_supp)
+   N3 = length(tausq_supp)
+   N_list = rep(0, M)
+   kappa_list = rep(0, M)
+   tausq_list = rep(0, M)
+   log_prob_N_list = vector(length = N1 * N2 * N3)
+   for(k1 in 1:N1){
+      for(k2 in 1:N2){
+         for(k3 in 1:N3){
+            index = (k1 - 1) * N2 * N3 + (k2 - 1) * N3 + k3 # index from 1 to N1 * N2 * N3
+            N = N_supp[k1]
+            kappa = kappa_supp[k2]
+            tausq = tausq_supp[k3]
+            log_prob_N_list[index] = param_post(X, Z, beta = beta, N = N, kappa = kappa, tausq = tausq, 
+                                                N.pr = N.pr, kappa.pr = kappa.pr, tausq.pr = tausq.pr, sigsq = sigsq)$log_prob
+            }
+      }
+   }
+   param_index_list = sample(1:(N1 * N2 * N3), size = M, replace = TRUE, prob = exp(log_prob_N_list - max(log_prob_N_list)))
+   for(param_index in 1:(N1 * N2 * N3)){
+      idx = which(param_index_list == param_index)
+      N = N_supp[(param_index - 1) %/% (N2 * N3) + 1]
+      kappa = kappa_supp[((param_index - 1) %% (N2 * N3)) %/% N3 + 1]
+      tausq = tausq_supp[(param_index - 1) %% N3 + 1]
+      N_list[idx] = N
+      kappa_list[idx] = kappa
+      tausq_list[idx] = tausq
+   }
+   return(list(N_list = N_list, kappa_list = kappa_list, tausq_list = tausq_list))
+}
 
 ############### function splitting for one time & iterative time comparison ###################
 
