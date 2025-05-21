@@ -8,7 +8,7 @@ library(Matrix)
 library(foreach)
 library(doParallel)
 library(tidyverse)
-source("Result_Manuscript/GraphAesthetics.R")
+source("GraphAesthetics.R")
 
 ### 1. true function setting & data generation
 
@@ -29,14 +29,12 @@ nlist = c(200, 500, 1000)
 df_1D = list(length = length(nlist))
 
 target = 2500
-brn = 0
-brn.ESS = 100
+brnin = 1000
 # setting for the Matern parameters
 kappak = seq(1, 5, 0.5)
 tausqk = 1
-Nk = c(4, 6, 8, 10, 12)
-kappa.pr = tausq.pr = N.pr = const 
 beta = 4
+
 
 const = function(x){
    return(1)
@@ -52,6 +50,16 @@ source("1D/GPI/functions_GPI_sampling.R")
 ##################################################
 ####### Coverage plot for a specific data ########
 ##################################################
+
+
+
+kappa.pr = function(x){return(dgamma(x, 3, 1))}
+kappa.sampler = function(){rgamma(1, 3, 1)}
+tausq.pr = function(x){return(dgamma(x, 1, 1))}
+tausq.sampler = function(){return (1)}
+tausq = tausq.sampler()
+Nk = c(4, 6, 8, 10, 12)
+N.pr = function(x){return(rep(1, length(x)))}
 
 nlist = c(200, 500, 1000, 10000)
 
@@ -78,7 +86,7 @@ for(a in 1:length(nlist)){
 
 
 result.GPI.list = vector(length = length(nlist), "list")
-
+m=1
 ## Save plots regarding GPI
 for(a in 1:length(nlist)){
    n = nlist[a] # the number of observed data; 200, 500, 1000
@@ -87,19 +95,21 @@ for(a in 1:length(nlist)){
    Y = df$Z[((m-1)*n+1):(m*n)]
    obs = data.frame(X, Y)
    # result for GPI
-   result.GPI = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr,
-                               kappak = kappak, kappa.pr = kappa.pr,
-                               tausqk = tausqk, tausq.pr = tausq.pr,
-                               beta = beta, mcmc = target, brn=0, brn.ESS = brn.ESS)
+   # result.GPI = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr,
+   #                             kappak = kappak, kappa.pr = kappa.pr,
+   #                             tausqk = tausqk, tausq.pr = tausq.pr,
+   #                             beta = beta, mcmc = target, brn=0, brn.ESS = brn.ESS)
+   result.GPI = sample.GPI1D(X, Y, Nk = Nk, N.pr = N.pr, kappa.sampler = kappa.sampler, tausq.sampler = tausq.sampler,
+                             kappa.pr = kappa.pr, tausq.pr = tausq.pr, beta = beta,
+                             mcmc = target, brn = brnin, sigsq = 0.1^2)
    result.GPI.list[[a]] = result.GPI
    g.plot.GPI = tail(result.GPI$g_list, target) # choosing last `target` samples
    y.plot.GPI = glist_to_plotdf(g.plot.GPI, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
    
    # result for GPI with beta = 2
-   result.GPI.beta2 = sample.ESS.seq(X, Y, sigsq = 0.1^2, Nk = Nk, N.pr = N.pr,
-                                     kappak = kappak, kappa.pr = kappa.pr,
-                                     tausqk = tausqk, tausq.pr = tausq.pr,
-                                     beta = beta, mcmc = target, brn=0, brn.ESS = brn.ESS)
+   result.GPI.beta2 = sample.GPI1D(X, Y, Nk = Nk, N.pr = N.pr, kappa.sampler = kappa.sampler, tausq.sampler = tausq.sampler,
+                             kappa.pr = kappa.pr, tausq.pr = tausq.pr, beta = 2,
+                             mcmc = target, brn = brnin, sigsq = 0.1^2)
    g.plot.GPI.beta2 = tail(result.GPI.beta2$g_list, target) # choosing last `target` samples
    y.plot.GPI.beta2 = glist_to_plotdf(g.plot.GPI.beta2, grid.plot, truefun = f0_1D, alpha1 = 0.95, alpha2 = 0.9)
    

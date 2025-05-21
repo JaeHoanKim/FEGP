@@ -271,3 +271,110 @@ sample.ESS.seq = function(X, Y, Nk, N.pr, kappak, kappa.pr, tausqk, tausq.pr,
                tausq_list = tausq_list, log_prob_N_list = log_prob_N_list))
 }
 
+
+# ---- 1. Helper: param_post_1D ----
+param_post_1D = function(X, Y, beta, N, kappa, tausq, N.pr, kappa.pr, tausq.pr, sigsq) {
+   knot_N = c(0:N)/N
+   Phi = Phi_1D(X, N)
+   PhiTPhi = t(Phi) %*% Phi
+   # Sigma_N = covmat(knot_N, nu = beta - 1/2, l = 1/kappa, tausq)
+   # Q_N = solve(Sigma_N, tol = 1e-30)
+   # Q_N_star = Q_N + PhiTPhi/sigsq
+   # chol_Q_N = chol(Q_N)
+   # chol_Q_N_star = chol(Q_N_star)
+   
+   # Add jitter to the covariance for numerical stability
+   Sigma_N = covmat(knot_N, nu = beta - 1/2, l = 1/kappa, tausq)
+   jitter = 1e-8
+   Sigma_N_jittered = Sigma_N + diag(jitter, nrow(Sigma_N))
+   Q_N = solve(Sigma_N_jittered, tol = 1e-30)
+   Q_N_star = Q_N + PhiTPhi/sigsq
+   Q_N_star_jittered = Q_N_star + diag(jitter, nrow(Q_N_star))
+   chol_Q_N = chol(Q_N + diag(jitter, nrow(Q_N)))
+   chol_Q_N_star = chol(Q_N_star_jittered)
+   
+   logdet_diff = sum(2 * log(diag(chol_Q_N))) - sum(2 * log(diag(chol_Q_N_star)))
+   mu_star = solve(Q_N_star, t(Phi) %*% Y, tol = 1e-30) / sigsq
+   log_prob = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) - 
+      1/2 * logdet_diff + 1/2 * t(mu_star) %*% Q_N_star %*% mu_star
+   return(list(log_prob = log_prob, mu_star = mu_star, chol_Q_N_star = chol_Q_N_star))
+}
+
+# ---- 2. Helper: param_check_1D ----
+param_check_1D = function(X, Y, beta, N_supp, kappa_supp, tausq_supp,
+                          N.pr, kappa.pr, tausq.pr, sigsq, M = 10000) {
+   N1 = length(N_supp)
+   N2 = length(kappa_supp)
+   N3 = length(tausq_supp)
+   log_prob_N_list = vector(length = N1 * N2 * N3)
+   N_list = kappa_list = tausq_list = rep(0, M)
+   # Precompute log-probs over grid
+   for(k1 in 1:N1) for(k2 in 1:N2) for(k3 in 1:N3) {
+      index = (k1 - 1) * N2 * N3 + (k2 - 1) * N3 + k3
+      N = N_supp[k1]; kappa = kappa_supp[k2]; tausq = tausq_supp[k3]
+      log_prob_N_list[index] =
+         param_post_1D(X, Y, beta, N, kappa, tausq, N.pr, kappa.pr, tausq.pr, sigsq)$log_prob
+   }
+   # Sample from grid according to posterior mass
+   param_index_list = sample(1:(N1*N2*N3), size = M, replace = TRUE,
+                             prob = exp(log_prob_N_list - max(log_prob_N_list)))
+   for(param_index in 1:(N1*N2*N3)) {
+      idx = which(param_index_list == param_index)
+      if(length(idx) >= 1) {
+         N = N_supp[(param_index - 1) %/% (N2*N3) + 1]
+         kappa = kappa_supp[((param_index - 1) %% (N2*N3)) %/% N3 + 1]
+         tausq = tausq_supp[(param_index - 1) %% N3 + 1]
+         N_list[idx] = N
+         kappa_list[idx] = kappa
+         tausq_list[idx] = tausq
+      }
+   }
+   return(list(N_list = N_list, kappa_list = kappa_list, tausq_list = tausq_list))
+}
+
+# ---- 3. Main Sampler: sample.GPI1D ----
+sample.GPI1D = function(X, Y, Nk, N.pr, kappa.sampler, kappa.pr, tausq.sampler, tausq.pr,
+                        beta, mcmc, brn, sigsq, seed = 1234) {
+   if(length(X) != length(Y)) stop("X and Y should be of same length!")
+   set.seed(seed)
+   n = length(Y)
+   em = mcmc + brn
+   
+   g_list = list()
+   N_list = vector(length = em)
+   kappa_list = vector(length = em)
+   tausq_list = vector(length = em)
+   
+   # --- Initialize ---
+   N = sample(Nk, 1, prob = N.pr(Nk) / sum(N.pr(Nk)))
+   kappa = kappa.sampler()
+   tausq = tausq.sampler()
+   param_now = param_post_1D(X, Y, beta, N, kappa, tausq, N.pr, kappa.pr, tausq.pr, sigsq)
+   
+   # --- MCMC Loop ---
+   for (i in 1:em) {
+      # Propose new N, kappa, tausq
+      N_cand = sample(Nk, 1, prob = N.pr(Nk) / sum(N.pr(Nk)))
+      kappa_cand = kappa.sampler()
+      tausq_cand = tausq.sampler()
+      param_cand = param_post_1D(X, Y, beta, N_cand, kappa_cand, tausq_cand,
+                                 N.pr, kappa.pr, tausq.pr, sigsq)
+      u = runif(1)
+      if (u < exp(param_cand$log_prob[1] - param_now$log_prob[1])) {
+         N        = N_cand
+         kappa    = kappa_cand
+         tausq    = tausq_cand
+         param_now = param_cand
+      }
+      # Sample from N(mu_star, Q_N_star^{-1})
+      g.out = as.vector(param_now$mu_star + backsolve(param_now$chol_Q_N_star, rnorm(length(param_now$mu_star))))
+      g_list[[i]]     = g.out
+      N_list[i]       = N
+      kappa_list[i]   = kappa
+      tausq_list[i]   = tausq
+      print(i)
+      # print(i)  # Optional progress bar
+   }
+   
+   return(list(g_list = g_list, N_list = N_list, kappa_list = kappa_list, tausq_list = tausq_list))
+}
