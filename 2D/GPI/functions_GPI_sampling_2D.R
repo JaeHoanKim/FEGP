@@ -413,7 +413,7 @@ param_post_2D = function(X, Z, beta, N, kappa, tausq, N.pr, kappa.pr, tausq.pr, 
    mu_star = solve(Q_N_star, t(Phi) %*% Z) / sigsq
    log_prob = log(N.pr(N)) + log(kappa.pr(kappa)) + log(tausq.pr(tausq)) -
       1/2 * logdet_diff +
-      1/2 * t(mu_star) %*% Q_N_star %*% mu_star # - t(Z) %*% Z / 2 / sigsq
+      1/2 * t(mu_star) %*% Q_N_star %*% mu_star - t(Z) %*% Z / 2 / sigsq
    return(list(log_prob = log_prob, mu_star = mu_star, chol_Q_N_star = chol_Q_N_star))
 }
 
@@ -432,7 +432,7 @@ param_check_2D = function(X, Z, beta, N_supp, kappa_supp, tausq_supp,  N.pr, kap
             N = N_supp[k1]
             kappa = kappa_supp[k2]
             tausq = tausq_supp[k3]
-            log_prob_N_list[index] = param_post(X, Z, beta = beta, N = N, kappa = kappa, tausq = tausq, 
+            log_prob_N_list[index] = param_post_2D(X, Z, beta = beta, N = N, kappa = kappa, tausq = tausq, 
                                                 N.pr = N.pr, kappa.pr = kappa.pr, tausq.pr = tausq.pr, sigsq = sigsq)$log_prob
             }
       }
