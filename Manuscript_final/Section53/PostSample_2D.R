@@ -38,12 +38,10 @@ beta = 2
 d = 2
 nu = beta - d/2
 
-Nk = c(6, 8, 10, 14, 18, 22, 26, 30)
-N.pr = function(x){return(rep(1, length(x)))}
-kappak = 4
+kappak = 30
 tausqk = 1
-kappa.pr = function(x){return(dgamma(x, 1, 1))}
-kappa.sampler = function(){rgamma(1, 1, 1)}
+kappa.pr = function(x){return(dgamma(x, 5, 1/5))}
+kappa.sampler = function(){rgamma(1, 5, 1/5)}
 tausq.pr = function(x){return(dgamma(x, 1, 1))}
 tausq.sampler = function(){return (1)}
 tausq = tausq.sampler()
@@ -51,8 +49,8 @@ tausq = tausq.sampler()
 MSE_list_FullGP2D = matrix(nrow = M, ncol = length(nlist))
 
 target = 2500
-brn = 0
-brn.ESS = 100
+brn = 1000
+# brn.ESS = 100
 
 ### 3. MSE calculation - 2D
 
@@ -91,8 +89,8 @@ source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
 
 ## Param check ##
-N_supp = c(6, 8, 14, 18, 22, 30)
-kappa_supp = seq(10, 30, 5)
+N_supp = c(6, 10, 14, 18)
+kappa_supp = c(20, 30, 40)
 tausq_supp = 1
 param_check_list = vector("list", length = length(nlist))
 for(a in 1:length(nlist)){
@@ -100,11 +98,10 @@ for(a in 1:length(nlist)){
    df = df_2D[[a]]
    X = df[1:n, c(1, 2)]
    Z = df$Z[1:n]
-   param_check_list[[a]] = param_check(X, Z, beta, N_supp, kappa_supp, tausq_supp,  N.pr, kappa.pr, tausq.pr, sigsq = sigma^2)
-   param_check_list[[a]]$kappa_list
-   
+   param_check_list[[a]] = param_check_2D(X, Z, beta, N_supp, kappa_supp, tausq_supp,  N.pr, kappa.pr, tausq.pr, sigsq = sigma^2)
 }
-
+param_check_list[[1]]$N_list
+param_check_list[[4]]$kappa_list
 ### Parallel computing ###
 nworkers <- detectCores()/2 + 2 # Initialize the cluster
 cl <- makeCluster(nworkers)
@@ -140,10 +137,3 @@ save(MSE_list_GPI2D, file = "MSE_list_generated_data_2D_GPI.RData")
 MSE_list_2D = rbind(MSE_list_GPI2D, MSE_list_NNGP2D)
 save(MSE_list_2D, file = "MSE_list_generated_data_2D_GPI_FullGP.RData")
 
-### CHECK N IF IT IS GIVING TOO LARGE m
-# for (N in Nk){
-#    for (kappa in kappak){
-#       result = eigvals_exact(ndim = c(N, N), nu = beta - 1, lambda_g = 1/kappa, tausq = tausq)
-#       print(result$mvec[1])
-#    }
-# }
