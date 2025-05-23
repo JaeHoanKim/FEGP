@@ -18,7 +18,7 @@ load(paste0(fileloc, "MSE_list_generated_data_2D_GPI_FullGP.RData"))
 MSE.df <- as.data.frame(MSE_list_2D)
 colnames(MSE.df) <- nlist
 M = nrow(MSE.df)
-MSE.df$method <- c(rep("GPI", M/2), rep("Matern", M/2))
+MSE.df$method <- c(rep("GPI", M/2), rep("GP", M/2))
 
 # Combine and reshape
 MSE.df <- MSE.df %>%

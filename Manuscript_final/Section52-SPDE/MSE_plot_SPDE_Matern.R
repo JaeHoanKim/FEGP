@@ -13,7 +13,7 @@ for(i in c(1:length(kappa_cand))){
    MSE_list_1D = data.frame(MSE_list_1D)
    M = 50
    n_list = c(200, 500, 1000)
-   MSE_list_1D$method = c(rep("SPDE", M), rep("Matern", M))
+   MSE_list_1D$method = c(rep("SPDE", M), rep("GP", M))
    colnames(MSE_list_1D) = c(n_list, "method")
    MSE_list_1D <- MSE_list_1D %>%
       gather(key = "n", value = "MSE", `200`:`1000`) %>%

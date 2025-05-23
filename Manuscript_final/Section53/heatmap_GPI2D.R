@@ -11,25 +11,19 @@ source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
 source("GraphAesthetics.R")
 
-brn.ESS = 100
 target = 2500
-# nlist = 100000
-nlist = 200
+nlist = 500
 M = 1
-const = function(x){
-   return(1)
-}
-f0_2D = function(x, y){
-   return(sin(5*x + 2*y) + 2*y^2)
-}
+f0_2D = function(x, y){return(sin(5*x + 2*y) + 2*y^2)}
 
-Nk = c(6, 8, 10, 14, 18, 22, 26, 30)
-N.pr = kappa.pr = tausq.pr = const
-tausq.pr = function(x){return(invgamma::dinvgamma(x, 1, 1))}
-kappa.pr = function(x){return(1/x^2)}
-kappak = seq(4, 6, 0.5)
-tausqk = 1
-
+N_supp = c(6, 10, 14, 18)
+N.pr = function(x){return(rep(1, length(x)))}
+kappa.pr = function(x){return(dgamma(x, 3, 1/3))}
+kappa.sampler = function(){rgamma(1, 3, 1/3)}
+tausq.pr = function(x){return(dgamma(x, 1, 1))}
+tausq.sampler = function(){rgamma(1, 1, 1)}
+beta = 2
+sigma = 0.1
 gridsize = 40
 gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                 rep(c(0:gridsize)/gridsize, gridsize+ 1))
@@ -44,19 +38,18 @@ for(i in 1:length(nlist)){
    Z = f0_2D(X[, 1], X[, 2]) + rnorm(n*M) * 0.1
 }
 
-result = sample.RJESS2D.seq(Z = Z, X = X, Nk = Nk, N.pr = N.pr, 
-                            kappak = kappak, kappa.pr = kappa.pr, 
-                            tausqk = tausqk, tausq.pr = tausq.pr, sigsq = 0.1^2, beta = 2,
-                            mcmc = target, brn = 0, brn.ESS = brn.ESS)
+result = sample.GPI2D(Z = Z, X = X, Nk = N_supp, N.pr = N.pr, 
+                      kappa.pr = kappa.pr, kappa.sampler = kappa.sampler,
+                      tausq.pr = tausq.pr, tausq.sampler = tausq.sampler, 
+                      sigsq = sigma^2, beta = beta, mcmc = target, brn = 1000, brn.ESS = brn.ESS)
 g_list = result$g_list
+y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)
+
 ################## plot ###################
 library(ggpubr)
 
-# gridmat is a (gridsize^2) by 2 matrix!
-y.plot = glist_to_plotdf_2D(g_list, gridmat, truefun = f0_2D, alpha1 = 0.9, alpha2 = 0.95)
-
-grandmin <- round(min(y.plot$truefun) - 0.5, 2)
-grandmax <- round(max(y.plot$truefun) + 0.5, 2)
+grandmin <- round(min(y.plot$truefun) - 2, 2)
+grandmax <- round(max(y.plot$truefun) + 2, 2)
 mybreaks <- seq(grandmin, grandmax, length.out = 11)
 mycolors<- function(x) {
    colors<-colorRampPalette(c("yellow", "blue"))( 10 )
