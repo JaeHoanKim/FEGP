@@ -14,7 +14,7 @@ source("GraphAesthetics.R")
 nlist = c(200, 500, 1000, 2000)
 Xlist = list(length = length(nlist))
 Zlist = list(length = length(nlist))
-f0_2D = function(x, y){return(x^2 + sqrt(abs(y-0.5)) + sin(8*x))}
+f0_2D = function(x, y){return(sin(5*x + 2*y) + 2*y^2)}
 Xlist = Zlist = list(length = length(nlist))
 for(a in 1:length(nlist)){
    set.seed(a)
@@ -25,14 +25,18 @@ for(a in 1:length(nlist)){
 }
 
 ## setting for the sampling
-target = 10; brn = 0
+target = 1; brn = 0
 brnin = 0
-Nk = c(6, 8, 10, 14, 18)
+
+
+Nk= c(6, 10, 14, 18)
 N.pr = function(x){return(rep(1, length(x)))}
-kappa.pr = function(x){return(dgamma(x, 3, 1/3))}
-kappa.sampler = function(){rgamma(1, 3, 1/3)}
+kappa.pr = function(x){return(dgamma(x, 5, 1/5))}
+kappa.sampler = function(){rgamma(1, 5, 1/5)}
 tausq.pr = function(x){return(dgamma(x, 1, 1))}
-tausq.sampler = function(){rgamma(1, 1, 1)}
+tausq.sampler = function(){return (1)}
+tausq = tausq.sampler()
+
 beta = 2
 d = 2
 nu = beta - d/2
@@ -46,7 +50,7 @@ gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
 
 source("2D/GPI/functions_GPI_2D.R")
 source("2D/GPI/functions_GPI_sampling_2D.R")
-brn.ESS = 2
+brn.ESS = 0
 time_comparison_GPI = microbenchmark(
    result1 = {result = sample.GPI2D(Z = Zlist[[1]], X = Xlist[[1]], Nk = Nk, N.pr = N.pr, 
                                     kappa.pr = kappa.pr, kappa.sampler = kappa.sampler,
@@ -72,7 +76,7 @@ time_comparison_GPI = microbenchmark(
 )
 
 # import from FullGP
-
+   
 source("2D/FullGP/functions_FullGP.R")
 
 time_comparison_FullGP = microbenchmark(
@@ -103,7 +107,7 @@ levels(time_comparison_unify$n) <- nlist
 time_comparison_unify <- time_comparison_unify %>% mutate(n = as.numeric(as.character(n)))
 
 
-filename = paste0("Result_Manuscript/Time_dataframe/time_2D_GPI_FullGP_", target, ".RData")
+filename = paste0("Manuscript_final/Section53/Time comparison/time_2D_GPI_FullGP_", target, ".RData")
 save(time_comparison_unify, file = filename)
 
 

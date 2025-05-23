@@ -4,13 +4,13 @@ source("GraphAesthetics.R")
 
 # Load and preprocess
 target <- 10
-fileloc <- "Manuscript_final/Section53/Time comparison/Time_dataframe/time_2D_GPI_FullGP_"
+fileloc <- "Manuscript_final/Section53/Time comparison/time_2D_GPI_FullGP_"
 load(paste0(fileloc, target, ".RData"))
 
 time_comparison_unify <- time_comparison_unify %>%
    filter(method %in% c("GPI", "FullGP")) %>%
    mutate(
-      method = recode(method, "FullGP" = "Matern"),
+      method = recode(method, "FullGP" = "GP"),
       time = as.numeric(time) / target / 1e9
    )
 
