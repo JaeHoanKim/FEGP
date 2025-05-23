@@ -60,7 +60,7 @@ gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                 rep(c(0:gridsize)/gridsize, gridsize+ 1))
 
 ### Parallel computing ###
-nworkers <- 10 # Initialize the cluster
+nworkers <- 5 # Initialize the cluster
 cl <- makeCluster(nworkers)
 registerDoParallel(cl)
 
@@ -73,7 +73,7 @@ for(a in 1:length(nlist)){
       Z = as.matrix(df$Z[((m-1)*n+1):(m*n)])
       PostMean <- sample_fullGP(X, as.vector(Z), sigma = sigma, nu = nu, 
                                 kappa_pr = kappa.pr, kappa_sampler = kappa.sampler, 
-                                tausq_pr = tausq.pr, tausq_sampler = tausq.sampler, grid_size = 40, target, kappa_fixed = kappak)$PostMean
+                                tausq_pr = tausq.pr, tausq_sampler = tausq.sampler, grid_size = 40, target, brnin = brn, kappa_fixed = kappak)$PostMean
       truefun = f0_2D(gridmat[, 1], gridmat[, 2])
       mean((truefun - PostMean)^2)
    }
@@ -106,7 +106,6 @@ for(a in 1:length(nlist)){
 param_check_list[[1]]$N_list
 param_check_list[[1]]$kappa_list
 ### Parallel computing ###
-nworkers <- 20 # Initialize the cluster
 cl <- makeCluster(nworkers)
 registerDoParallel(cl)
 
@@ -120,7 +119,7 @@ for(a in 1:length(nlist)){
       #                             kappak = kappak, kappa.pr = kappa.pr, 
       #                             tausqk = tausqk, tausq.pr = tausq.pr, sigsq = sigma^2, beta = beta,
       #                             mcmc = target, brn = 0, brn.ESS = brn.ESS)
-      result = sample.GPI2D(Z = Z, X = X, Nk = Nk, N.pr = N.pr, 
+      result = sample.GPI2D(Z = Z, X = X, Nk = N_supp, N.pr = N.pr, 
                             kappa.pr = kappa.pr, kappa.sampler = kappa.sampler,
                             tausq.pr = tausq.pr, tausq.sampler = tausq.sampler, 
                             sigsq = sigma^2, beta = beta, mcmc = target, brn = 0, brn.ESS = brn.ESS)
@@ -134,8 +133,8 @@ for(a in 1:length(nlist)){
 }
 
 stopCluster(cl)
-save(MSE_list_GPI2D, file = "MSE_list_generated_data_2D_GPI.RData")
+save(MSE_list_GPI2D, file = "MSE_comparison/MSE_list_generated_data_2D_GPI.RData")
 
 
 MSE_list_2D = rbind(MSE_list_GPI2D, MSE_list_FullGP2D)
-save(MSE_list_2D, file = "MSE_list_generated_data_2D_GPI_FullGP.RData")
+save(MSE_list_2D, file = "MSE_comparison/MSE_list_generated_data_2D_GPI_FullGP.RData")
