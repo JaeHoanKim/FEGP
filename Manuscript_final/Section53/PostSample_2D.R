@@ -20,7 +20,7 @@ source("2D/FullGP/functions_FullGP.R")
 # As \nu \infty in Matern makes Matern similar to RBF kernel, we use this.
 f0_2D = function(x, y){return(sin(5*x + 2*y) + 2*y^2)}
 M = 50
-nlist = c(200, 500, 1000, 2000)
+nlist = c(200, 500, 1000)
 df_2D = list(length = length(nlist))
 sigma = 0.1
 for(i in 1:length(nlist)){
@@ -60,7 +60,7 @@ gridmat = cbind(rep(c(0:gridsize)/gridsize, each = gridsize + 1),
                 rep(c(0:gridsize)/gridsize, gridsize+ 1))
 
 ### Parallel computing ###
-nworkers <- detectCores()/2 # Initialize the cluster
+nworkers <- 10 # Initialize the cluster
 cl <- makeCluster(nworkers)
 registerDoParallel(cl)
 
@@ -68,15 +68,17 @@ registerDoParallel(cl)
 for(a in 1:length(nlist)){
    n = nlist[a]
    df = df_2D[[a]]
-   kappa = kappak[1]
    output <- foreach (m = 1:M, .packages = c("Matrix", "fields", "FastGP")) %dopar% {
       X = as.matrix(df[((m-1)*n+1):(m*n), c(1, 2)])
       Z = as.matrix(df$Z[((m-1)*n+1):(m*n)])
-      PostMean <- sample_fullGP(X, Z, sigma = sigma, nu = nu, kappa = kappa, tausq = tausq, target = target)
+      PostMean <- sample_fullGP(X, as.vector(Z), sigma = sigma, nu = nu, 
+                                kappa_pr = kappa.pr, kappa_sampler = kappa.sampler, 
+                                tausq_pr = tausq.pr, tausq_sampler = tausq.sampler, grid_size = 40, target, kappa_fixed = kappak)$PostMean
       truefun = f0_2D(gridmat[, 1], gridmat[, 2])
       mean((truefun - PostMean)^2)
    }
    MSE_list_FullGP2D[, a] = purrr::simplify(output)
+   print(a)
 }
 
 stopCluster(cl)
@@ -90,6 +92,7 @@ source("2D/GPI/functions_GPI_sampling_2D.R")
 
 ## Param check ##
 N_supp = c(6, 10, 14, 18)
+N.pr = function(x){return(rep(1, length(x)))}
 kappa_supp = c(20, 30, 40)
 tausq_supp = 1
 param_check_list = vector("list", length = length(nlist))
@@ -101,9 +104,9 @@ for(a in 1:length(nlist)){
    param_check_list[[a]] = param_check_2D(X, Z, beta, N_supp, kappa_supp, tausq_supp,  N.pr, kappa.pr, tausq.pr, sigsq = sigma^2)
 }
 param_check_list[[1]]$N_list
-param_check_list[[4]]$kappa_list
+param_check_list[[1]]$kappa_list
 ### Parallel computing ###
-nworkers <- detectCores()/2 + 2 # Initialize the cluster
+nworkers <- 20 # Initialize the cluster
 cl <- makeCluster(nworkers)
 registerDoParallel(cl)
 
@@ -134,6 +137,5 @@ stopCluster(cl)
 save(MSE_list_GPI2D, file = "MSE_list_generated_data_2D_GPI.RData")
 
 
-MSE_list_2D = rbind(MSE_list_GPI2D, MSE_list_NNGP2D)
+MSE_list_2D = rbind(MSE_list_GPI2D, MSE_list_FullGP2D)
 save(MSE_list_2D, file = "MSE_list_generated_data_2D_GPI_FullGP.RData")
-
